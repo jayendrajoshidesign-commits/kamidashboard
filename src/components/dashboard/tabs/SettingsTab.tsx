@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import type { ApiManifest } from '@/services/apiService';
+import { useResponsive } from '@/hooks/useResponsive';
 
 interface Props {
   manifest: ApiManifest;
@@ -9,13 +10,14 @@ interface Props {
 const SettingsTab = ({ manifest }: Props) => {
   const [execMode, setExecMode] = useState<'sequential' | 'parallel'>('parallel');
   const [debugMode, setDebugMode] = useState(false);
+  const { isMobile, isTablet } = useResponsive();
 
   const apiKeys = manifest.apiKeys;
   const healthItems = manifest.health;
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className={`grid gap-4 ${isMobile || isTablet ? 'grid-cols-1' : 'grid-cols-2'}`}>
         {/* System Info */}
         <div className="glass-card p-5">
           <h3 className="text-sm font-semibold mb-4 section-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '8px' }}>🖥️ System Info</h3>
@@ -34,7 +36,7 @@ const SettingsTab = ({ manifest }: Props) => {
                 borderRadius: '4px',
               }}>
                 <span style={{ color: '#555' }}>{k}</span>
-                <span className="font-mono mono-value" style={String(v).startsWith('http') ? { color: '#FF8C00', cursor: 'pointer' } : undefined}>{v}</span>
+                <span className="font-mono mono-value text-right" style={String(v).startsWith('http') ? { color: '#FF8C00', cursor: 'pointer' } : undefined}>{v}</span>
               </div>
             ))}
           </div>
@@ -45,7 +47,7 @@ const SettingsTab = ({ manifest }: Props) => {
           <h3 className="text-sm font-semibold mb-4 section-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '8px' }}>🔑 API Keys</h3>
           <div className="space-y-1">
             {apiKeys.map(a => (
-              <div key={a.name} className="flex items-center gap-3 py-2 px-1 text-xs rounded transition-colors"
+              <div key={a.name} className={`flex items-center gap-3 py-2 px-1 text-xs rounded transition-colors ${isMobile ? 'flex-wrap' : ''}`}
                 style={{
                   borderBottom: '1px solid rgba(255,255,255,0.03)',
                   borderLeft: a.status === 'green' ? '2px solid rgba(34,197,94,0.3)' : a.status === 'red' ? '2px solid rgba(239,68,68,0.2)' : '2px solid transparent',
@@ -55,7 +57,7 @@ const SettingsTab = ({ manifest }: Props) => {
                 <span className="text-foreground w-20 text-[11px]">{a.name}</span>
                 <span className="font-mono flex-1 truncate text-[10px]" style={{ color: '#FF8C00' }}>{a.key}</span>
                 <span className="text-[10px]" style={{ color: a.status === 'green' ? '#4ade80' : a.status === 'yellow' ? '#facc15' : '#ef4444' }}>{a.statusText}</span>
-                <button className="text-[10px] px-2 py-0.5 rounded transition-all" style={{ color: a.status === 'red' ? '#FF8C00' : '#666', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <button className="text-[10px] px-2 py-0.5 rounded transition-all min-h-[28px]" style={{ color: a.status === 'red' ? '#FF8C00' : '#666', border: '1px solid rgba(255,255,255,0.05)' }}>
                   {a.status === 'red' ? 'Add' : 'Edit'}
                 </button>
               </div>
@@ -75,12 +77,12 @@ const SettingsTab = ({ manifest }: Props) => {
               <label className="section-header mb-2 block">Execution Mode</label>
               <div className="flex gap-0 rounded-lg overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
                 <button onClick={() => setExecMode('sequential')}
-                  className="flex-1 py-2.5 text-xs font-medium transition-all"
+                  className="flex-1 py-2.5 text-xs font-medium transition-all min-h-[40px]"
                   style={execMode === 'sequential' ? { background: 'linear-gradient(135deg, #FF6B00, #CC3300)', color: '#fff' } : { background: 'rgba(8,8,12,0.5)', color: '#666' }}>
                   Sequential
                 </button>
                 <button onClick={() => setExecMode('parallel')}
-                  className="flex-1 py-2.5 text-xs font-medium transition-all"
+                  className="flex-1 py-2.5 text-xs font-medium transition-all min-h-[40px]"
                   style={execMode === 'parallel' ? { background: 'linear-gradient(135deg, #FF6B00, #CC3300)', color: '#fff' } : { background: 'rgba(8,8,12,0.5)', color: '#666' }}>
                   Parallel
                 </button>
@@ -94,7 +96,7 @@ const SettingsTab = ({ manifest }: Props) => {
             ))}
             <div className="flex items-center justify-between text-xs py-2">
               <span style={{ color: '#555' }}>Debug Mode</span>
-              <button onClick={() => setDebugMode(!debugMode)} className="w-10 h-5 rounded-full transition-colors relative"
+              <button onClick={() => setDebugMode(!debugMode)} className="w-10 h-5 rounded-full transition-colors relative min-w-[40px]"
                 style={debugMode ? { background: 'linear-gradient(135deg, #FF6B00, #CC3300)' } : { background: 'rgba(255,255,255,0.06)' }}>
                 <div className={`w-4 h-4 rounded-full bg-foreground transition-transform absolute top-0.5 ${debugMode ? 'left-5' : 'left-0.5'}`} />
               </button>
@@ -118,11 +120,11 @@ const SettingsTab = ({ manifest }: Props) => {
               </div>
             ))}
           </div>
-          <div className="mt-4 flex gap-2">
-            <button className="flex-1 py-2 text-xs font-medium text-foreground flex items-center justify-center gap-1.5 transition-colors rounded-lg" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div className={`mt-4 flex gap-2 ${isMobile ? 'flex-col' : ''}`}>
+            <button className="flex-1 py-2 text-xs font-medium text-foreground flex items-center justify-center gap-1.5 transition-colors rounded-lg min-h-[40px]" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
               <RefreshCw className="w-3.5 h-3.5" /> Check Health
             </button>
-            <button className="flex-1 py-2 rounded-lg text-xs font-medium" style={{ backgroundColor: 'rgba(34,197,94,0.06)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.15)' }}>
+            <button className="flex-1 py-2 rounded-lg text-xs font-medium min-h-[40px]" style={{ backgroundColor: 'rgba(34,197,94,0.06)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.15)' }}>
               🔄 Update v2.2.0
             </button>
           </div>
@@ -132,7 +134,7 @@ const SettingsTab = ({ manifest }: Props) => {
       {/* Session Cost */}
       <div className="glass-card p-5 glow-green-card">
         <h3 className="text-sm font-semibold text-foreground mb-3">💰 Session Cost Summary</h3>
-        <div className="text-5xl font-mono font-bold mb-1" style={{ color: '#4ade80' }}>
+        <div className={`font-mono font-bold mb-1 ${isMobile ? 'text-4xl' : 'text-5xl'}`} style={{ color: '#4ade80' }}>
           $0.00
         </div>
         <p className="text-xs mb-4" style={{ color: 'rgba(74,222,128,0.7)' }}>100% local — Ollama running free</p>

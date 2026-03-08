@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, Tooltip, ReferenceLine } from 'recharts';
 import { ANALYTICS_TASKS_PER_AGENT, ANALYTICS_ACTIVITY } from '@/data/dashboardData';
 import type { ApiMissionsResponse } from '@/services/apiService';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const AGENT_EMOJIS: Record<string, string> = {
   'Market Research': '🔍', 'CEO': '👔', 'Sales': '💰', 'Marketing': '📣', 'Design': '🎨',
@@ -31,15 +32,16 @@ interface Props {
 const Analytics = ({ missions }: Props) => {
   const [timeRange, setTimeRange] = useState<TimeRange>('Today');
   const history = missions.history;
+  const { isMobile, isTablet } = useResponsive();
 
   return (
     <div className="space-y-5">
       {/* Time filter */}
-      <div className="flex items-center justify-between">
-        <div className="flex gap-2">
+      <div className={`flex ${isMobile ? 'flex-col gap-2' : 'items-center justify-between'}`}>
+        <div className={`flex gap-2 ${isMobile ? 'overflow-x-auto scrollbar-none' : ''}`}>
           {(['Today', 'This Week', 'This Month', 'All Time'] as TimeRange[]).map(r => (
             <button key={r} onClick={() => setTimeRange(r)}
-              className="text-[11px] px-3 py-1 rounded-full transition-all"
+              className="text-[11px] px-3 py-1 rounded-full transition-all flex-shrink-0"
               style={timeRange === r
                 ? { background: 'linear-gradient(135deg, #FF6B00, #CC3300)', color: '#fff' }
                 : { background: 'rgba(255,255,255,0.03)', color: '#666', border: '1px solid rgba(255,255,255,0.05)' }
@@ -52,7 +54,7 @@ const Analytics = ({ missions }: Props) => {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-5 gap-3">
+      <div className={`grid gap-3 ${isMobile ? 'grid-cols-2' : isTablet ? 'grid-cols-3' : 'grid-cols-5'}`}>
         {[
           { label: 'Total Tasks', value: '26', trend: '↑ 12%', trendColor: '#4ade80', sparkData: sparkGreen, sparkColor: '#4ade80' },
           { label: 'Completed', value: '22', trend: '↑ 8%', trendColor: '#4ade80', sparkData: sparkOrange, sparkColor: '#FF8C00' },
@@ -62,7 +64,7 @@ const Analytics = ({ missions }: Props) => {
         ].map((s, i) => (
           <div key={i} className={`glass-card p-4 relative overflow-hidden ${s.isGreen ? 'glow-green-card' : ''}`}>
             <div className="text-[9px] uppercase tracking-wider font-mono" style={{ color: '#555' }}>{s.label}</div>
-            <div className={`text-3xl font-mono mono-value relative z-10 mt-1`}
+            <div className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-mono mono-value relative z-10 mt-1`}
               style={s.isGreen ? { color: '#4ade80' } : undefined}>
               {s.value}
             </div>
@@ -81,12 +83,12 @@ const Analytics = ({ missions }: Props) => {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className={`grid gap-4 ${isMobile || isTablet ? 'grid-cols-1' : 'grid-cols-2'}`}>
         <div className="glass-card p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-4">Tasks Per Agent</h3>
+          <h3 className={`font-semibold text-foreground mb-4 ${isMobile ? 'text-[13px]' : 'text-sm'}`}>Tasks Per Agent</h3>
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={ANALYTICS_TASKS_PER_AGENT} layout="vertical" margin={{ left: 100, right: 30 }}>
+              <BarChart data={ANALYTICS_TASKS_PER_AGENT} layout="vertical" margin={{ left: isMobile ? 80 : 100, right: 30 }}>
                 <defs>
                   <linearGradient id="barGradMono" x1="0" y1="0" x2="1" y2="0">
                     <stop offset="0%" stopColor="#FF6B00" />
@@ -95,10 +97,10 @@ const Analytics = ({ missions }: Props) => {
                 </defs>
                 <XAxis type="number" tick={{ fill: '#444', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis type="category" dataKey="agent" tick={({ x, y, payload }: any) => (
-                  <text x={x} y={y} dy={4} textAnchor="end" fill="#ccc" fontSize={11}>
+                  <text x={x} y={y} dy={4} textAnchor="end" fill="#ccc" fontSize={isMobile ? 10 : 11}>
                     {AGENT_EMOJIS[payload.value] || ''} {payload.value}
                   </text>
-                )} axisLine={false} tickLine={false} width={100} />
+                )} axisLine={false} tickLine={false} width={isMobile ? 80 : 100} />
                 <Bar dataKey="tasks" fill="url(#barGradMono)" radius={[0, 6, 6, 0]} barSize={14}
                   label={{ position: 'right', fill: '#ffffff', fontSize: 11, fontFamily: 'JetBrains Mono' }} />
               </BarChart>
@@ -107,7 +109,7 @@ const Analytics = ({ missions }: Props) => {
         </div>
 
         <div className="glass-card p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-4">Activity Over Time</h3>
+          <h3 className={`font-semibold text-foreground mb-4 ${isMobile ? 'text-[13px]' : 'text-sm'}`}>Activity Over Time</h3>
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={ANALYTICS_ACTIVITY}>
@@ -129,12 +131,12 @@ const Analytics = ({ missions }: Props) => {
         </div>
 
         <div className="glass-card p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-4">Tool Usage Distribution</h3>
-          <div className="h-[280px] flex items-center">
+          <h3 className={`font-semibold text-foreground mb-4 ${isMobile ? 'text-[13px]' : 'text-sm'}`}>Tool Usage Distribution</h3>
+          <div className={`h-[280px] flex ${isMobile ? 'flex-col' : ''} items-center`}>
             <div className="flex-1">
-              <ResponsiveContainer width="100%" height={240}>
+              <ResponsiveContainer width="100%" height={isMobile ? 180 : 240}>
                 <PieChart>
-                  <Pie data={MONO_TOOL_USAGE} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={2} dataKey="value" labelLine={false}>
+                  <Pie data={MONO_TOOL_USAGE} cx="50%" cy="50%" innerRadius={isMobile ? 40 : 60} outerRadius={isMobile ? 70 : 100} paddingAngle={2} dataKey="value" labelLine={false}>
                     {MONO_TOOL_USAGE.map((entry, i) => (
                       <Cell key={i} fill={entry.color} />
                     ))}
@@ -143,11 +145,11 @@ const Analytics = ({ missions }: Props) => {
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div className="w-[140px] space-y-2.5">
+            <div className={`space-y-2.5 ${isMobile ? 'w-full flex flex-wrap gap-3' : 'w-[140px]'}`}>
               {MONO_TOOL_USAGE.map(t => (
-                <div key={t.name} className="flex items-center justify-between text-[11px]">
+                <div key={t.name} className="flex items-center justify-between text-[11px]" style={isMobile ? { minWidth: '120px' } : undefined}>
                   <span className="text-muted-foreground font-mono">{t.name}</span>
-                  <span className="font-mono mono-value">{t.value}%</span>
+                  <span className="font-mono mono-value ml-2">{t.value}%</span>
                 </div>
               ))}
             </div>
@@ -155,9 +157,9 @@ const Analytics = ({ missions }: Props) => {
         </div>
 
         <div className="glass-card p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-4">Mission History</h3>
+          <h3 className={`font-semibold text-foreground mb-4 ${isMobile ? 'text-[13px]' : 'text-sm'}`}>Mission History</h3>
           <div className="overflow-x-auto">
-            <table className="w-full text-xs">
+            <table className="w-full text-xs" style={{ minWidth: isMobile ? '500px' : undefined }}>
               <thead>
                 <tr className="text-muted-foreground" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                   <th className="text-left pb-2 font-medium">Date</th>

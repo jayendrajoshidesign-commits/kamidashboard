@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Search, Plus } from 'lucide-react';
 import { PROJECTS_DATA } from '@/data/dashboardData';
+import { useResponsive } from '@/hooks/useResponsive';
 
 type FilterType = 'All' | 'Active' | 'Completed';
 
 const ProjectsTab = () => {
   const [filter, setFilter] = useState<FilterType>('All');
   const [search, setSearch] = useState('');
+  const { isMobile, isTablet } = useResponsive();
 
   const filtered = PROJECTS_DATA
     .filter(p => filter === 'All' ? true : filter === 'Active' ? p.status === 'In Progress' : p.status === 'Completed')
@@ -15,7 +17,7 @@ const ProjectsTab = () => {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className={`flex ${isMobile ? 'flex-col gap-3' : 'items-center justify-between'}`}>
         <div className="flex gap-2">
           {(['All', 'Active', 'Completed'] as FilterType[]).map(f => (
             <button key={f} onClick={() => setFilter(f)}
@@ -32,7 +34,7 @@ const ProjectsTab = () => {
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
             <Search className="w-3.5 h-3.5 text-muted-foreground" />
             <input value={search} onChange={e => setSearch(e.target.value)}
-              className="bg-transparent text-foreground text-xs outline-none w-40 placeholder:text-muted-foreground"
+              className={`bg-transparent text-foreground text-xs outline-none placeholder:text-muted-foreground ${isMobile ? 'w-full' : 'w-40'}`}
               placeholder="Search projects..." />
           </div>
         </div>
@@ -40,13 +42,13 @@ const ProjectsTab = () => {
 
       {/* Grid */}
       {filtered.length > 0 ? (
-        <div className="grid grid-cols-3 gap-4">
+        <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-3'}`}>
           {filtered.map(p => (
             <div key={p.id} className="glass-card p-4 flex flex-col gap-3 group cursor-pointer">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{p.emoji}</span>
-                  <h3 className="text-sm font-semibold text-foreground">{p.name}</h3>
+                  <h3 className={`font-semibold text-foreground ${isMobile ? 'text-[13px]' : 'text-sm'}`}>{p.name}</h3>
                 </div>
                 <span className="text-[9px] px-2 py-0.5 rounded-full"
                   style={p.status === 'In Progress'
@@ -70,7 +72,7 @@ const ProjectsTab = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3 text-[10px] text-muted-foreground">
+              <div className="flex gap-3 text-[10px] text-muted-foreground flex-wrap">
                 <span>📋 {p.tasks} tasks</span>
                 <span>🤖 {p.agents} agents</span>
                 <span>📁 {p.files} files</span>
@@ -101,7 +103,7 @@ const ProjectsTab = () => {
           </div>
           <h3 className="text-sm font-semibold text-foreground mb-1">No projects found</h3>
           <p className="text-[11px] text-muted-foreground mb-4">Start a mission to create your first project</p>
-          <button className="text-primary-foreground px-4 py-2 rounded-lg text-xs font-bold"
+          <button className="text-primary-foreground px-4 py-2 rounded-lg text-xs font-bold min-h-[40px]"
             style={{ background: 'linear-gradient(135deg, #FF6B00, #CC3300)' }}>
             + New Project
           </button>

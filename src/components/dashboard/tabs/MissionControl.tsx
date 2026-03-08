@@ -4,6 +4,7 @@ import { KANBAN_TASKS, AGENT_COLORS } from '@/data/dashboardData';
 import { api } from '@/services/apiService';
 import type { ApiMissionsResponse } from '@/services/apiService';
 import { AreaChart, Area, ResponsiveContainer, LineChart, Line, BarChart, Bar } from 'recharts';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const TAG_STYLES: Record<string, { bg: string; text: string; border: string }> = {
   cyan: { bg: 'rgba(34,211,238,0.06)', text: '#22d3ee', border: 'rgba(34,211,238,0.2)' },
@@ -76,6 +77,7 @@ const MissionControl = ({ isConnected, missions }: Props) => {
   const [sysData, setSysData] = useState(genSysData);
   const [netData, setNetData] = useState(genNetData);
   const [reqCount, setReqCount] = useState(48);
+  const { isMobile, isTablet } = useResponsive();
 
   useEffect(() => {
     const i = setInterval(() => {
@@ -115,9 +117,9 @@ const MissionControl = ({ isConnected, missions }: Props) => {
     <div className="space-y-5">
       {/* ROW 1: Mission Input */}
       <div className="glass-card p-5">
-        <div className="flex gap-2 mb-3 flex-wrap">
+        <div className={`flex gap-2 mb-3 ${isMobile ? 'overflow-x-auto scrollbar-none' : 'flex-wrap'}`}>
           {PRESETS.map((p, i) => (
-            <button key={i} className="text-[10px] px-2.5 py-1 rounded-full text-muted-foreground hover:text-foreground transition-all flex items-center gap-1"
+            <button key={i} className="text-[10px] px-2.5 py-1 rounded-full text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 flex-shrink-0"
               style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
               <span>{p.emoji}</span> {p.label}
             </button>
@@ -128,15 +130,15 @@ const MissionControl = ({ isConnected, missions }: Props) => {
           value={missionText}
           onChange={handleTextareaChange}
           className="w-full rounded-lg p-3 text-[15px] text-foreground resize-none outline-none transition-colors placeholder:text-muted-foreground"
-          style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', minHeight: '80px', maxHeight: '300px' }}
+          style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', minHeight: isMobile ? '100px' : '80px', maxHeight: '300px' }}
           placeholder="Describe your mission objective in detail. The more specific, the better results..."
         />
-        <div className="flex items-center justify-between mt-3">
+        <div className={`flex items-center mt-3 ${isMobile ? 'flex-col gap-2' : 'justify-between'}`}>
           <span className="text-[10px] text-muted-foreground font-mono">~15 min estimated · 11 agents ready</span>
           <button
             onClick={handleRun}
             disabled={launching || !missionText.trim()}
-            className="text-primary-foreground px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 mission-pulse-btn transition-all disabled:opacity-40"
+            className={`text-primary-foreground px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 mission-pulse-btn transition-all disabled:opacity-40 ${isMobile ? 'w-full justify-center' : ''}`}
             style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
           >
             <Play className="w-4 h-4" /> {launching ? 'LAUNCHING...' : 'RUN MISSION'}
@@ -145,7 +147,7 @@ const MissionControl = ({ isConnected, missions }: Props) => {
       </div>
 
       {/* ROW 2: Stats */}
-      <div className="grid grid-cols-5 gap-3">
+      <div className={`grid gap-3 ${isMobile ? 'grid-cols-2' : isTablet ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-5'}`}>
         {[
           { label: 'Tasks', value: String(tasksCompleted), sub: '↑ 12%', subColor: '#4ade80', sparkData: sparkGreen, sparkColor: '#4ade80' },
           { label: 'Active', value: activeAgents, sub: 'optimizing', subColor: '#FF8C00', sparkData: sparkOrange, sparkColor: '#FF8C00' },
@@ -163,85 +165,103 @@ const MissionControl = ({ isConnected, missions }: Props) => {
       </div>
 
       {/* ROW 3: Kanban */}
-      <div className="grid grid-cols-3 gap-4">
-        <KanbanColumn title="TO DO" count={KANBAN_TASKS.todo.length} items={KANBAN_TASKS.todo} />
-        <KanbanColumn title="IN PROGRESS" count={KANBAN_TASKS.inProgress.length} items={KANBAN_TASKS.inProgress} isProgress />
-        <KanbanColumn title="DONE" count={KANBAN_TASKS.done.length} items={KANBAN_TASKS.done} isDone />
-      </div>
-
-      {/* ROW 4: Live System Monitor */}
-      <div>
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-1 h-5 rounded-full" style={{ background: '#FF6B00' }} />
-          <span className="section-header">Live System Monitor</span>
-          <div className="flex-1 h-px" style={{ background: 'rgba(255,107,0,0.1)' }} />
+      {isMobile ? (
+        <div className="space-y-4">
+          <KanbanColumn title="TO DO" count={KANBAN_TASKS.todo.length} items={KANBAN_TASKS.todo} />
+          <KanbanColumn title="IN PROGRESS" count={KANBAN_TASKS.inProgress.length} items={KANBAN_TASKS.inProgress} isProgress />
+          <KanbanColumn title="DONE" count={KANBAN_TASKS.done.length} items={KANBAN_TASKS.done} isDone />
         </div>
-        <div className="grid grid-cols-3 gap-4">
-          {/* PANEL 1: System Resources */}
-          <div className="glass-card p-3">
-            <span className="section-header">System</span>
-            <div className="flex justify-between text-[10px] font-mono mt-2 mb-1">
-              <span style={{ color: '#FF8C00' }}>CPU {lastSys.cpu}%</span>
-              <span style={{ color: '#c084fc' }}>RAM 12GB</span>
-              <span style={{ color: '#4ade80' }}>GPU {lastSys.gpu}% 67°C</span>
-            </div>
-            <div style={{ height: 80 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={sysData}>
-                  <Line type="monotone" dataKey="cpu" stroke="#FF8C00" strokeWidth={1.5} dot={false} />
-                  <Line type="monotone" dataKey="ram" stroke="rgba(192,132,252,0.6)" strokeWidth={1.5} dot={false} />
-                  <Line type="monotone" dataKey="gpu" stroke="#4ade80" strokeWidth={1.5} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-            <p className="text-[10px] font-mono mt-1" style={{ color: '#FF8C00' }}>NET ↓ 24KB/s  ↑ 0KB/s</p>
+      ) : isTablet ? (
+        <div className="overflow-x-auto scrollbar-none">
+          <div className="flex gap-4" style={{ minWidth: '900px' }}>
+            <div className="flex-1"><KanbanColumn title="TO DO" count={KANBAN_TASKS.todo.length} items={KANBAN_TASKS.todo} /></div>
+            <div className="flex-1"><KanbanColumn title="IN PROGRESS" count={KANBAN_TASKS.inProgress.length} items={KANBAN_TASKS.inProgress} isProgress /></div>
+            <div className="flex-1"><KanbanColumn title="DONE" count={KANBAN_TASKS.done.length} items={KANBAN_TASKS.done} isDone /></div>
           </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-4">
+          <KanbanColumn title="TO DO" count={KANBAN_TASKS.todo.length} items={KANBAN_TASKS.todo} />
+          <KanbanColumn title="IN PROGRESS" count={KANBAN_TASKS.inProgress.length} items={KANBAN_TASKS.inProgress} isProgress />
+          <KanbanColumn title="DONE" count={KANBAN_TASKS.done.length} items={KANBAN_TASKS.done} isDone />
+        </div>
+      )}
 
-          {/* PANEL 2: Network Activity */}
-          <div className="glass-card p-3">
-            <div className="flex items-center gap-2">
-              <span className="section-header">Network</span>
-              <span className="ml-auto text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ backgroundColor: 'rgba(255,107,0,0.06)', color: '#FF8C00' }}>{reqCount}</span>
+      {/* ROW 4: Live System Monitor — hidden on mobile */}
+      {!isMobile && (
+        <div>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-1 h-5 rounded-full" style={{ background: '#FF6B00' }} />
+            <span className="section-header">Live System Monitor</span>
+            <div className="flex-1 h-px" style={{ background: 'rgba(255,107,0,0.1)' }} />
+          </div>
+          <div className={`grid gap-4 ${isTablet ? 'grid-cols-1' : 'grid-cols-3'}`}>
+            {/* PANEL 1: System Resources */}
+            <div className="glass-card p-3">
+              <span className="section-header">System</span>
+              <div className="flex justify-between text-[10px] font-mono mt-2 mb-1">
+                <span style={{ color: '#FF8C00' }}>CPU {lastSys.cpu}%</span>
+                <span style={{ color: '#c084fc' }}>RAM 12GB</span>
+                <span style={{ color: '#4ade80' }}>GPU {lastSys.gpu}% 67°C</span>
+              </div>
+              <div style={{ height: 80 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={sysData}>
+                    <Line type="monotone" dataKey="cpu" stroke="#FF8C00" strokeWidth={1.5} dot={false} />
+                    <Line type="monotone" dataKey="ram" stroke="rgba(192,132,252,0.6)" strokeWidth={1.5} dot={false} />
+                    <Line type="monotone" dataKey="gpu" stroke="#4ade80" strokeWidth={1.5} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-[10px] font-mono mt-1" style={{ color: '#FF8C00' }}>NET ↓ 24KB/s  ↑ 0KB/s</p>
             </div>
-            <div style={{ height: 80 }} className="mt-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={netData}>
-                  <Bar dataKey="rps" fill="#FF6B00" radius={[2, 2, 0, 0]} opacity={0.6} />
-                </BarChart>
-              </ResponsiveContainer>
+
+            {/* PANEL 2: Network Activity */}
+            <div className="glass-card p-3">
+              <div className="flex items-center gap-2">
+                <span className="section-header">Network</span>
+                <span className="ml-auto text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ backgroundColor: 'rgba(255,107,0,0.06)', color: '#FF8C00' }}>{reqCount}</span>
+              </div>
+              <div style={{ height: 80 }} className="mt-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={netData}>
+                    <Bar dataKey="rps" fill="#FF6B00" radius={[2, 2, 0, 0]} opacity={0.6} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex justify-between text-[9px] font-mono text-muted-foreground mt-1">
+                <span>🌐 67 URLs visited</span>
+                <span>⬇ 2880 KB</span>
+              </div>
+              <div className="mt-1 overflow-hidden h-3 relative">
+                <div className="url-ticker text-[9px] font-mono flex items-center gap-3 absolute" style={{ color: 'rgba(255,140,0,0.4)' }}>
+                  {TICKER_URLS.map((u, i) => (
+                    <span key={i} className="flex items-center gap-1.5">
+                      <span className="w-1 h-1 rounded-full inline-block" style={{ backgroundColor: '#FF8C00' }} />
+                      {u}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div className="flex justify-between text-[9px] font-mono text-muted-foreground mt-1">
-              <span>🌐 67 URLs visited</span>
-              <span>⬇ 2880 KB</span>
-            </div>
-            <div className="mt-1 overflow-hidden h-3 relative">
-              <div className="url-ticker text-[9px] font-mono flex items-center gap-3 absolute" style={{ color: 'rgba(255,140,0,0.4)' }}>
-                {TICKER_URLS.map((u, i) => (
-                  <span key={i} className="flex items-center gap-1.5">
-                    <span className="w-1 h-1 rounded-full inline-block" style={{ backgroundColor: '#FF8C00' }} />
-                    {u}
-                  </span>
+
+            {/* PANEL 3: Agent Feed */}
+            <div className="glass-card p-3">
+              <span className="section-header">Live Feed</span>
+              <div className="mt-2 space-y-0">
+                {FEED_ITEMS.map((item, i) => (
+                  <div key={i} className="flex items-center gap-2 py-1.5 text-[10px]" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+                    <span className="font-medium" style={{ color: '#FF8C00' }}>{item.agent}</span>
+                    <span className="text-muted-foreground truncate flex-1">{item.desc}</span>
+                    <span className="text-muted-foreground flex-shrink-0">{item.time}</span>
+                  </div>
                 ))}
               </div>
             </div>
           </div>
-
-          {/* PANEL 3: Agent Feed */}
-          <div className="glass-card p-3">
-            <span className="section-header">Live Feed</span>
-            <div className="mt-2 space-y-0">
-              {FEED_ITEMS.map((item, i) => (
-                <div key={i} className="flex items-center gap-2 py-1.5 text-[10px]" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
-                  <span className="font-medium" style={{ color: '#FF8C00' }}>{item.agent}</span>
-                  <span className="text-muted-foreground truncate flex-1">{item.desc}</span>
-                  <span className="text-muted-foreground flex-shrink-0">{item.time}</span>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

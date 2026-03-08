@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { SOURCES_DATA, AGENT_COLORS } from '@/data/dashboardData';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const TRUST_STYLES: Record<string, { label: string; color: string }> = {
   'FreshBooks': { label: 'High', color: '#FF8C00' },
@@ -28,6 +29,7 @@ const Sources = () => {
   const [expanded, setExpanded] = useState<number | null>(null);
   const agents = [...new Set(SOURCES_DATA.map(s => s.agent))];
   const filtered = filter ? SOURCES_DATA.filter(s => s.agent === filter) : SOURCES_DATA;
+  const { isMobile } = useResponsive();
 
   return (
     <div className="space-y-4">
@@ -38,9 +40,9 @@ const Sources = () => {
         <span className="text-xs relative z-10" style={{ color: '#4ade80' }}>All {SOURCES_DATA.length} sources verified — real URLs visited and data extracted by agents</span>
       </div>
 
-      <div className="flex gap-2 flex-wrap">
+      <div className={`flex gap-2 ${isMobile ? 'overflow-x-auto scrollbar-none' : 'flex-wrap'}`}>
         <button onClick={() => setFilter(null)}
-          className="text-[11px] px-3 py-1 rounded-full transition-all"
+          className="text-[11px] px-3 py-1 rounded-full transition-all flex-shrink-0"
           style={!filter
             ? { background: 'linear-gradient(135deg, #FF6B00, #CC3300)', color: '#fff' }
             : { background: 'rgba(255,255,255,0.03)', color: '#666', border: '1px solid rgba(255,255,255,0.05)' }
@@ -49,7 +51,7 @@ const Sources = () => {
         </button>
         {agents.map(a => (
           <button key={a} onClick={() => setFilter(a)}
-            className="text-[11px] px-3 py-1 rounded-full transition-all"
+            className="text-[11px] px-3 py-1 rounded-full transition-all flex-shrink-0"
             style={filter === a
               ? { background: 'linear-gradient(135deg, #FF6B00, #CC3300)', color: '#fff' }
               : { background: 'rgba(255,255,255,0.03)', color: '#666', border: '1px solid rgba(255,255,255,0.05)' }
@@ -66,20 +68,22 @@ const Sources = () => {
             <div key={src.id} className="glass-card p-4 cursor-pointer transition-all"
               style={{ borderLeft: `3px solid ${isExpanded ? siteColor : 'transparent'}` }}
               onClick={() => setExpanded(isExpanded ? null : src.id)}>
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                  style={{ backgroundColor: siteColor }}>
-                  {src.site[0]}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <h4 className="text-sm font-semibold text-foreground">{src.site}</h4>
-                    <a href={src.url} target="_blank" rel="noopener" className="text-[10px] truncate hover:underline" style={{ color: '#FF8C00' }}
-                      onClick={e => e.stopPropagation()}>{src.url}</a>
+              <div className={`flex items-start gap-3 ${isMobile ? 'flex-col' : ''}`}>
+                <div className={`flex items-start gap-3 ${isMobile ? 'w-full' : ''}`}>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                    style={{ backgroundColor: siteColor }}>
+                    {src.site[0]}
                   </div>
-                  <p className={`text-[11px] leading-relaxed ${isExpanded ? '' : 'line-clamp-2'}`} style={{ color: '#777', fontStyle: 'italic' }}>{src.extract}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                      <h4 className={`font-semibold text-foreground ${isMobile ? 'text-[13px]' : 'text-sm'}`}>{src.site}</h4>
+                      <a href={src.url} target="_blank" rel="noopener" className="text-[10px] truncate hover:underline" style={{ color: '#FF8C00' }}
+                        onClick={e => e.stopPropagation()}>{src.url}</a>
+                    </div>
+                    <p className={`text-[11px] leading-relaxed ${isExpanded ? '' : 'line-clamp-2'}`} style={{ color: '#777', fontStyle: 'italic' }}>{src.extract}</p>
+                  </div>
                 </div>
-                <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                <div className={`flex ${isMobile ? 'gap-2 flex-wrap' : 'flex-col items-end gap-1 flex-shrink-0'}`}>
                   {trust && (
                     <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium"
                       style={{ backgroundColor: `${trust.color}08`, color: trust.color, border: `1px solid ${trust.color}20` }}>

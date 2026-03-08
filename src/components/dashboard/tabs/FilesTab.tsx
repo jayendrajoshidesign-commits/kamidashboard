@@ -3,6 +3,7 @@ import { Upload, Download, FileText, FileSpreadsheet, Image, FileJson, File, Sea
 import { AGENT_COLORS } from '@/data/dashboardData';
 import { api } from '@/services/apiService';
 import type { ApiFile } from '@/services/apiService';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const FILE_ICON_COLORS: Record<string, { icon: any; color: string }> = {
   pdf: { icon: FileText, color: '#ef4444' },
@@ -34,6 +35,7 @@ const FilesTab = ({ files, isConnected }: Props) => {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('All');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { isMobile } = useResponsive();
 
   const uploaded = files.filter(f => f.category === 'uploaded');
   const generated = files.filter(f => f.category === 'generated');
@@ -74,10 +76,10 @@ const FilesTab = ({ files, isConnected }: Props) => {
       </div>
 
       {/* Type filters */}
-      <div className="flex gap-2 flex-wrap">
+      <div className={`flex gap-2 ${isMobile ? 'overflow-x-auto scrollbar-none' : 'flex-wrap'}`}>
         {FILE_TYPES.map(t => (
           <button key={t} onClick={() => setTypeFilter(t)}
-            className="text-[11px] px-3 py-1 rounded-full transition-all"
+            className="text-[11px] px-3 py-1 rounded-full transition-all flex-shrink-0"
             style={typeFilter === t
               ? { background: 'linear-gradient(135deg, #FF6B00, #CC3300)', color: '#fff' }
               : { background: 'rgba(255,255,255,0.03)', color: '#666', border: '1px solid rgba(255,255,255,0.05)' }
@@ -106,7 +108,7 @@ const FilesTab = ({ files, isConnected }: Props) => {
         <p className="text-[10px] mt-1" style={{ color: '#444' }}>PDF, CSV, Images, Documents</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-5">
+      <div className={`grid gap-5 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
         <div>
           <h3 className="text-sm font-semibold text-foreground mb-3">📤 Uploaded Files</h3>
           <div className="space-y-2">
@@ -155,7 +157,7 @@ const FilesTab = ({ files, isConnected }: Props) => {
         </div>
       </div>
 
-      <button className="glass-card px-5 py-2.5 text-sm font-semibold flex items-center gap-2 transition-all mx-auto hover:border-primary/30"
+      <button className="glass-card px-5 py-2.5 text-sm font-semibold flex items-center gap-2 transition-all mx-auto hover:border-primary/30 min-h-[44px]"
         style={{ color: '#FF8C00', border: '1px solid rgba(255,107,0,0.15)' }}>
         <Download className="w-4 h-4" /> Download All as ZIP
       </button>

@@ -3,6 +3,7 @@ import { AGENT_COLORS } from '@/data/dashboardData';
 import type { ApiAgent } from '@/services/apiService';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import { ChevronDown, ChevronUp, Pause, RotateCcw, FileText } from 'lucide-react';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const genSparkData = () => Array.from({ length: 12 }, () => ({ v: Math.floor(Math.random() * 3000) + 500 }));
 
@@ -15,6 +16,7 @@ interface Props {
 const LiveAgents = ({ agents }: Props) => {
   const [filter, setFilter] = useState<Filter>('All');
   const [expanded, setExpanded] = useState<string | null>(null);
+  const { isMobile, isTablet } = useResponsive();
 
   const workingCount = agents.filter(a => a.status === 'working').length;
   const idleCount = agents.filter(a => a.status === 'idle').length;
@@ -27,14 +29,14 @@ const LiveAgents = ({ agents }: Props) => {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-foreground">
+      <div className={`flex ${isMobile ? 'flex-col gap-2' : 'items-center justify-between'}`}>
+        <h2 className={`font-semibold text-foreground ${isMobile ? 'text-[13px]' : 'text-sm'}`}>
           {agents.length} Agents — <span style={{ color: '#FF8C00' }}>{workingCount} Working</span> — <span className="text-muted-foreground">{idleCount} Idle</span>
         </h2>
-        <div className="flex gap-1.5">
+        <div className={`flex gap-1.5 ${isMobile ? 'overflow-x-auto scrollbar-none' : ''}`}>
           {(['All', 'Working', 'Idle', 'Error'] as Filter[]).map(f => (
             <button key={f} onClick={() => setFilter(f)}
-              className="text-[11px] px-3 py-1 rounded-full transition-all"
+              className="text-[11px] px-3 py-1 rounded-full transition-all flex-shrink-0"
               style={filter === f
                 ? { background: 'linear-gradient(135deg, #FF6B00, #CC3300)', color: '#fff' }
                 : { background: 'rgba(255,255,255,0.03)', color: '#666', border: '1px solid rgba(255,255,255,0.05)' }
@@ -46,7 +48,7 @@ const LiveAgents = ({ agents }: Props) => {
       </div>
 
       {/* Agent Grid */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-3'}`}>
         {filtered.map(agent => {
           const isWorking = agent.status === 'working';
           const color = AGENT_COLORS[agent.color] || '#666';
@@ -77,7 +79,7 @@ const LiveAgents = ({ agents }: Props) => {
                 <span className="text-[9px] px-1.5 py-0.5 rounded-full font-mono" style={{ backgroundColor: `${color}10`, color, border: `1px solid ${color}20` }}>
                   {agent.lastTool}
                 </span>
-                <button onClick={() => setExpanded(isExpanded ? null : agent.id)} className="p-0.5 text-muted-foreground hover:text-foreground transition-colors">
+                <button onClick={() => setExpanded(isExpanded ? null : agent.id)} className="p-0.5 text-muted-foreground hover:text-foreground transition-colors min-w-[28px] min-h-[28px] flex items-center justify-center">
                   {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 </button>
               </div>
@@ -131,13 +133,13 @@ const LiveAgents = ({ agents }: Props) => {
                     Tasks: 34 | Success: 97% | Avg: 4.2min
                   </div>
                   <div className="flex gap-1.5">
-                    <button className="text-[9px] px-2 py-1 rounded flex items-center gap-1 transition-colors hover:bg-white/[0.03]" style={{ color: '#FF8C00', border: '1px solid rgba(255,107,0,0.15)' }}>
+                    <button className="text-[9px] px-2 py-1 rounded flex items-center gap-1 transition-colors hover:bg-white/[0.03] min-h-[28px]" style={{ color: '#FF8C00', border: '1px solid rgba(255,107,0,0.15)' }}>
                       <Pause className="w-3 h-3" /> Pause
                     </button>
-                    <button className="text-[9px] px-2 py-1 rounded flex items-center gap-1 text-muted-foreground transition-colors hover:bg-white/[0.03]" style={{ border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <button className="text-[9px] px-2 py-1 rounded flex items-center gap-1 text-muted-foreground transition-colors hover:bg-white/[0.03] min-h-[28px]" style={{ border: '1px solid rgba(255,255,255,0.05)' }}>
                       <RotateCcw className="w-3 h-3" /> Restart
                     </button>
-                    <button className="text-[9px] px-2 py-1 rounded flex items-center gap-1 text-muted-foreground transition-colors hover:bg-white/[0.03]" style={{ border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <button className="text-[9px] px-2 py-1 rounded flex items-center gap-1 text-muted-foreground transition-colors hover:bg-white/[0.03] min-h-[28px]" style={{ border: '1px solid rgba(255,255,255,0.05)' }}>
                       <FileText className="w-3 h-3" /> Log
                     </button>
                   </div>
