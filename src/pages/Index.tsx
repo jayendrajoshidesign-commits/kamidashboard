@@ -55,7 +55,11 @@ const Index = () => {
       return () => clearInterval(interval);
     } else {
       const poll = async () => {
-        try { const data = await api.getTerminal(); setLogs(data); } catch {}
+        try {
+          const data = await api.getTerminal();
+          const entries = Array.isArray(data) ? data : Array.isArray((data as any).lines) ? (data as any).lines : [];
+          setLogs(entries);
+        } catch {}
       };
       poll();
       const interval = setInterval(poll, 2000);
