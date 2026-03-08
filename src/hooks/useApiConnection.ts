@@ -7,8 +7,9 @@ export function useApiConnection() {
 
   const check = useCallback(async () => {
     try {
-      const agents = await api.getAgents();
-      setIsConnected(Array.isArray(agents));
+      const result = await api.getAgents();
+      // API returns { agents: [...] } object, not a plain array
+      setIsConnected(Array.isArray(result) || (result && Array.isArray((result as any).agents)));
     } catch {
       setIsConnected(false);
     }
