@@ -88,9 +88,19 @@ const Index = () => {
     }
   }, [activeTab, isConnected, agents, missions, files, manifest]);
 
+  const isStudio = activeTab === 'Studio';
+  const [leftOverlay, setLeftOverlay] = useState(false);
+  const [rightOverlay, setRightOverlay] = useState(false);
+
+  // Close overlays when leaving studio or clicking canvas
+  useEffect(() => {
+    if (!isStudio) { setLeftOverlay(false); setRightOverlay(false); }
+  }, [isStudio]);
+
   return (
     <div className="w-screen h-screen overflow-hidden flex flex-col relative noise-overlay"
-      style={{ borderTop: '1px solid rgba(255,107,0,0.2)' }}>
+      style={{ borderTop: '1px solid rgba(255,107,0,0.2)' }}
+      onClick={() => { if (isStudio) { setLeftOverlay(false); setRightOverlay(false); } }}>
       <div className="mesh-gradient-bg">
         <div className="mesh-orb mesh-orb-1" />
         <div className="mesh-orb mesh-orb-2" />
@@ -98,16 +108,70 @@ const Index = () => {
       </div>
 
       <div className="flex flex-1 overflow-hidden relative z-10">
-        <LeftPanel isConnected={isConnected} />
+        {/* Left panel — slides off when Studio active */}
+        <div className="relative flex-shrink-0 transition-all duration-300 ease-in-out overflow-visible"
+          style={{ width: isStudio ? 0 : undefined, marginLeft: isStudio ? -280 : 0 }}>
+          <LeftPanel isConnected={isConnected} />
+        </div>
+
+        {/* Left edge strip in Studio mode */}
+        {isStudio && !leftOverlay && (
+          <div
+            className="absolute left-0 top-0 bottom-0 z-30 flex items-center cursor-pointer group"
+            style={{ width: 24 }}
+            onClick={e => { e.stopPropagation(); setLeftOverlay(true); }}
+            title="Click to temporarily show KAMI panel"
+          >
+            <div className="w-full h-full flex items-center justify-center" style={{ background: 'rgba(8,8,11,0.6)', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
+              <span className="text-[9px] text-muted-foreground group-hover:text-[#FF8C00] transition-colors whitespace-nowrap"
+                style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>◀ KAMI</span>
+            </div>
+          </div>
+        )}
+
+        {/* Left overlay panel in Studio */}
+        {isStudio && leftOverlay && (
+          <div className="absolute left-0 top-0 bottom-0 z-40 animate-slide-in-left" onClick={e => e.stopPropagation()}
+            style={{ width: 260, boxShadow: '4px 0 24px rgba(0,0,0,0.5)' }}>
+            <LeftPanel isConnected={isConnected} />
+          </div>
+        )}
 
         <main className="flex-1 flex flex-col overflow-hidden">
           <TabNav tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} isConnected={isConnected} fileBadge={files.length} />
-          <div className="flex-1 overflow-y-auto p-6 tab-fade-in" key={activeTab}>
+          <div className={`flex-1 overflow-y-auto ${isStudio ? 'p-0' : 'p-6'} tab-fade-in`} key={activeTab}>
             {renderTab()}
           </div>
         </main>
 
-        <RightPanel logs={logs} />
+        {/* Right panel — slides off when Studio active */}
+        <div className="relative flex-shrink-0 transition-all duration-300 ease-in-out overflow-visible"
+          style={{ width: isStudio ? 0 : undefined, marginRight: isStudio ? -320 : 0 }}>
+          <RightPanel logs={logs} />
+        </div>
+
+        {/* Right edge strip in Studio mode */}
+        {isStudio && !rightOverlay && (
+          <div
+            className="absolute right-0 top-0 bottom-0 z-30 flex items-center cursor-pointer group"
+            style={{ width: 24 }}
+            onClick={e => { e.stopPropagation(); setRightOverlay(true); }}
+            title="Click to temporarily show Terminal panel"
+          >
+            <div className="w-full h-full flex items-center justify-center" style={{ background: 'rgba(8,8,11,0.6)', borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
+              <span className="text-[9px] text-muted-foreground group-hover:text-[#FF8C00] transition-colors whitespace-nowrap"
+                style={{ writingMode: 'vertical-rl' }}>TERM ▶</span>
+            </div>
+          </div>
+        )}
+
+        {/* Right overlay panel in Studio */}
+        {isStudio && rightOverlay && (
+          <div className="absolute right-0 top-0 bottom-0 z-40 animate-slide-in-right" onClick={e => e.stopPropagation()}
+            style={{ width: 320, boxShadow: '-4px 0 24px rgba(0,0,0,0.5)' }}>
+            <RightPanel logs={logs} />
+          </div>
+        )}
       </div>
 
       <BottomBar
