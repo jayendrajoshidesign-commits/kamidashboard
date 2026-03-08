@@ -67,9 +67,28 @@ const Index = () => {
     }
   }, [isConnected]);
 
-  const { data: agents } = usePolledData(api.getAgents, mockData.agents, 3000, isConnected);
-  const { data: missions } = usePolledData(api.getMissions, mockData.missions, 5000, isConnected);
-  const { data: files } = usePolledData(api.getFiles, mockData.files, 10000, isConnected);
+  // Normalize API responses - backend returns wrapped objects
+  const fetchAgents = useCallback(async () => {
+    const data = await api.getAgents();
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray((data as any).agents)) return (data as any).agents;
+    return mockData.agents();
+  }, []);
+  const fetchMissions = useCallback(async () => {
+    const data = await api.getMissions();
+    if (data && ('current' in data || 'history' in data)) return data;
+    return mockData.missions();
+  }, []);
+  const fetchFiles = useCallback(async () => {
+    const data = await api.getFiles();
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray((data as any).files)) return (data as any).files;
+    return mockData.files();
+  }, []);
+
+  const { data: agents } = usePolledData(fetchAgents, mockData.agents, 3000, isConnected);
+  const { data: missions } = usePolledData(fetchMissions, mockData.missions, 5000, isConnected);
+  const { data: files } = usePolledData(fetchFiles, mockData.files, 10000, isConnected);
   const { data: manifest } = usePolledData(api.getManifest, mockData.manifest, 30000, isConnected);
 
   useEffect(() => {
