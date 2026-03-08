@@ -330,10 +330,12 @@ const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHis
         </div>
       )}
 
-      {/* FLOATING RIGHT — History */}
       {showHistory && (
-        <div className="absolute right-0 top-0 bottom-0 z-30 animate-slide-in-right"
-          style={{ width: 200, background: 'rgba(8,8,12,0.95)', backdropFilter: 'blur(20px)', borderLeft: '1px solid rgba(255,107,0,0.15)', borderRadius: '12px 0 0 12px' }}
+        <div className={isDesktop ? 'absolute right-0 top-0 bottom-0 z-30 animate-slide-in-right' : 'absolute left-0 right-0 bottom-0 z-30 animate-slide-up'}
+          style={isDesktop
+            ? { width: 200, background: 'rgba(8,8,12,0.95)', backdropFilter: 'blur(20px)', borderLeft: '1px solid rgba(255,107,0,0.15)', borderRadius: '12px 0 0 12px' }
+            : { height: '40%', maxHeight: 320, background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px 16px 0 0' }
+          }
           onClick={e => e.stopPropagation()}>
           <div className="h-full overflow-y-auto p-3 space-y-4">
             <div className="flex items-center justify-between">
