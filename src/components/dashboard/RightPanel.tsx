@@ -1,9 +1,7 @@
-import { useEffect, useRef } from 'react';
-import { AreaChart, Area, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { useEffect, useRef, useState } from 'react';
+import { AreaChart, Area, ResponsiveContainer, LineChart, Line, BarChart, Bar } from 'recharts';
+import { Globe, Download, ArrowDown, ArrowUp } from 'lucide-react';
 import type { LogEntry } from '@/pages/Index';
-
-const tokenData = Array.from({ length: 10 }, (_, i) => ({ v: Math.floor(Math.random() * 8000) + 4000 }));
-const cpuData = Array.from({ length: 10 }, (_, i) => ({ cpu: Math.floor(Math.random() * 30) + 20, ram: Math.floor(Math.random() * 20) + 40 }));
 
 const LOG_COLORS: Record<string, string> = {
   info: 'text-neon-cyan',
@@ -19,16 +17,62 @@ const LOG_LABELS: Record<string, string> = {
   error: '[ERR]',
 };
 
+const genTokenData = () => Array.from({ length: 20 }, () => ({
+  thinking: Math.floor(Math.random() * 6000) + 2000,
+  tools: Math.floor(Math.random() * 4000) + 1000,
+}));
+
+const genSysData = () => Array.from({ length: 15 }, () => ({
+  cpu: Math.floor(Math.random() * 15) + 25,
+  ram: Math.floor(Math.random() * 10) + 33,
+  gpu: Math.floor(Math.random() * 12) + 83,
+}));
+
+const genNetData = () => Array.from({ length: 15 }, () => ({
+  rps: Math.floor(Math.random() * 8) + 1,
+}));
+
+const TICKER_URLS = [
+  'reddit.com/r/freelance',
+  'indiehackers.com',
+  'freshbooks.com/pricing',
+  'waveapps.com/invoicing',
+  'g2.com/categories/invoicing',
+  'stripe.com/docs',
+  'producthunt.com/topics/invoicing',
+  'techcrunch.com/tag/saas',
+];
+
 interface Props {
   logs: LogEntry[];
 }
 
 const RightPanel = ({ logs }: Props) => {
   const termRef = useRef<HTMLDivElement>(null);
+  const [tokenData, setTokenData] = useState(genTokenData);
+  const [sysData, setSysData] = useState(genSysData);
+  const [netData, setNetData] = useState(genNetData);
+  const [urlCount, setUrlCount] = useState(12);
+  const [kbExtracted, setKbExtracted] = useState(847);
+  const [reqCount, setReqCount] = useState(48);
 
   useEffect(() => {
     if (termRef.current) termRef.current.scrollTop = termRef.current.scrollHeight;
   }, [logs]);
+
+  useEffect(() => {
+    const i = setInterval(() => {
+      setTokenData(prev => [...prev.slice(1), { thinking: Math.floor(Math.random() * 6000) + 2000, tools: Math.floor(Math.random() * 4000) + 1000 }]);
+      setSysData(prev => [...prev.slice(1), { cpu: Math.floor(Math.random() * 15) + 25, ram: Math.floor(Math.random() * 10) + 33, gpu: Math.floor(Math.random() * 12) + 83 }]);
+      setNetData(prev => [...prev.slice(1), { rps: Math.floor(Math.random() * 8) + 1 }]);
+      setUrlCount(c => c + (Math.random() > 0.6 ? 1 : 0));
+      setKbExtracted(c => c + Math.floor(Math.random() * 30));
+      setReqCount(c => c + Math.floor(Math.random() * 3));
+    }, 2000);
+    return () => clearInterval(i);
+  }, []);
+
+  const lastSys = sysData[sysData.length - 1];
 
   return (
     <aside className="w-[320px] flex-shrink-0 glass-panel flex flex-col border-l border-border/50">
@@ -39,7 +83,7 @@ const RightPanel = ({ logs }: Props) => {
       </div>
 
       {/* Terminal */}
-      <div ref={termRef} className="flex-1 max-h-[40%] overflow-y-auto p-3 font-mono text-[11px] bg-terminal">
+      <div ref={termRef} className="overflow-y-auto p-3 font-mono text-[11px] bg-terminal max-h-[200px]">
         {logs.map((log, i) => (
           <div key={i} className={`mb-0.5 leading-relaxed ${i === logs.length - 1 ? 'terminal-line-enter' : ''}`}>
             <span className="text-muted-foreground mr-2">{log.time}</span>
@@ -49,42 +93,95 @@ const RightPanel = ({ logs }: Props) => {
         ))}
       </div>
 
-      {/* Mini charts */}
+      {/* SECTION A: TOKEN USAGE */}
       <div className="px-4 py-3 border-t border-border/50">
-        <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 font-semibold">Token Usage</div>
-        <div className="h-12">
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Token Usage</span>
+          <span className="text-[11px] font-mono text-foreground">142K <span className="text-muted-foreground">/ 1.2M</span></span>
+        </div>
+        <div className="h-[100px]">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={tokenData}>
               <defs>
-                <linearGradient id="tokenGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(263,70%,58%)" stopOpacity={0.4} />
-                  <stop offset="100%" stopColor="hsl(263,70%,58%)" stopOpacity={0} />
+                <linearGradient id="thinkGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#7c3aed" stopOpacity={0.5} />
+                  <stop offset="100%" stopColor="#7c3aed" stopOpacity={0.05} />
+                </linearGradient>
+                <linearGradient id="toolGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.4} />
+                  <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.05} />
                 </linearGradient>
               </defs>
-              <Area type="monotone" dataKey="v" stroke="hsl(263,70%,58%)" fill="url(#tokenGrad)" strokeWidth={1.5} dot={false} />
+              <Area type="monotone" dataKey="thinking" stroke="#7c3aed" fill="url(#thinkGrad)" strokeWidth={1.5} dot={false} stackId="1" />
+              <Area type="monotone" dataKey="tools" stroke="#06b6d4" fill="url(#toolGrad)" strokeWidth={1.5} dot={false} stackId="1" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
+        {/* Token bar */}
+        <div className="mt-2">
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div className="h-full w-[13%] bg-primary rounded-full progress-shimmer" />
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-1 font-mono">$0.00 local • ~$0.43 saved vs Claude API</p>
+        </div>
       </div>
 
+      {/* SECTION B: SYSTEM RESOURCES */}
       <div className="px-4 py-3 border-t border-border/50">
-        <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 font-semibold">CPU / RAM</div>
-        <div className="h-12">
+        <div className="flex gap-2 mb-2">
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded" style={{ backgroundColor: 'rgba(6,182,212,0.1)', color: '#06b6d4' }}>CPU {lastSys.cpu}%</span>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded" style={{ backgroundColor: 'rgba(124,58,237,0.1)', color: '#7c3aed' }}>RAM 12GB</span>
+          <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${lastSys.gpu > 80 ? 'pulse-dot' : ''}`} style={{ backgroundColor: 'rgba(34,197,94,0.1)', color: '#22c55e' }}>GPU {lastSys.gpu}% 67°C</span>
+        </div>
+        <div className="h-[80px]">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={cpuData}>
-              <Line type="monotone" dataKey="cpu" stroke="hsl(187,86%,43%)" strokeWidth={1.5} dot={false} />
-              <Line type="monotone" dataKey="ram" stroke="hsl(142,71%,45%)" strokeWidth={1.5} dot={false} />
+            <LineChart data={sysData}>
+              <Line type="monotone" dataKey="cpu" stroke="#06b6d4" strokeWidth={1.5} dot={false} />
+              <Line type="monotone" dataKey="ram" stroke="#7c3aed" strokeWidth={1.5} dot={false} />
+              <Line type="monotone" dataKey="gpu" stroke="#22c55e" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
+        </div>
+        <p className="text-[10px] text-muted-foreground font-mono mt-1">NET ↓ 24KB/s ↑ 0KB/s</p>
+      </div>
+
+      {/* SECTION C: NETWORK ACTIVITY */}
+      <div className="px-4 py-3 border-t border-border/50">
+        <div className="flex items-center gap-2 mb-2">
+          <Globe className="w-3.5 h-3.5 text-neon-cyan" />
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Network</span>
+          <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-neon-cyan/10 text-neon-cyan">{reqCount} reqs</span>
+        </div>
+        <div className="h-[60px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={netData}>
+              <Bar dataKey="rps" fill="#06b6d4" radius={[2, 2, 0, 0]} opacity={0.7} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="flex justify-between mt-2 text-[10px] font-mono text-muted-foreground">
+          <span className="flex items-center gap-1"><Globe className="w-3 h-3 text-neon-cyan" />{urlCount} URLs visited</span>
+          <span className="flex items-center gap-1"><Download className="w-3 h-3" />{kbExtracted} KB extracted</span>
+        </div>
+        {/* URL ticker */}
+        <div className="mt-2 overflow-hidden h-4 relative">
+          <div className="url-ticker text-[10px] font-mono text-neon-cyan/60 flex items-center gap-3 absolute">
+            {TICKER_URLS.map((u, i) => (
+              <span key={i} className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan inline-block" />
+                {u}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Agent Feed */}
-      <div className="border-t border-border/50">
+      <div className="border-t border-border/50 flex-1 overflow-hidden flex flex-col">
         <div className="px-4 py-2.5 border-b border-border/50">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Agent Feed</span>
         </div>
-        <div className="overflow-y-auto max-h-[200px]">
+        <div className="overflow-y-auto flex-1">
           {[
             { icon: '💻', color: 'text-primary', title: 'Code Update', desc: 'Market Research committed competitor_matrix.csv' },
             { icon: '🔍', color: 'text-neon-cyan', title: 'New Source Found', desc: 'Added FreshBooks pricing data to knowledge base' },
@@ -99,17 +196,6 @@ const RightPanel = ({ logs }: Props) => {
               </div>
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* Alert */}
-      <div className="p-3">
-        <div className="glass-card p-3 border-neon-red/30 bg-neon-red/5 flex gap-3 items-start">
-          <span className="text-neon-red text-sm mt-0.5">⚠️</span>
-          <div>
-            <h4 className="text-xs font-bold text-neon-red mb-0.5">Token Usage High</h4>
-            <p className="text-[11px] text-muted-foreground">142K tokens used. Running on local Ollama — cost: ~$0.00</p>
-          </div>
         </div>
       </div>
     </aside>

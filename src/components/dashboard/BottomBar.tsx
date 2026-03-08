@@ -5,10 +5,28 @@ interface Props {
 const BottomBar = ({ runtime }: Props) => (
   <footer className="h-12 glass-panel border-t border-border/50 flex items-center px-4 font-mono text-xs relative z-10">
     <div className="flex items-center">
+      <div className="flex items-center gap-2 mr-4">
+        <div className="status-dot-green" />
+        <span className="text-neon-green text-[11px] font-semibold">ONLINE</span>
+      </div>
       <Metric label="CPU" value="32%" />
       <Metric label="MEM" value="12GB" />
-      <Metric label="GPU" value="89%" />
-      <div className="ml-4 pl-4 border-l border-border/50 flex items-center gap-2">
+      <div className="flex items-center gap-2 mr-4">
+        <span className="text-muted-foreground">GPU</span>
+        <span className="text-neon-green font-semibold">89%</span>
+        <span className="text-neon-yellow font-semibold">67°C</span>
+      </div>
+      <div className="flex items-center gap-2 mr-4">
+        <span className="text-muted-foreground">NET</span>
+        <span className="text-neon-cyan font-semibold">↓ 24KB/s</span>
+        <span className="text-muted-foreground">↑ 0KB/s</span>
+      </div>
+      <div className="flex items-center gap-2 mr-4 pl-4 border-l border-border/50">
+        <span className="text-muted-foreground">TOKENS</span>
+        <span className="text-neon-cyan font-semibold">142K</span>
+        <span className="text-neon-green">— $0.00</span>
+      </div>
+      <div className="pl-4 border-l border-border/50 flex items-center gap-2">
         <span className="text-muted-foreground">RUNTIME</span>
         <span className="text-neon-cyan font-semibold">{runtime}</span>
       </div>
@@ -27,7 +45,7 @@ const BottomBar = ({ runtime }: Props) => (
       </div>
     </div>
 
-    <button className="ml-auto bg-neon-red/10 text-neon-red border border-neon-red/30 px-3 py-1.5 rounded font-mono text-[11px] font-bold uppercase tracking-wider hover:bg-neon-red/20 transition-colors">
+    <button className="ml-auto bg-neon-red/10 text-neon-red border border-neon-red/30 px-3 py-1.5 rounded font-mono text-[11px] font-bold uppercase tracking-wider hover:bg-neon-red/20 transition-colors glow-red-hover">
       STOP ALL AGENTS
     </button>
   </footer>
