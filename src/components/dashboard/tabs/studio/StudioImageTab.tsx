@@ -44,6 +44,7 @@ interface Props {
 }
 
 const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHistory }: Props) => {
+  const { isDesktop } = useResponsive();
   const [selectedStyle, setSelectedStyle] = useState('Photorealistic');
   const [aspectRatio, setAspectRatio] = useState('16:9');
   const [selectedModel, setSelectedModel] = useState('sdxl');
