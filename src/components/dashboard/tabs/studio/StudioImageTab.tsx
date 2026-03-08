@@ -162,10 +162,24 @@ const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHis
         </div>
       </div>
 
-      {/* FLOATING LEFT — Controls */}
+      {/* FLOATING LEFT — Controls (desktop: side panel, mobile/tablet: bottom sheet) */}
       {showControls && (
+        isDesktop ? (
         <div className="absolute left-0 top-0 bottom-0 z-30 animate-slide-in-left"
           style={{ width: 280, background: 'rgba(8,8,12,0.95)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(255,107,0,0.15)', borderRadius: '0 12px 12px 0' }}
+          onClick={e => e.stopPropagation()}>
+        ) : (
+        <div className="absolute left-0 right-0 bottom-0 z-30 animate-slide-up"
+          style={{ height: '45%', maxHeight: 360, background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px 16px 0 0' }}
+          onClick={e => e.stopPropagation()}>
+        )
+      )}
+      {showControls && (
+        <div className={`${isDesktop ? 'absolute left-0 top-0 bottom-0 z-30 animate-slide-in-left' : 'absolute left-0 right-0 bottom-0 z-30 animate-slide-up'}`}
+          style={isDesktop
+            ? { width: 280, background: 'rgba(8,8,12,0.95)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(255,107,0,0.15)', borderRadius: '0 12px 12px 0' }
+            : { height: '45%', maxHeight: 360, background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px 16px 0 0' }
+          }
           onClick={e => e.stopPropagation()}>
           <div className="h-full overflow-y-auto p-4 space-y-4">
             <div className="flex items-center justify-between">
