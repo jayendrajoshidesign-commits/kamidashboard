@@ -13,7 +13,8 @@ interface Props {
   agents: ApiAgent[];
 }
 
-const LiveAgents = ({ agents }: Props) => {
+const LiveAgents = ({ agents: rawAgents }: Props) => {
+  const agents = Array.isArray(rawAgents) ? rawAgents : [];
   const [filter, setFilter] = useState<Filter>('All');
   const [expanded, setExpanded] = useState<string | null>(null);
   const { isMobile, isTablet } = useResponsive();
