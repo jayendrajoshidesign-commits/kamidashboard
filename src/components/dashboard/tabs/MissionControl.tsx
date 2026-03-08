@@ -108,7 +108,7 @@ const MissionControl = ({ isConnected, missions }: Props) => {
     }
   };
 
-  const current = missions.current;
+  const current = missions?.current;
   const tasksCompleted = current ? current.tasks : 22;
   const activeAgents = current ? `${current.agents}/11` : '8/11';
   const lastSys = sysData[sysData.length - 1];
