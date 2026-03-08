@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { Camera, Check, ZoomIn, ZoomOut, Maximize2, Grid3X3, X, ChevronDown, ChevronRight, Key, Clock } from 'lucide-react';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const STYLES = [
   { name: 'Photorealistic', icon: '📷', gradient: 'from-blue-950/40 to-slate-900/30' },
@@ -43,6 +44,7 @@ interface Props {
 }
 
 const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHistory }: Props) => {
+  const { isDesktop } = useResponsive();
   const [selectedStyle, setSelectedStyle] = useState('Photorealistic');
   const [aspectRatio, setAspectRatio] = useState('16:9');
   const [selectedModel, setSelectedModel] = useState('sdxl');
@@ -160,11 +162,18 @@ const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHis
         </div>
       </div>
 
-      {/* FLOATING LEFT — Controls */}
       {showControls && (
-        <div className="absolute left-0 top-0 bottom-0 z-30 animate-slide-in-left"
-          style={{ width: 280, background: 'rgba(8,8,12,0.95)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(255,107,0,0.15)', borderRadius: '0 12px 12px 0' }}
+        <div className={isDesktop ? 'absolute left-0 top-0 bottom-0 z-30 animate-slide-in-left' : 'absolute left-0 right-0 bottom-0 z-30 animate-slide-up'}
+          style={isDesktop
+            ? { width: 280, background: 'rgba(8,8,12,0.95)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(255,107,0,0.15)', borderRadius: '0 12px 12px 0' }
+            : { height: '45%', maxHeight: 360, background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px 16px 0 0' }
+          }
           onClick={e => e.stopPropagation()}>
+          {!isDesktop && (
+            <div className="flex justify-center pt-1.5 pb-1">
+              <div className="w-8 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />
+            </div>
+          )}
           <div className="h-full overflow-y-auto p-4 space-y-4">
             <div className="flex items-center justify-between">
               <span className="section-header">Controls</span>
@@ -326,11 +335,18 @@ const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHis
         </div>
       )}
 
-      {/* FLOATING RIGHT — History */}
       {showHistory && (
-        <div className="absolute right-0 top-0 bottom-0 z-30 animate-slide-in-right"
-          style={{ width: 200, background: 'rgba(8,8,12,0.95)', backdropFilter: 'blur(20px)', borderLeft: '1px solid rgba(255,107,0,0.15)', borderRadius: '12px 0 0 12px' }}
+        <div className={isDesktop ? 'absolute right-0 top-0 bottom-0 z-30 animate-slide-in-right' : 'absolute left-0 right-0 bottom-0 z-30 animate-slide-up'}
+          style={isDesktop
+            ? { width: 200, background: 'rgba(8,8,12,0.95)', backdropFilter: 'blur(20px)', borderLeft: '1px solid rgba(255,107,0,0.15)', borderRadius: '12px 0 0 12px' }
+            : { height: '40%', maxHeight: 320, background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px 16px 0 0' }
+          }
           onClick={e => e.stopPropagation()}>
+          {!isDesktop && (
+            <div className="flex justify-center pt-1.5 pb-1">
+              <div className="w-8 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />
+            </div>
+          )}
           <div className="h-full overflow-y-auto p-3 space-y-4">
             <div className="flex items-center justify-between">
               <span className="section-header">History</span>

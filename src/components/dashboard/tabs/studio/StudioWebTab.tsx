@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Monitor, Tablet, Smartphone, FolderTree, File, Rocket, RefreshCw, ChevronDown, Check, Circle, X } from 'lucide-react';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const FILE_TREE = [
   { name: 'src/', icon: FolderTree, color: '#FF8C00', indent: 0, isDir: true },
@@ -58,103 +59,23 @@ interface Props {
 const StudioWebTab = ({ showChat, showFiles, onCloseChat, onCloseFiles }: Props) => {
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'phone'>('desktop');
   const [leftMode, setLeftMode] = useState<'chat' | 'code'>('chat');
+  const { isDesktop } = useResponsive();
 
   const previewWidth = device === 'desktop' ? '100%' : device === 'tablet' ? 768 : 375;
 
-  const leftPanelWidth = showChat ? 200 : 0;
-  const rightPanelWidth = showFiles ? 160 : 0;
+  // On desktop, panels push the preview. On mobile/tablet, panels are bottom sheets.
+  const leftPanelWidth = isDesktop && showChat ? 200 : 0;
+  const rightPanelWidth = isDesktop && showFiles ? 160 : 0;
 
   return (
     <div className="relative w-full h-full flex overflow-hidden">
-      {/* LEFT PANEL — Chat (pushes preview) */}
-      <div className="flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out"
-        style={{ width: leftPanelWidth, background: 'rgba(8,8,12,0.95)', borderRight: showChat ? '1px solid rgba(255,107,0,0.15)' : 'none' }}>
-        {showChat && (
-          <div className="h-full flex flex-col" style={{ width: 200 }}>
-            <div className="px-3 py-2.5 flex items-center gap-2 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-              <div className="w-5 h-5 rounded bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(var(--neon-pink))] flex items-center justify-center">
-                <span className="text-[10px] text-white font-bold">I</span>
-              </div>
-              <span className="text-xs font-semibold text-foreground">InvoiceFlow</span>
-              <ChevronDown className="w-3 h-3 text-muted-foreground" />
-              <button onClick={onCloseChat} className="ml-auto p-1 rounded hover:bg-[rgba(255,255,255,0.05)] transition-colors">
-                <X className="w-3.5 h-3.5 text-muted-foreground" />
-              </button>
-            </div>
-
-            {leftMode === 'chat' ? (
-              <div className="flex-1 flex flex-col overflow-hidden">
-                <div className="flex-1 overflow-y-auto p-3 space-y-3">
-                  {CHAT_MESSAGES.map((m, i) => (
-                    <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[85%] px-3 py-2 text-[11px] leading-relaxed ${
-                        m.role === 'user' ? 'rounded-[14px_4px_14px_14px] text-foreground' : 'rounded-[4px_14px_14px_14px] text-foreground/90'
-                      }`} style={{
-                        background: m.role === 'user' ? 'rgba(255,255,255,0.06)' : 'rgba(10,10,14,0.9)',
-                        border: `1px solid ${m.role === 'user' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)'}`,
-                      }}>
-                        {m.text}
-                      </div>
-                    </div>
-                  ))}
-                  <div className="space-y-1.5 mt-2">
-                    {BUILD_STEPS.map((s, i) => (
-                      <div key={i} className="flex items-center gap-2 text-[10px]">
-                        {s.done ? <Check className="w-3 h-3 text-[hsl(var(--neon-green))]" /> : <Circle className="w-3 h-3 text-muted-foreground animate-pulse" />}
-                        <span className={s.done ? 'text-foreground/70' : 'text-muted-foreground'}>{s.text}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="p-2 flex-shrink-0" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div className="rounded-lg px-2.5 py-1.5 text-[10px] text-muted-foreground"
-                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    Ask Lovable...
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="flex-1 flex flex-col overflow-hidden">
-                <div className="flex gap-0 px-3 pt-2 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                  {['HTML', 'CSS', 'JS'].map(lang => (
-                    <button key={lang} className="px-2.5 py-1.5 text-[10px] font-medium transition-colors"
-                      style={lang === 'HTML' ? { color: '#FF8C00', borderBottom: '2px solid #FF6B00' } : { color: 'hsl(var(--muted-foreground))' }}>
-                      {lang}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex-1 overflow-auto p-2 font-mono text-[10px] leading-relaxed" style={{ background: '#030306' }}>
-                  {SAMPLE_HTML.split('\n').map((line, i) => (
-                    <div key={i} className="flex">
-                      <span className="w-5 text-right mr-2 select-none" style={{ color: '#333' }}>{i + 1}</span>
-                      <span>
-                        {line.split(/(<[^>]+>)/g).map((part, j) => {
-                          if (part.startsWith('<')) return <span key={j} style={{ color: '#FF6B00' }}>{part}</span>;
-                          if (part.includes('"')) return <span key={j} style={{ color: '#4ade80' }}>{part}</span>;
-                          return <span key={j} className="text-foreground/50">{part}</span>;
-                        })}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="flex gap-1 p-1.5 mx-2 mb-2 rounded-lg flex-shrink-0" style={{ background: 'rgba(255,255,255,0.03)' }}>
-              <button onClick={() => setLeftMode('chat')}
-                className="flex-1 py-1 rounded text-[10px] font-medium transition-all text-center"
-                style={leftMode === 'chat' ? { background: 'rgba(255,255,255,0.08)', color: '#fff' } : { color: 'hsl(var(--muted-foreground))' }}>
-                Chat
-              </button>
-              <button onClick={() => setLeftMode('code')}
-                className="flex-1 py-1 rounded text-[10px] font-medium transition-all text-center"
-                style={leftMode === 'code' ? { background: 'rgba(255,255,255,0.08)', color: '#fff' } : { color: 'hsl(var(--muted-foreground))' }}>
-                Code
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+      {/* LEFT PANEL — Chat (desktop: pushes preview) */}
+      {isDesktop && (
+        <div className="flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out"
+          style={{ width: leftPanelWidth, background: 'rgba(8,8,12,0.95)', borderRight: showChat ? '1px solid rgba(255,107,0,0.15)' : 'none' }}>
+          {showChat && <ChatPanel onClose={onCloseChat} leftMode={leftMode} setLeftMode={setLeftMode} />}
+        </div>
+      )}
 
       {/* CENTER — Browser preview (takes remaining space) */}
       <div className="flex-1 flex flex-col overflow-hidden transition-all duration-300" style={{ background: '#0a0a0e' }}>
@@ -272,45 +193,158 @@ const StudioWebTab = ({ showChat, showFiles, onCloseChat, onCloseFiles }: Props)
         </div>
       </div>
 
-      {/* RIGHT PANEL — File tree (pushes preview) */}
-      <div className="flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out"
-        style={{ width: rightPanelWidth, background: 'rgba(8,8,12,0.95)', borderLeft: showFiles ? '1px solid rgba(255,107,0,0.15)' : 'none' }}>
-        {showFiles && (
-          <div className="h-full flex flex-col" style={{ width: 160 }}>
-            <div className="flex items-center justify-between px-3 py-2 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-              <span className="section-header">Files</span>
-              <div className="flex items-center gap-1">
-                <RefreshCw className="w-3 h-3 text-muted-foreground hover:text-foreground cursor-pointer" />
-                <button onClick={onCloseFiles} className="p-1 rounded hover:bg-[rgba(255,255,255,0.05)] transition-colors">
-                  <X className="w-3.5 h-3.5 text-muted-foreground" />
-                </button>
-              </div>
-            </div>
-            <div className="flex-1 p-2 space-y-0.5 text-[10px] overflow-y-auto">
-              {FILE_TREE.map((f, i) => (
-                <div key={i}
-                  className={`flex items-center gap-1.5 px-1.5 py-1 rounded cursor-pointer transition-colors ${f.active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-                  style={{
-                    paddingLeft: f.indent * 10 + 6,
-                    background: f.active ? 'rgba(255,107,0,0.06)' : undefined,
-                    borderLeft: f.active ? '2px solid #FF6B00' : '2px solid transparent',
-                  }}>
-                  <f.icon className="w-3 h-3 flex-shrink-0" style={{ color: f.color }} />
-                  <span className={f.isDir ? 'font-medium' : ''}>{f.name}</span>
-                </div>
-              ))}
-            </div>
-            <div className="p-2 flex-shrink-0">
-              <button className="w-full text-primary-foreground py-1.5 rounded-lg text-[10px] font-semibold flex items-center justify-center gap-1.5 transition-opacity hover:opacity-90"
-                style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--neon-pink)))' }}>
-                <Rocket className="w-3 h-3" /> Deploy
-              </button>
-            </div>
+      {/* RIGHT PANEL — File tree (desktop: pushes preview) */}
+      {isDesktop && (
+        <div className="flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out"
+          style={{ width: rightPanelWidth, background: 'rgba(8,8,12,0.95)', borderLeft: showFiles ? '1px solid rgba(255,107,0,0.15)' : 'none' }}>
+          {showFiles && <FilesPanel onClose={onCloseFiles} />}
+        </div>
+      )}
+
+      {/* MOBILE/TABLET — Chat bottom sheet */}
+      {!isDesktop && showChat && (
+        <div className="absolute left-0 right-0 bottom-0 z-30 animate-slide-up"
+          style={{ height: '45%', maxHeight: 360, background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px 16px 0 0' }}>
+          <div className="flex justify-center pt-1.5 pb-1">
+            <div className="w-8 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />
           </div>
-        )}
-      </div>
+          <ChatPanel onClose={onCloseChat} leftMode={leftMode} setLeftMode={setLeftMode} />
+        </div>
+      )}
+
+      {/* MOBILE/TABLET — Files bottom sheet */}
+      {!isDesktop && showFiles && (
+        <div className="absolute left-0 right-0 bottom-0 z-30 animate-slide-up"
+          style={{ height: '40%', maxHeight: 320, background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px 16px 0 0' }}>
+          <div className="flex justify-center pt-1.5 pb-1">
+            <div className="w-8 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />
+          </div>
+          <FilesPanel onClose={onCloseFiles} />
+        </div>
+      )}
     </div>
   );
 };
+
+/* Extracted sub-components to avoid duplication */
+const ChatPanel = ({ onClose, leftMode, setLeftMode }: { onClose: () => void; leftMode: 'chat' | 'code'; setLeftMode: (m: 'chat' | 'code') => void }) => (
+  <div className="h-full flex flex-col" style={{ minWidth: 0 }}>
+    <div className="px-3 py-2.5 flex items-center gap-2 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <div className="w-5 h-5 rounded bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(var(--neon-pink))] flex items-center justify-center">
+        <span className="text-[10px] text-white font-bold">I</span>
+      </div>
+      <span className="text-xs font-semibold text-foreground">InvoiceFlow</span>
+      <ChevronDown className="w-3 h-3 text-muted-foreground" />
+      <button onClick={onClose} className="ml-auto p-1 rounded hover:bg-[rgba(255,255,255,0.05)] transition-colors">
+        <X className="w-3.5 h-3.5 text-muted-foreground" />
+      </button>
+    </div>
+
+    {leftMode === 'chat' ? (
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-3 space-y-3">
+          {CHAT_MESSAGES.map((m, i) => (
+            <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-[85%] px-3 py-2 text-[11px] leading-relaxed ${
+                m.role === 'user' ? 'rounded-[14px_4px_14px_14px] text-foreground' : 'rounded-[4px_14px_14px_14px] text-foreground/90'
+              }`} style={{
+                background: m.role === 'user' ? 'rgba(255,255,255,0.06)' : 'rgba(10,10,14,0.9)',
+                border: `1px solid ${m.role === 'user' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)'}`,
+              }}>
+                {m.text}
+              </div>
+            </div>
+          ))}
+          <div className="space-y-1.5 mt-2">
+            {BUILD_STEPS.map((s, i) => (
+              <div key={i} className="flex items-center gap-2 text-[10px]">
+                {s.done ? <Check className="w-3 h-3 text-[hsl(var(--neon-green))]" /> : <Circle className="w-3 h-3 text-muted-foreground animate-pulse" />}
+                <span className={s.done ? 'text-foreground/70' : 'text-muted-foreground'}>{s.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="p-2 flex-shrink-0" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          <div className="rounded-lg px-2.5 py-1.5 text-[10px] text-muted-foreground"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            Ask Lovable...
+          </div>
+        </div>
+      </div>
+    ) : (
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex gap-0 px-3 pt-2 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          {['HTML', 'CSS', 'JS'].map(lang => (
+            <button key={lang} className="px-2.5 py-1.5 text-[10px] font-medium transition-colors"
+              style={lang === 'HTML' ? { color: '#FF8C00', borderBottom: '2px solid #FF6B00' } : { color: 'hsl(var(--muted-foreground))' }}>
+              {lang}
+            </button>
+          ))}
+        </div>
+        <div className="flex-1 overflow-auto p-2 font-mono text-[10px] leading-relaxed" style={{ background: '#030306' }}>
+          {SAMPLE_HTML.split('\n').map((line, i) => (
+            <div key={i} className="flex">
+              <span className="w-5 text-right mr-2 select-none" style={{ color: '#333' }}>{i + 1}</span>
+              <span>
+                {line.split(/(<[^>]+>)/g).map((part, j) => {
+                  if (part.startsWith('<')) return <span key={j} style={{ color: '#FF6B00' }}>{part}</span>;
+                  if (part.includes('"')) return <span key={j} style={{ color: '#4ade80' }}>{part}</span>;
+                  return <span key={j} className="text-foreground/50">{part}</span>;
+                })}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <div className="flex gap-1 p-1.5 mx-2 mb-2 rounded-lg flex-shrink-0" style={{ background: 'rgba(255,255,255,0.03)' }}>
+      <button onClick={() => setLeftMode('chat')}
+        className="flex-1 py-1 rounded text-[10px] font-medium transition-all text-center"
+        style={leftMode === 'chat' ? { background: 'rgba(255,255,255,0.08)', color: '#fff' } : { color: 'hsl(var(--muted-foreground))' }}>
+        Chat
+      </button>
+      <button onClick={() => setLeftMode('code')}
+        className="flex-1 py-1 rounded text-[10px] font-medium transition-all text-center"
+        style={leftMode === 'code' ? { background: 'rgba(255,255,255,0.08)', color: '#fff' } : { color: 'hsl(var(--muted-foreground))' }}>
+        Code
+      </button>
+    </div>
+  </div>
+);
+
+const FilesPanel = ({ onClose }: { onClose: () => void }) => (
+  <div className="h-full flex flex-col" style={{ minWidth: 0 }}>
+    <div className="flex items-center justify-between px-3 py-2 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <span className="section-header">Files</span>
+      <div className="flex items-center gap-1">
+        <RefreshCw className="w-3 h-3 text-muted-foreground hover:text-foreground cursor-pointer" />
+        <button onClick={onClose} className="p-1 rounded hover:bg-[rgba(255,255,255,0.05)] transition-colors">
+          <X className="w-3.5 h-3.5 text-muted-foreground" />
+        </button>
+      </div>
+    </div>
+    <div className="flex-1 p-2 space-y-0.5 text-[10px] overflow-y-auto">
+      {FILE_TREE.map((f, i) => (
+        <div key={i}
+          className={`flex items-center gap-1.5 px-1.5 py-1 rounded cursor-pointer transition-colors ${f.active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+          style={{
+            paddingLeft: f.indent * 10 + 6,
+            background: f.active ? 'rgba(255,107,0,0.06)' : undefined,
+            borderLeft: f.active ? '2px solid #FF6B00' : '2px solid transparent',
+          }}>
+          <f.icon className="w-3 h-3 flex-shrink-0" style={{ color: f.color }} />
+          <span className={f.isDir ? 'font-medium' : ''}>{f.name}</span>
+        </div>
+      ))}
+    </div>
+    <div className="p-2 flex-shrink-0">
+      <button className="w-full text-primary-foreground py-1.5 rounded-lg text-[10px] font-semibold flex items-center justify-center gap-1.5 transition-opacity hover:opacity-90"
+        style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--neon-pink)))' }}>
+        <Rocket className="w-3 h-3" /> Deploy
+      </button>
+    </div>
+  </div>
+);
 
 export default StudioWebTab;
