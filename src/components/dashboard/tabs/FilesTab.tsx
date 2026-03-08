@@ -29,7 +29,8 @@ interface Props {
   isConnected: boolean;
 }
 
-const FilesTab = ({ files, isConnected }: Props) => {
+const FilesTab = ({ files: rawFiles, isConnected }: Props) => {
+  const files = Array.isArray(rawFiles) ? rawFiles : [];
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [search, setSearch] = useState('');
