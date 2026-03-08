@@ -37,7 +37,8 @@ interface Props {
   isMobileSheet?: boolean;
 }
 
-const RightPanel = ({ logs, isMobileSheet }: Props) => {
+const RightPanel = ({ logs: rawLogs, isMobileSheet }: Props) => {
+  const logs = Array.isArray(rawLogs) ? rawLogs : [];
   const termRef = useRef<HTMLDivElement>(null);
   const [sysData, setSysData] = useState(genSysData);
   const [netData, setNetData] = useState(genNetData);
