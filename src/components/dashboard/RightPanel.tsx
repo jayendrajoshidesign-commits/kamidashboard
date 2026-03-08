@@ -34,9 +34,10 @@ const TICKER_URLS = [
 
 interface Props {
   logs: LogEntry[];
+  isMobileSheet?: boolean;
 }
 
-const RightPanel = ({ logs }: Props) => {
+const RightPanel = ({ logs, isMobileSheet }: Props) => {
   const termRef = useRef<HTMLDivElement>(null);
   const [sysData, setSysData] = useState(genSysData);
   const [netData, setNetData] = useState(genNetData);
@@ -62,15 +63,15 @@ const RightPanel = ({ logs }: Props) => {
   const lastSys = sysData[sysData.length - 1];
 
   return (
-    <aside className="w-[280px] flex-shrink-0 flex flex-col"
-      style={{
+    <aside className={`flex flex-col ${isMobileSheet ? 'w-full h-full' : 'w-[280px] flex-shrink-0'}`}
+      style={isMobileSheet ? {} : {
         background: 'rgba(8, 8, 10, 0.92)',
         backdropFilter: 'blur(24px)',
         borderLeft: '1px solid rgba(255, 255, 255, 0.05)',
       }}>
 
       {/* TERMINAL */}
-      <div className="flex flex-col" style={{ height: '35%' }}>
+      <div className="flex flex-col" style={{ height: isMobileSheet ? '40%' : '35%' }}>
         <div className="px-3 py-2 flex justify-between items-center" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <span className="section-header">Terminal</span>
           <div className="flex items-center gap-2">

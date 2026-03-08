@@ -3,10 +3,12 @@ import { TERMINAL_MESSAGES } from '@/data/dashboardData';
 import { useApiConnection, usePolledData } from '@/hooks/useApiConnection';
 import { api, mockData } from '@/services/apiService';
 import type { ApiLogEntry, ApiAgent, ApiMissionsResponse, ApiFile, ApiManifest } from '@/services/apiService';
+import { useResponsive } from '@/hooks/useResponsive';
 import LeftPanel from '@/components/dashboard/LeftPanel';
 import RightPanel from '@/components/dashboard/RightPanel';
 import BottomBar from '@/components/dashboard/BottomBar';
 import TabNav from '@/components/dashboard/TabNav';
+import MobileTabBar from '@/components/dashboard/MobileTabBar';
 import MissionControl from '@/components/dashboard/tabs/MissionControl';
 import KamiTab from '@/components/dashboard/tabs/KamiTab';
 import ProjectsTab from '@/components/dashboard/tabs/ProjectsTab';
@@ -19,6 +21,7 @@ import Analytics from '@/components/dashboard/tabs/Analytics';
 import SettingsTab from '@/components/dashboard/tabs/SettingsTab';
 import Revenue from '@/components/dashboard/tabs/Revenue';
 import Comms from '@/components/dashboard/tabs/Comms';
+import { Menu, Terminal, X } from 'lucide-react';
 
 const TABS = ['Mission Control', 'KAMI', 'Projects', 'Live Agents', 'Live Browser', 'Sources', 'Analytics', 'Files', 'Studio', 'Revenue', 'Comms', 'Settings'] as const;
 type TabId = typeof TABS[number];
@@ -34,6 +37,11 @@ const Index = () => {
   const [seconds, setSeconds] = useState(863);
   const { isConnected } = useApiConnection();
   const [logs, setLogs] = useState<LogEntry[]>(mockData.terminal());
+  const { isMobile, isTablet, isDesktop } = useResponsive();
+
+  // Panel overlay states for tablet/mobile
+  const [showLeftPanel, setShowLeftPanel] = useState(false);
+  const [showRightPanel, setShowRightPanel] = useState(false);
 
   useEffect(() => {
     if (!isConnected) {
@@ -74,6 +82,11 @@ const Index = () => {
     if (!isStudio) { setLeftOverlay(false); setRightOverlay(false); }
   }, [isStudio]);
 
+  // Close panel overlays when switching to desktop
+  useEffect(() => {
+    if (isDesktop) { setShowLeftPanel(false); setShowRightPanel(false); }
+  }, [isDesktop]);
+
   const renderTab = useCallback(() => {
     switch (activeTab) {
       case 'Mission Control': return <MissionControl isConnected={isConnected} missions={missions} />;
@@ -100,23 +113,62 @@ const Index = () => {
         <div className="mesh-orb mesh-orb-3" />
       </div>
 
-      {/* Tab nav — ALWAYS full width, never affected by panels */}
-      <div className="relative z-20">
-        <TabNav tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} isConnected={isConnected} fileBadge={files.length} />
-      </div>
+      {/* Top nav — desktop & tablet only */}
+      {!isMobile && (
+        <div className="relative z-20 flex items-center">
+          {/* Hamburger for tablet */}
+          {isTablet && (
+            <button onClick={() => setShowLeftPanel(true)}
+              className="flex-shrink-0 p-2.5 z-30 relative"
+              style={{ color: '#FF8C00' }}>
+              <Menu className="w-5 h-5" />
+            </button>
+          )}
+          <div className="flex-1 min-w-0">
+            <TabNav tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} isConnected={isConnected} fileBadge={files.length} isTablet={isTablet} />
+          </div>
+          {/* Terminal icon for tablet */}
+          {isTablet && (
+            <button onClick={() => setShowRightPanel(true)}
+              className="flex-shrink-0 p-2.5 z-30 relative font-mono text-xs"
+              style={{ color: '#FF8C00' }}>
+              <Terminal className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Mobile top bar with hamburger + title + terminal */}
+      {isMobile && (
+        <div className="relative z-20 flex items-center h-11 px-3 gap-2 flex-shrink-0"
+          style={{ background: 'rgba(5,5,7,0.95)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <button onClick={() => setShowLeftPanel(true)} style={{ color: '#FF8C00' }}>
+            <Menu className="w-5 h-5" />
+          </button>
+          <div className="flex-1 min-w-0">
+            <span className="text-xs font-bold text-foreground">KAMI</span>
+            <span className="text-[10px] text-muted-foreground ml-2">{activeTab}</span>
+          </div>
+          <button onClick={() => setShowRightPanel(true)} className="font-mono text-xs" style={{ color: '#FF8C00' }}>
+            <Terminal className="w-5 h-5" />
+          </button>
+        </div>
+      )}
 
       {/* Main content row */}
-      <div className="flex flex-1 overflow-hidden relative z-10"
+      <div className={`flex flex-1 overflow-hidden relative z-10 ${isMobile ? 'pb-[92px]' : ''}`}
         onClick={() => { if (isStudio) { setLeftOverlay(false); setRightOverlay(false); } }}>
 
-        {/* Left panel — hidden in Studio mode */}
-        <div className="flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden"
-          style={{ width: isStudio ? 0 : undefined }}>
-          {!isStudio && <LeftPanel isConnected={isConnected} />}
-        </div>
+        {/* Left panel — desktop only (not studio) */}
+        {isDesktop && (
+          <div className="flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden"
+            style={{ width: isStudio ? 0 : undefined }}>
+            {!isStudio && <LeftPanel isConnected={isConnected} />}
+          </div>
+        )}
 
-        {/* Left edge strip in Studio */}
-        {isStudio && !leftOverlay && (
+        {/* Left edge strip in Studio (desktop) */}
+        {isDesktop && isStudio && !leftOverlay && (
           <div className="flex-shrink-0 flex items-center cursor-pointer group"
             style={{ width: 24, background: 'rgba(8,8,11,0.6)', borderRight: '1px solid rgba(255,255,255,0.05)' }}
             onClick={e => { e.stopPropagation(); setLeftOverlay(true); }}>
@@ -125,8 +177,8 @@ const Index = () => {
           </div>
         )}
 
-        {/* Left overlay in Studio */}
-        {isStudio && leftOverlay && (
+        {/* Left overlay in Studio (desktop) */}
+        {isDesktop && isStudio && leftOverlay && (
           <div className="absolute left-0 top-0 bottom-0 z-40 animate-slide-in-left" onClick={e => e.stopPropagation()}
             style={{ width: 260, boxShadow: '4px 0 24px rgba(0,0,0,0.5)' }}>
             <LeftPanel isConnected={isConnected} />
@@ -135,19 +187,21 @@ const Index = () => {
 
         {/* Main content area */}
         <div className={`flex-1 overflow-hidden ${isStudio ? '' : 'overflow-y-auto'}`}>
-          <div className={`h-full ${isStudio ? '' : 'p-6'} tab-fade-in`} key={activeTab}>
+          <div className={`h-full ${isStudio ? '' : isMobile ? 'p-3' : 'p-6'} tab-fade-in`} key={activeTab}>
             {renderTab()}
           </div>
         </div>
 
-        {/* Right panel — hidden in Studio mode */}
-        <div className="flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden"
-          style={{ width: isStudio ? 0 : undefined }}>
-          {!isStudio && <RightPanel logs={logs} />}
-        </div>
+        {/* Right panel — desktop only (not studio) */}
+        {isDesktop && (
+          <div className="flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden"
+            style={{ width: isStudio ? 0 : undefined }}>
+            {!isStudio && <RightPanel logs={logs} />}
+          </div>
+        )}
 
-        {/* Right edge strip in Studio */}
-        {isStudio && !rightOverlay && (
+        {/* Right edge strip in Studio (desktop) */}
+        {isDesktop && isStudio && !rightOverlay && (
           <div className="flex-shrink-0 flex items-center cursor-pointer group"
             style={{ width: 24, background: 'rgba(8,8,11,0.6)', borderLeft: '1px solid rgba(255,255,255,0.05)' }}
             onClick={e => { e.stopPropagation(); setRightOverlay(true); }}>
@@ -156,8 +210,8 @@ const Index = () => {
           </div>
         )}
 
-        {/* Right overlay in Studio */}
-        {isStudio && rightOverlay && (
+        {/* Right overlay in Studio (desktop) */}
+        {isDesktop && isStudio && rightOverlay && (
           <div className="absolute right-0 top-0 bottom-0 z-40 animate-slide-in-right" onClick={e => e.stopPropagation()}
             style={{ width: 320, boxShadow: '-4px 0 24px rgba(0,0,0,0.5)' }}>
             <RightPanel logs={logs} />
@@ -165,14 +219,70 @@ const Index = () => {
         )}
       </div>
 
+      {/* Tablet/mobile left panel overlay */}
+      {!isDesktop && showLeftPanel && (
+        <>
+          <div className="fixed inset-0 z-50" style={{ background: 'rgba(0,0,0,0.6)' }} onClick={() => setShowLeftPanel(false)} />
+          {isMobile ? (
+            /* Mobile: bottom sheet */
+            <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl overflow-hidden animate-slide-up"
+              style={{ height: '80vh', background: 'rgba(8,8,10,0.98)', backdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,107,0,0.15)' }}>
+              <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <span className="text-sm font-semibold text-foreground">Agent Status</span>
+                <button onClick={() => setShowLeftPanel(false)} className="p-1"><X className="w-5 h-5 text-muted-foreground" /></button>
+              </div>
+              <div className="h-[calc(100%-48px)] overflow-y-auto">
+                <LeftPanel isConnected={isConnected} isMobileSheet />
+              </div>
+            </div>
+          ) : (
+            /* Tablet: side overlay */
+            <div className="fixed left-0 top-0 bottom-0 z-50 animate-slide-in-left"
+              style={{ width: 240, background: 'rgba(8,8,10,0.98)', backdropFilter: 'blur(24px)', boxShadow: '4px 0 24px rgba(0,0,0,0.5)' }}>
+              <LeftPanel isConnected={isConnected} />
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Tablet/mobile right panel overlay */}
+      {!isDesktop && showRightPanel && (
+        <>
+          <div className="fixed inset-0 z-50" style={{ background: 'rgba(0,0,0,0.6)' }} onClick={() => setShowRightPanel(false)} />
+          {isMobile ? (
+            <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl overflow-hidden animate-slide-up"
+              style={{ height: '80vh', background: 'rgba(8,8,10,0.98)', backdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,107,0,0.15)' }}>
+              <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <span className="text-sm font-semibold text-foreground">Terminal & System</span>
+                <button onClick={() => setShowRightPanel(false)} className="p-1"><X className="w-5 h-5 text-muted-foreground" /></button>
+              </div>
+              <div className="h-[calc(100%-48px)] overflow-y-auto">
+                <RightPanel logs={logs} isMobileSheet />
+              </div>
+            </div>
+          ) : (
+            <div className="fixed right-0 top-0 bottom-0 z-50 animate-slide-in-right-full"
+              style={{ width: 280, background: 'rgba(8,8,10,0.98)', backdropFilter: 'blur(24px)', boxShadow: '-4px 0 24px rgba(0,0,0,0.5)' }}>
+              <RightPanel logs={logs} />
+            </div>
+          )}
+        </>
+      )}
+
       <BottomBar
         runtime={runtime}
         isConnected={isConnected}
         missions={missions}
+        isMobile={isMobile}
         onStop={async () => {
           if (isConnected) { try { await api.stopMission(); } catch {} }
         }}
       />
+
+      {/* Mobile bottom tab bar */}
+      {isMobile && (
+        <MobileTabBar activeTab={activeTab} onTabChange={setActiveTab} />
+      )}
     </div>
   );
 };
