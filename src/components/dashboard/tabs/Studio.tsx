@@ -16,7 +16,7 @@ const Studio = () => {
   const toggleRight = () => subTab === 'image' ? setImgRightOpen(p => !p) : setWebRightOpen(p => !p);
 
   return (
-    <div className="flex flex-col h-full -m-6">
+    <div className="flex flex-col h-full">
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-2 flex-shrink-0" style={{ background: 'rgba(8,8,11,0.9)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="flex gap-1 p-0.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)' }}>
