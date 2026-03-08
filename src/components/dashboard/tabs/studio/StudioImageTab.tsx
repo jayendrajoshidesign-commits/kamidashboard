@@ -342,6 +342,11 @@ const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHis
             : { height: '40%', maxHeight: 320, background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px 16px 0 0' }
           }
           onClick={e => e.stopPropagation()}>
+          {!isDesktop && (
+            <div className="flex justify-center pt-1.5 pb-1">
+              <div className="w-8 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />
+            </div>
+          )}
           <div className="h-full overflow-y-auto p-3 space-y-4">
             <div className="flex items-center justify-between">
               <span className="section-header">History</span>
