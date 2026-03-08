@@ -28,6 +28,11 @@ interface Props {
 const MobileTabBar = ({ activeTab, onTabChange }: Props) => {
   const [showMore, setShowMore] = useState(false);
   const isPrimaryActive = PRIMARY_TABS.some(t => t.id === activeTab);
+  const moreSheetSwipe = useSwipeGesture({
+    onSwipeDown: () => setShowMore(false),
+    threshold: 40,
+    maxTime: 400,
+  });
 
   return (
     <>
@@ -36,7 +41,8 @@ const MobileTabBar = ({ activeTab, onTabChange }: Props) => {
         <>
           <div className="fixed inset-0 z-50" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }} onClick={() => setShowMore(false)} />
           <div className="fixed bottom-[56px] left-0 right-0 z-50 rounded-t-2xl overflow-hidden animate-slide-up"
-            style={{ background: 'rgba(8,8,10,0.98)', backdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,107,0,0.2)' }}>
+            style={{ background: 'rgba(8,8,10,0.98)', backdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,107,0,0.2)' }}
+            {...moreSheetSwipe}>
             {/* Handle bar */}
             <div className="flex justify-center pt-2 pb-1">
               <div className="w-8 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />
