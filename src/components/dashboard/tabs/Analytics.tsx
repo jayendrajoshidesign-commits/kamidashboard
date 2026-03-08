@@ -31,7 +31,7 @@ interface Props {
 
 const Analytics = ({ missions }: Props) => {
   const [timeRange, setTimeRange] = useState<TimeRange>('Today');
-  const history = missions.history;
+  const history = missions?.history || [];
   const { isMobile, isTablet } = useResponsive();
 
   return (
