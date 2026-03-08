@@ -165,6 +165,7 @@ const Index = () => {
   const renderTab = useCallback(() => {
     switch (activeTab) {
       case 'Mission Control': return <MissionControl isConnected={isConnected} missions={missions} />;
+      case 'Results': return <ResultsTab isConnected={isConnected} files={files} />;
       case 'KAMI': return <KamiTab isConnected={isConnected} />;
       case 'Projects': return <ProjectsTab />;
       case 'Live Agents': return <LiveAgents agents={agents} />;
