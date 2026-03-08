@@ -111,16 +111,16 @@ export const FILES_GENERATED = [
 
 export const ANALYTICS_TASKS_PER_AGENT = [
   { agent: 'Market Research', tasks: 8, color: '#FF6B00' },
-  { agent: 'CEO', tasks: 5, color: '#FF8C00' },
-  { agent: 'Sales', tasks: 4, color: '#4ade80' },
-  { agent: 'Marketing', tasks: 3, color: '#facc15' },
-  { agent: 'Design', tasks: 3, color: '#c084fc' },
-  { agent: 'COO', tasks: 2, color: '#3b82f6' },
-  { agent: 'Finance', tasks: 2, color: '#84cc16' },
-  { agent: 'Supervisor', tasks: 1, color: '#999999' },
+  { agent: 'CEO', tasks: 5, color: '#FF6B00' },
+  { agent: 'Sales', tasks: 4, color: '#FF6B00' },
+  { agent: 'Marketing', tasks: 3, color: '#FF6B00' },
+  { agent: 'Design', tasks: 3, color: '#FF6B00' },
+  { agent: 'COO', tasks: 2, color: '#FF6B00' },
+  { agent: 'Finance', tasks: 2, color: '#FF6B00' },
+  { agent: 'Supervisor', tasks: 1, color: '#FF6B00' },
   { agent: 'R&D', tasks: 1, color: '#FF6B00' },
-  { agent: 'Legal', tasks: 0, color: '#f87171' },
-  { agent: 'Customer Success', tasks: 0, color: '#FF8C00' },
+  { agent: 'Legal', tasks: 0, color: '#FF6B00' },
+  { agent: 'Customer Success', tasks: 0, color: '#FF6B00' },
 ];
 
 export const ANALYTICS_ACTIVITY = Array.from({ length: 12 }, (_, i) => ({
