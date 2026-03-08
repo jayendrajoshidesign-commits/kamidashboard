@@ -2,6 +2,7 @@ import { AGENTS, AGENT_COLORS } from '@/data/dashboardData';
 
 interface Props {
   isConnected: boolean;
+  isMobileSheet?: boolean;
 }
 
 const QUICK_METRICS = [
@@ -12,10 +13,10 @@ const QUICK_METRICS = [
   { label: 'TOK', value: '142K', color: '#FF8C00' },
 ];
 
-const LeftPanel = ({ isConnected }: Props) => {
+const LeftPanel = ({ isConnected, isMobileSheet }: Props) => {
   return (
-    <aside className="w-[280px] flex-shrink-0 flex flex-col z-10"
-      style={{
+    <aside className={`flex flex-col z-10 ${isMobileSheet ? 'w-full h-full' : 'w-[280px] flex-shrink-0'}`}
+      style={isMobileSheet ? {} : {
         background: 'rgba(8, 8, 10, 0.92)',
         backdropFilter: 'blur(24px)',
         borderRight: '1px solid rgba(255, 255, 255, 0.05)',

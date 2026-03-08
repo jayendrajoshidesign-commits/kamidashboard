@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { BROWSER_WINDOWS } from '@/data/dashboardData';
 import { api } from '@/services/apiService';
 import { Maximize2, X, ExternalLink, RefreshCw } from 'lucide-react';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const PANEL_CONTENT = [
   <div key="fb" className="h-full bg-white text-gray-900 text-[10px] overflow-hidden">
@@ -94,6 +95,8 @@ const LiveBrowser = ({ isConnected }: Props) => {
   const [extractCounts, setExtractCounts] = useState([0, 0, 0, 0]);
   const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
   const [expandedPanel, setExpandedPanel] = useState<number | null>(null);
+  const [mobileActivePanel, setMobileActivePanel] = useState(0);
+  const { isMobile, isTablet } = useResponsive();
 
   useEffect(() => {
     const i = setInterval(() => {
@@ -115,6 +118,43 @@ const LiveBrowser = ({ isConnected }: Props) => {
     return () => clearInterval(id);
   }, [isConnected]);
 
+  const renderPanel = (i: number) => (
+    <div className="glass-card overflow-hidden flex flex-col">
+      <div className="px-3 py-2 flex items-center gap-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
+        <div className="flex gap-1">
+          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#ef4444' }} />
+          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#eab308' }} />
+          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#22c55e' }} />
+        </div>
+        <div className="flex-1 px-2 py-0.5 rounded text-[10px] font-mono truncate" style={{ background: 'rgba(255,255,255,0.03)', color: '#FF8C00' }}>{BROWSER_WINDOWS[i].url}</div>
+        <button className="p-0.5 text-muted-foreground hover:text-foreground transition-colors">
+          <RefreshCw className="w-3 h-3" />
+        </button>
+        <button onClick={() => setExpandedPanel(i)} className="p-0.5 text-muted-foreground hover:text-foreground transition-colors">
+          <Maximize2 className="w-3 h-3" />
+        </button>
+      </div>
+      <div className="flex-1 relative overflow-hidden" style={{ minHeight: isMobile ? 250 : 150 }}>
+        <div
+          className="absolute left-0 w-full h-0.5 z-20"
+          style={{ animation: `scan 3s infinite linear`, animationDelay: BROWSER_WINDOWS[i].delay, backgroundColor: '#FF8C00', boxShadow: '0 0 6px #FF8C00' }}
+        />
+        {PANEL_CONTENT[i]}
+        <div className="absolute bottom-0 left-0 right-0 px-3 py-1.5 flex items-center justify-between z-10" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}>
+          <span className="text-[10px] font-mono flex items-center gap-1.5" style={{ color: '#FF8C00' }}>
+            <span className="w-1.5 h-1.5 rounded-full pulse-dot" style={{ backgroundColor: '#FF8C00' }} />
+            EXTRACTING...
+          </span>
+          <span className="text-[10px] font-mono text-muted-foreground">{extractCounts[i].toLocaleString()} chars</span>
+        </div>
+      </div>
+      <div className="px-3 py-1 text-[9px] font-mono text-muted-foreground flex items-center justify-between" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+        <span>{PANEL_TITLES[i]}</span>
+        <span>Last scraped: 2m ago</span>
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       {screenshotUrl && (
@@ -127,62 +167,46 @@ const LiveBrowser = ({ isConnected }: Props) => {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4 h-[400px]">
-        {BROWSER_WINDOWS.map((bw, i) => (
-          <div key={i} className="glass-card overflow-hidden flex flex-col">
-            <div className="px-3 py-2 flex items-center gap-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
-              <div className="flex gap-1">
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#ef4444' }} />
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#eab308' }} />
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#22c55e' }} />
-              </div>
-              <div className="flex-1 px-2 py-0.5 rounded text-[10px] font-mono truncate" style={{ background: 'rgba(255,255,255,0.03)', color: '#FF8C00' }}>{bw.url}</div>
-              <button className="p-0.5 text-muted-foreground hover:text-foreground transition-colors">
-                <RefreshCw className="w-3 h-3" />
+      {isMobile ? (
+        /* Mobile: single panel with tab switcher */
+        <div className="space-y-3">
+          <div className="flex gap-1 overflow-x-auto scrollbar-none">
+            {PANEL_TITLES.map((t, i) => (
+              <button key={i} onClick={() => setMobileActivePanel(i)}
+                className="text-[10px] px-3 py-1.5 rounded-full flex-shrink-0 transition-all min-h-[32px]"
+                style={mobileActivePanel === i
+                  ? { background: 'linear-gradient(135deg, #FF6B00, #CC3300)', color: '#fff' }
+                  : { background: 'rgba(255,255,255,0.03)', color: '#666', border: '1px solid rgba(255,255,255,0.05)' }
+                }>
+                {t.split(' — ')[0]}
               </button>
-              <button onClick={() => setExpandedPanel(i)} className="p-0.5 text-muted-foreground hover:text-foreground transition-colors">
-                <Maximize2 className="w-3 h-3" />
-              </button>
-            </div>
-            <div className="flex-1 relative overflow-hidden">
-              <div
-                className="absolute left-0 w-full h-0.5 z-20"
-                style={{ animation: `scan 3s infinite linear`, animationDelay: bw.delay, backgroundColor: '#FF8C00', boxShadow: '0 0 6px #FF8C00' }}
-              />
-              {PANEL_CONTENT[i]}
-              <div className="absolute bottom-0 left-0 right-0 px-3 py-1.5 flex items-center justify-between z-10" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}>
-                <span className="text-[10px] font-mono flex items-center gap-1.5" style={{ color: '#FF8C00' }}>
-                  <span className="w-1.5 h-1.5 rounded-full pulse-dot" style={{ backgroundColor: '#FF8C00' }} />
-                  EXTRACTING...
-                </span>
-                <span className="text-[10px] font-mono text-muted-foreground">{extractCounts[i].toLocaleString()} chars</span>
-              </div>
-            </div>
-            <div className="px-3 py-1 text-[9px] font-mono text-muted-foreground flex items-center justify-between" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-              <span>{PANEL_TITLES[i]}</span>
-              <span>Last scraped: 2m ago</span>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
+          {renderPanel(mobileActivePanel)}
+        </div>
+      ) : (
+        <div className={`grid gap-4 ${isTablet ? 'grid-cols-2' : 'grid-cols-2'}`} style={{ height: isMobile ? undefined : '400px' }}>
+          {BROWSER_WINDOWS.map((_, i) => renderPanel(i))}
+        </div>
+      )}
 
       {/* Expanded Panel Modal */}
       {expandedPanel !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.85)' }}>
-          <div className="w-[85%] h-[85%] glass-card overflow-hidden flex flex-col">
+          <div className={`glass-card overflow-hidden flex flex-col ${isMobile ? 'w-[95%] h-[85%]' : 'w-[85%] h-[85%]'}`}>
             <div className="px-4 py-3 flex items-center gap-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
               <div className="flex gap-1">
                 <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#ef4444' }} />
                 <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#eab308' }} />
                 <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#22c55e' }} />
               </div>
-              <div className="flex-1 px-3 py-1 rounded text-sm font-mono" style={{ background: 'rgba(255,255,255,0.03)', color: '#FF8C00' }}>
+              <div className="flex-1 px-3 py-1 rounded text-sm font-mono truncate" style={{ background: 'rgba(255,255,255,0.03)', color: '#FF8C00' }}>
                 {BROWSER_WINDOWS[expandedPanel].url}
               </div>
               <a href={`https://${BROWSER_WINDOWS[expandedPanel].url}`} target="_blank" rel="noopener" className="p-1.5 text-muted-foreground hover:text-foreground transition-colors">
                 <ExternalLink className="w-4 h-4" />
               </a>
-              <button onClick={() => setExpandedPanel(null)} className="p-1.5 text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => setExpandedPanel(null)} className="p-1.5 text-muted-foreground hover:text-foreground transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -207,10 +231,10 @@ const LiveBrowser = ({ isConnected }: Props) => {
             { agent: 'Sales', url: 'g2.com/categories/invoicing', time: '10:46', preview: 'Top complaints: poor mobile UX (34%), complex onboarding...' },
             { agent: 'Finance', url: 'stripe.com/docs/invoicing', time: '10:47', preview: 'Stripe Invoicing charges 0.4% per paid invoice ($2 cap)...' },
           ].map((s, i) => (
-            <div key={i} className="px-4 py-3 flex gap-3 items-start" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+            <div key={i} className={`px-4 py-3 flex gap-3 items-start ${isMobile ? 'flex-col gap-1' : ''}`} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
               <span className="text-[10px] font-mono text-muted-foreground whitespace-nowrap mt-0.5">{s.time}</span>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <span className="text-xs font-medium truncate" style={{ color: '#FF8C00' }}>{s.url}</span>
                   <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.03)', color: '#999' }}>{s.agent}</span>
                 </div>
