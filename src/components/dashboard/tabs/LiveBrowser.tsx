@@ -3,7 +3,6 @@ import { BROWSER_WINDOWS } from '@/data/dashboardData';
 import { api } from '@/services/apiService';
 
 const PANEL_CONTENT = [
-  // freshbooks.com/pricing
   <div key="fb" className="h-full bg-white text-gray-900 text-[10px] overflow-hidden">
     <div className="bg-gray-900 text-white px-3 py-1.5 flex items-center gap-4">
       <span className="font-bold text-[11px]">FreshBooks</span>
@@ -29,7 +28,6 @@ const PANEL_CONTENT = [
       </div>
     </div>
   </div>,
-  // waveapps.com/invoicing
   <div key="wa" className="h-full bg-white text-gray-900 text-[10px] overflow-hidden">
     <div className="bg-emerald-600 text-white px-3 py-1.5 flex items-center gap-4">
       <span className="font-bold text-[11px]">Wave</span>
@@ -47,7 +45,6 @@ const PANEL_CONTENT = [
       </div>
     </div>
   </div>,
-  // invoiceninja.com/features
   <div key="in" className="h-full bg-gray-900 text-white text-[10px] overflow-hidden">
     <div className="bg-black px-3 py-1.5 flex items-center gap-4">
       <span className="font-bold text-[11px] text-blue-400">Invoice Ninja</span>
@@ -62,7 +59,6 @@ const PANEL_CONTENT = [
       ))}
     </div>
   </div>,
-  // g2.com/categories/invoicing
   <div key="g2" className="h-full bg-white text-gray-900 text-[10px] overflow-hidden">
     <div className="bg-red-600 text-white px-3 py-1.5 flex items-center gap-4">
       <span className="font-bold text-[11px]">G2</span>
@@ -102,7 +98,6 @@ const LiveBrowser = ({ isConnected }: Props) => {
     return () => clearInterval(i);
   }, []);
 
-  // Poll screenshot from backend
   useEffect(() => {
     if (!isConnected) return;
     const poll = async () => {
@@ -118,7 +113,6 @@ const LiveBrowser = ({ isConnected }: Props) => {
 
   return (
     <div className="space-y-6">
-      {/* Live screenshot from backend */}
       {screenshotUrl && (
         <div className="glass-card overflow-hidden">
           <div className="px-3 py-2 border-b border-border/50 flex items-center gap-2 bg-muted/30">
@@ -129,7 +123,6 @@ const LiveBrowser = ({ isConnected }: Props) => {
         </div>
       )}
 
-      {/* Browser grid */}
       <div className="grid grid-cols-2 gap-4 h-[400px]">
         {BROWSER_WINDOWS.map((bw, i) => (
           <div key={i} className="glass-card overflow-hidden flex flex-col">
@@ -143,13 +136,13 @@ const LiveBrowser = ({ isConnected }: Props) => {
             </div>
             <div className="flex-1 relative overflow-hidden">
               <div
-                className="absolute left-0 w-full h-0.5 bg-neon-cyan z-20"
-                style={{ animation: `scan 3s infinite linear`, animationDelay: bw.delay, boxShadow: '0 0 10px hsl(var(--neon-cyan))' }}
+                className="absolute left-0 w-full h-0.5 z-20"
+                style={{ animation: `scan 3s infinite linear`, animationDelay: bw.delay, backgroundColor: '#FF8C00', boxShadow: '0 0 10px #FF8C00' }}
               />
               {PANEL_CONTENT[i]}
               <div className="absolute bottom-0 left-0 right-0 bg-black/70 backdrop-blur-sm px-3 py-1.5 flex items-center justify-between z-10">
-                <span className="text-[10px] font-mono text-neon-cyan flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan pulse-dot" />
+                <span className="text-[10px] font-mono flex items-center gap-1.5" style={{ color: '#FF8C00' }}>
+                  <span className="w-1.5 h-1.5 rounded-full pulse-dot" style={{ backgroundColor: '#FF8C00' }} />
                   EXTRACTING...
                 </span>
                 <span className="text-[10px] font-mono text-muted-foreground">{extractCounts[i].toLocaleString()} chars</span>
@@ -159,7 +152,6 @@ const LiveBrowser = ({ isConnected }: Props) => {
         ))}
       </div>
 
-      {/* Sources collected */}
       <div className="glass-card">
         <div className="px-4 py-3 border-b border-border/50">
           <h3 className="text-sm font-semibold text-foreground">📋 Sources Collected</h3>
@@ -177,7 +169,7 @@ const LiveBrowser = ({ isConnected }: Props) => {
               <span className="text-[10px] font-mono text-muted-foreground whitespace-nowrap mt-0.5">{s.time}</span>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-medium text-neon-cyan truncate">{s.url}</span>
+                  <span className="text-xs font-medium truncate" style={{ color: '#FF8C00' }}>{s.url}</span>
                   <span className="text-[9px] px-1.5 py-0.5 rounded bg-primary/10 text-primary whitespace-nowrap">{s.agent}</span>
                 </div>
                 <p className="text-[11px] text-muted-foreground truncate">{s.preview}</p>

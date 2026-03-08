@@ -6,8 +6,8 @@ import type { ApiMissionsResponse } from '@/services/apiService';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 
 const TAG_COLORS: Record<string, string> = {
-  cyan: 'bg-neon-cyan/15 text-neon-cyan',
-  purple: 'bg-primary/15 text-primary',
+  cyan: 'bg-primary/15 text-primary',
+  purple: 'bg-neon-pink/15 text-neon-pink',
   gold: 'bg-neon-gold/15 text-neon-gold',
   orange: 'bg-neon-orange/15 text-neon-orange',
   green: 'bg-neon-green/15 text-neon-green',
@@ -15,12 +15,12 @@ const TAG_COLORS: Record<string, string> = {
 };
 
 const TAG_GLOW: Record<string, string> = {
-  cyan: 'hsla(187,86%,43%,0.15)',
-  purple: 'hsla(263,70%,58%,0.15)',
-  gold: 'hsla(43,96%,56%,0.15)',
-  orange: 'hsla(25,95%,53%,0.15)',
+  cyan: 'rgba(255,107,0,0.15)',
+  purple: 'rgba(255,69,0,0.15)',
+  gold: 'rgba(200,80,0,0.15)',
+  orange: 'rgba(255,140,0,0.15)',
   green: 'hsla(142,71%,45%,0.15)',
-  pink: 'hsla(330,80%,60%,0.15)',
+  pink: 'rgba(255,69,0,0.15)',
 };
 
 const PRESETS = [
@@ -31,8 +31,8 @@ const PRESETS = [
 ];
 
 const sparkGreen = Array.from({ length: 10 }, () => ({ v: Math.floor(Math.random() * 5) + 18 }));
-const sparkCyan = Array.from({ length: 10 }, () => ({ v: Math.floor(Math.random() * 3) + 6 }));
-const sparkPurple = Array.from({ length: 10 }, () => ({ v: Math.floor(Math.random() * 40000) + 100000 }));
+const sparkOrange = Array.from({ length: 10 }, () => ({ v: Math.floor(Math.random() * 3) + 6 }));
+const sparkAmber = Array.from({ length: 10 }, () => ({ v: Math.floor(Math.random() * 40000) + 100000 }));
 const sparkFlat = Array.from({ length: 10 }, () => ({ v: 98 + Math.random() * 1.5 }));
 
 const MiniSparkline = ({ data, color }: { data: { v: number }[]; color: string }) => (
@@ -104,7 +104,8 @@ const MissionControl = ({ isConnected, missions }: Props) => {
           <button
             onClick={handleRun}
             disabled={launching || !missionText.trim()}
-            className="bg-gradient-to-r from-primary to-accent text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:opacity-90 pulse-glow-btn transition-all disabled:opacity-50"
+            className="text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:opacity-90 pulse-glow-btn transition-all disabled:opacity-50"
+            style={{ background: 'linear-gradient(135deg, #FF6B00, #FF4500)', boxShadow: '0 0 20px rgba(255,107,0,0.4)' }}
           >
             <Play className="w-4 h-4" /> {launching ? 'LAUNCHING...' : 'RUN MISSION'}
           </button>
@@ -121,14 +122,14 @@ const MissionControl = ({ isConnected, missions }: Props) => {
       <div className="grid grid-cols-4 gap-4">
         {[
           { label: 'Tasks Completed', value: String(tasksCompleted), sub: '↑ 12% vs last hr', subColor: 'text-neon-green', sparkData: sparkGreen, sparkColor: 'hsl(142,71%,45%)' },
-          { label: 'Active Agents', value: activeAgents, sub: 'Optimization active', subColor: 'text-neon-cyan', sparkData: sparkCyan, sparkColor: 'hsl(187,86%,43%)' },
-          { label: 'Tokens Used', value: '142K', sub: '~$0.00 (local)', subColor: 'text-neon-yellow', sparkData: sparkPurple, sparkColor: 'hsl(263,70%,58%)' },
+          { label: 'Active Agents', value: activeAgents, sub: 'Optimization active', subColor: '', sparkData: sparkOrange, sparkColor: '#FF8C00' },
+          { label: 'Tokens Used', value: '142K', sub: '~$0.00 (local)', subColor: 'text-neon-yellow', sparkData: sparkAmber, sparkColor: '#FF6B00' },
           { label: 'Success Rate', value: '98.5%', sub: 'Optimal', subColor: 'text-neon-green', sparkData: sparkFlat, sparkColor: 'hsl(142,71%,45%)' },
         ].map((s, i) => (
           <div key={i} className="glass-card p-4 relative overflow-hidden">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">{s.label}</div>
-            <div className="text-2xl font-mono font-bold text-foreground relative z-10">{s.value}</div>
-            <div className={`text-[11px] mt-1 ${s.subColor}`}>{s.sub}</div>
+            <div className="text-2xl font-mono font-bold relative z-10" style={{ color: '#f0f0f0' }}>{s.value}</div>
+            <div className={`text-[11px] mt-1 ${s.subColor}`} style={!s.subColor ? { color: '#FF8C00' } : undefined}>{s.sub}</div>
             <MiniSparkline data={s.sparkData} color={s.sparkColor} />
           </div>
         ))}
@@ -137,7 +138,7 @@ const MissionControl = ({ isConnected, missions }: Props) => {
       {/* Kanban */}
       <div className="grid grid-cols-3 gap-4">
         <KanbanColumn title="TO DO" count={KANBAN_TASKS.todo.length} items={KANBAN_TASKS.todo} />
-        <KanbanColumn title="IN PROGRESS" count={KANBAN_TASKS.inProgress.length} items={KANBAN_TASKS.inProgress} isProgress countColor="text-neon-cyan" />
+        <KanbanColumn title="IN PROGRESS" count={KANBAN_TASKS.inProgress.length} items={KANBAN_TASKS.inProgress} isProgress countColor="" />
         <KanbanColumn title="DONE" count={KANBAN_TASKS.done.length} items={KANBAN_TASKS.done} isDone countColor="text-neon-green" />
       </div>
     </div>
@@ -153,19 +154,19 @@ const KanbanColumn = ({ title, count, items, countColor, isProgress, isDone }: {
   <div className="glass-card p-4 flex flex-col gap-3">
     <div className="flex justify-between items-center">
       <span className="text-sm font-semibold text-muted-foreground">{title}</span>
-      <span className={`text-xs font-mono px-2 py-0.5 rounded bg-muted ${countColor || 'text-muted-foreground'}`}>{count}</span>
+      <span className={`text-xs font-mono px-2 py-0.5 rounded bg-muted ${countColor || 'text-muted-foreground'}`}
+        style={isProgress ? { color: '#FF8C00' } : undefined}>{count}</span>
     </div>
     {items.map(item => (
       <div
         key={item.id}
         className={`glass-card p-3 cursor-grab transition-all ${isProgress ? 'shimmer-border-left' : ''} ${isDone ? 'opacity-60' : ''}`}
-        style={{ ['--hover-glow' as any]: TAG_GLOW[item.tagColor] }}
       >
         <span className={`text-[10px] px-1.5 py-0.5 rounded inline-block mb-2 ${TAG_COLORS[item.tagColor] || 'bg-muted text-muted-foreground'}`}>{item.tag}</span>
         <h4 className="text-sm font-medium text-foreground mb-2">{item.title}</h4>
         <div className="flex justify-between items-center text-[11px] text-muted-foreground">
           <span>{item.agent}</span>
-          <span className={item.status ? 'text-neon-cyan' : ''}>{item.due || item.status || item.when}</span>
+          <span style={item.status ? { color: '#FF8C00' } : undefined}>{item.due || item.status || item.when}</span>
         </div>
       </div>
     ))}

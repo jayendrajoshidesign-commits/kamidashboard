@@ -5,19 +5,11 @@ const TRUST_SCORES: Record<string, { label: string; color: string }> = {
   'FreshBooks': { label: 'High', color: 'text-neon-green' },
   'Wave Financial': { label: 'High', color: 'text-neon-green' },
   'Invoice Ninja': { label: 'High', color: 'text-neon-green' },
-  'TechCrunch': { label: 'Very High', color: 'text-neon-cyan' },
-  'G2 Reviews': { label: 'Very High', color: 'text-neon-cyan' },
-  'Stripe Docs': { label: 'Very High', color: 'text-neon-cyan' },
+  'TechCrunch': { label: 'Very High', color: '' },
+  'G2 Reviews': { label: 'Very High', color: '' },
+  'Stripe Docs': { label: 'Very High', color: '' },
   'Product Hunt': { label: 'High', color: 'text-neon-green' },
   'LinkedIn Insights': { label: 'Medium', color: 'text-neon-yellow' },
-};
-
-const AGENT_PILL_GLOW: Record<string, string> = {
-  'Market Research': 'neon-glow-cyan',
-  'CEO': '',
-  'Sales': 'neon-glow-green',
-  'Finance': '',
-  'Marketing': '',
 };
 
 const Sources = () => {
@@ -42,7 +34,7 @@ const Sources = () => {
           const isActive = filter === a;
           return (
             <button key={a} onClick={() => setFilter(a)} className={`text-[11px] px-3 py-1 rounded-full transition-all ${isActive ? 'bg-primary text-primary-foreground' : 'glass-card text-muted-foreground hover:text-foreground'}`}
-              style={isActive ? { boxShadow: `0 0 12px ${AGENT_COLORS[agentColor || ''] || 'hsla(263,70%,58%,0.4)'}` } : undefined}
+              style={isActive ? { boxShadow: `0 0 12px ${AGENT_COLORS[agentColor || ''] || 'rgba(255,107,0,0.4)'}` } : undefined}
             >{a}</button>
           );
         })}
@@ -63,11 +55,11 @@ const Sources = () => {
                   </div>
                   <div>
                     <h4 className="text-sm font-semibold text-foreground">{src.site}</h4>
-                    <a href={src.url} target="_blank" rel="noopener" className="text-[11px] text-neon-cyan hover:underline" onClick={e => e.stopPropagation()}>{src.url}</a>
+                    <a href={src.url} target="_blank" rel="noopener" className="text-[11px] hover:underline" style={{ color: '#FF8C00' }} onClick={e => e.stopPropagation()}>{src.url}</a>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {trust && <span className={`text-[9px] px-1.5 py-0.5 rounded-full bg-muted font-medium ${trust.color}`}>TRUST: {trust.label}</span>}
+                  {trust && <span className={`text-[9px] px-1.5 py-0.5 rounded-full bg-muted font-medium ${trust.color}`} style={!trust.color ? { color: '#FF8C00' } : undefined}>TRUST: {trust.label}</span>}
                   <span className="text-[10px] px-2 py-0.5 rounded bg-primary/10 text-primary">{src.agent}</span>
                   <span className="text-[10px] font-mono text-muted-foreground">{src.timestamp}</span>
                 </div>

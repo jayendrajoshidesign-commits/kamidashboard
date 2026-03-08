@@ -14,7 +14,8 @@ const BottomBar = ({ runtime, isConnected, missions, onStop }: Props) => {
   const missionGoal = current?.goal ?? 'Freelance Invoicing SaaS Research';
 
   return (
-    <footer className="h-12 glass-panel border-t border-border/50 flex items-center px-4 font-mono text-xs relative z-10">
+    <footer className="h-12 glass-panel flex items-center px-4 font-mono text-xs relative z-10"
+      style={{ borderTop: '1px solid rgba(255,107,0,0.15)', backgroundColor: 'rgba(8,8,8,0.95)' }}>
       <div className="flex items-center">
         <div className="flex items-center gap-2 mr-4">
           <div className="status-dot-green" />
@@ -29,17 +30,17 @@ const BottomBar = ({ runtime, isConnected, missions, onStop }: Props) => {
         </div>
         <div className="flex items-center gap-2 mr-4">
           <span className="text-muted-foreground">NET</span>
-          <span className="text-neon-cyan font-semibold">↓ 24KB/s</span>
+          <span className="font-semibold" style={{ color: '#FF8C00' }}>↓ 24KB/s</span>
           <span className="text-muted-foreground">↑ 0KB/s</span>
         </div>
         <div className="flex items-center gap-2 mr-4 pl-4 border-l border-border/50">
           <span className="text-muted-foreground">TOKENS</span>
-          <span className="text-neon-cyan font-semibold">142K</span>
+          <span className="font-semibold" style={{ color: '#FF8C00' }}>142K</span>
           <span className="text-neon-green">— $0.00</span>
         </div>
         <div className="pl-4 border-l border-border/50 flex items-center gap-2">
           <span className="text-muted-foreground">RUNTIME</span>
-          <span className="text-neon-cyan font-semibold">{runtime}</span>
+          <span className="font-semibold" style={{ color: '#FF8C00' }}>{runtime}</span>
         </div>
       </div>
 
@@ -69,7 +70,7 @@ const BottomBar = ({ runtime, isConnected, missions, onStop }: Props) => {
 const Metric = ({ label, value }: { label: string; value: string }) => (
   <div className="flex items-center gap-2 mr-4">
     <span className="text-muted-foreground">{label}</span>
-    <span className="text-neon-cyan font-semibold">{value}</span>
+    <span className="font-semibold" style={{ color: '#FF8C00' }}>{value}</span>
   </div>
 );
 

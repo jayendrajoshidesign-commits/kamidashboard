@@ -14,10 +14,10 @@ const FILE_ICONS: Record<string, { icon: any; color: string }> = {
 };
 
 const AGENT_BORDER_COLORS: Record<string, string> = {
-  'Market Research': 'hsl(187,86%,43%)',
+  'Market Research': '#FF8C00',
   'Sales': 'hsl(142,71%,45%)',
-  'Marketing': 'hsl(330,80%,60%)',
-  'Design': 'hsl(263,70%,58%)',
+  'Marketing': '#FF4500',
+  'Design': '#FF6B00',
   'Finance': '#84cc16',
 };
 
@@ -47,7 +47,6 @@ const FilesTab = ({ files, isConnected }: Props) => {
 
   return (
     <div className="space-y-6">
-      {/* Upload zone */}
       <input ref={fileInputRef} type="file" multiple className="hidden" onChange={e => handleUpload(e.target.files)} />
       <div
         className={`glass-card p-8 border-2 border-dashed text-center transition-all cursor-pointer ${dragOver ? 'border-primary bg-primary/5 neon-glow-purple' : 'border-border-light'}`}
@@ -65,7 +64,6 @@ const FilesTab = ({ files, isConnected }: Props) => {
       </div>
 
       <div className="grid grid-cols-2 gap-6">
-        {/* Uploaded */}
         <div>
           <h3 className="text-sm font-semibold text-foreground mb-3">📤 Uploaded Files</h3>
           <div className="space-y-3">
@@ -86,7 +84,6 @@ const FilesTab = ({ files, isConnected }: Props) => {
           </div>
         </div>
 
-        {/* Generated */}
         <div>
           <h3 className="text-sm font-semibold text-foreground mb-3">📥 Generated Files</h3>
           <div className="space-y-3">
@@ -101,7 +98,7 @@ const FilesTab = ({ files, isConnected }: Props) => {
                     <div className="text-sm font-medium text-foreground">{f.name}</div>
                     <div className="text-[11px] text-muted-foreground">{f.size} · {f.agent} · {f.time}</div>
                   </div>
-                  <button className="p-1.5 rounded text-neon-cyan hover:bg-neon-cyan/10 transition-colors neon-glow-cyan">
+                  <button className="p-1.5 rounded transition-colors neon-glow-cyan" style={{ color: '#FF8C00' }}>
                     <Download className="w-4 h-4" />
                   </button>
                 </div>
@@ -111,7 +108,7 @@ const FilesTab = ({ files, isConnected }: Props) => {
         </div>
       </div>
 
-      <button className="glass-card px-4 py-2.5 text-sm font-semibold text-neon-cyan flex items-center gap-2 hover:bg-neon-cyan/10 transition-colors mx-auto neon-glow-cyan">
+      <button className="glass-card px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors mx-auto neon-glow-cyan" style={{ color: '#FF8C00' }}>
         <Download className="w-4 h-4" /> Download All as ZIP
       </button>
     </div>

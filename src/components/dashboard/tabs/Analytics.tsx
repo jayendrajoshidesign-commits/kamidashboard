@@ -10,8 +10,8 @@ const AGENT_EMOJIS: Record<string, string> = {
 };
 
 const sparkGreen = Array.from({ length: 8 }, () => ({ v: Math.floor(Math.random() * 5) + 18 }));
-const sparkCyan = Array.from({ length: 8 }, () => ({ v: Math.floor(Math.random() * 3) + 6 }));
-const sparkPurple = Array.from({ length: 8 }, () => ({ v: Math.floor(Math.random() * 40000) + 100000 }));
+const sparkOrange = Array.from({ length: 8 }, () => ({ v: Math.floor(Math.random() * 3) + 6 }));
+const sparkAmber = Array.from({ length: 8 }, () => ({ v: Math.floor(Math.random() * 40000) + 100000 }));
 const sparkFlat = Array.from({ length: 8 }, () => ({ v: 4 + Math.random() * 0.5 }));
 const sparkCost = Array.from({ length: 8 }, () => ({ v: Math.random() * 0.1 }));
 
@@ -38,7 +38,6 @@ interface Props {
 }
 
 const Analytics = ({ missions }: Props) => {
-  // Use mission history from API/mock
   const history = missions.history;
 
   return (
@@ -47,9 +46,9 @@ const Analytics = ({ missions }: Props) => {
       <div className="grid grid-cols-5 gap-4">
         {[
           { label: 'Total Tasks', value: '26', icon: '📋', sparkData: sparkGreen, sparkColor: 'hsl(142,71%,45%)' },
-          { label: 'Completed', value: '22', icon: '✅', sparkData: sparkCyan, sparkColor: 'hsl(187,86%,43%)' },
-          { label: 'Avg Task Time', value: '4.2min', icon: '⏱️', sparkData: sparkFlat, sparkColor: 'hsl(263,70%,58%)' },
-          { label: 'Tokens Used', value: '142K', icon: '🔤', sub: '~$0.00 local', sparkData: sparkPurple, sparkColor: 'hsl(263,70%,58%)' },
+          { label: 'Completed', value: '22', icon: '✅', sparkData: sparkOrange, sparkColor: '#FF8C00' },
+          { label: 'Avg Task Time', value: '4.2min', icon: '⏱️', sparkData: sparkFlat, sparkColor: '#FF6B00' },
+          { label: 'Tokens Used', value: '142K', icon: '🔤', sub: '~$0.00 local', sparkData: sparkAmber, sparkColor: '#FF6B00' },
           { label: 'API Cost Saved', value: '$0.43', icon: '💰', sub: 'saved vs cloud', isGreen: true, sparkData: sparkCost, sparkColor: 'hsl(142,71%,45%)' },
         ].map((s, i) => (
           <TooltipProvider key={i}>
@@ -60,7 +59,7 @@ const Analytics = ({ missions }: Props) => {
                     <span>{s.icon}</span>
                     <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{s.label}</span>
                   </div>
-                  <div className={`text-2xl font-mono font-bold relative z-10 ${s.isGreen ? 'text-neon-green' : 'text-foreground'}`}>
+                  <div className={`text-2xl font-mono font-bold relative z-10 ${s.isGreen ? 'text-neon-green' : ''}`} style={!s.isGreen ? { color: '#f0f0f0' } : undefined}>
                     <AnimatedNumber value={s.value} />
                   </div>
                   {s.sub && <div className={`text-[11px] mt-1 ${s.isGreen ? 'text-neon-green' : 'text-neon-green'}`}>{s.sub}</div>}
@@ -87,13 +86,13 @@ const Analytics = ({ missions }: Props) => {
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={ANALYTICS_TASKS_PER_AGENT} layout="vertical" margin={{ left: 100, right: 30 }}>
-                <XAxis type="number" tick={{ fill: 'hsl(215,16%,47%)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <XAxis type="number" tick={{ fill: '#999999', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis type="category" dataKey="agent" tick={({ x, y, payload }: any) => (
-                  <text x={x} y={y} dy={4} textAnchor="end" fill="hsl(215,16%,47%)" fontSize={11}>
+                  <text x={x} y={y} dy={4} textAnchor="end" fill="#999999" fontSize={11}>
                     {AGENT_EMOJIS[payload.value] || ''} {payload.value}
                   </text>
                 )} axisLine={false} tickLine={false} width={100} />
-                <Bar dataKey="tasks" radius={[0, 6, 6, 0]} barSize={14} label={{ position: 'right', fill: 'hsl(215,16%,47%)', fontSize: 11 }}>
+                <Bar dataKey="tasks" radius={[0, 6, 6, 0]} barSize={14} label={{ position: 'right', fill: '#999999', fontSize: 11 }}>
                   {ANALYTICS_TASKS_PER_AGENT.map((entry, i) => (
                     <Cell key={i} fill={entry.color} />
                   ))}
@@ -111,14 +110,14 @@ const Analytics = ({ missions }: Props) => {
               <AreaChart data={ANALYTICS_ACTIVITY}>
                 <defs>
                   <linearGradient id="activityGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(263,70%,58%)" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="hsl(187,86%,43%)" stopOpacity={0.05} />
+                    <stop offset="0%" stopColor="#FF6B00" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="#FF8C00" stopOpacity={0.05} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="time" tick={{ fill: 'hsl(215,16%,47%)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'hsl(215,16%,47%)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Area type="monotone" dataKey="tasks" stroke="hsl(263,70%,58%)" fill="url(#activityGrad)" strokeWidth={2} dot={{ r: 3, fill: 'hsl(263,70%,58%)', stroke: 'hsl(263,70%,58%)' }} />
-                <ReferenceLine x={ANALYTICS_ACTIVITY[ANALYTICS_ACTIVITY.length - 1]?.time} stroke="hsl(187,86%,43%)" strokeDasharray="3 3" label={{ value: 'NOW', fill: 'hsl(187,86%,43%)', fontSize: 10, position: 'top' }} />
+                <XAxis dataKey="time" tick={{ fill: '#999999', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: '#999999', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <Area type="monotone" dataKey="tasks" stroke="#FF6B00" fill="url(#activityGrad)" strokeWidth={2} dot={{ r: 3, fill: '#FF6B00', stroke: '#FF6B00' }} />
+                <ReferenceLine x={ANALYTICS_ACTIVITY[ANALYTICS_ACTIVITY.length - 1]?.time} stroke="#FF8C00" strokeDasharray="3 3" label={{ value: 'NOW', fill: '#FF8C00', fontSize: 10, position: 'top' }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -137,13 +136,13 @@ const Analytics = ({ missions }: Props) => {
                   ))}
                 </Pie>
                 <Legend layout="vertical" verticalAlign="middle" align="right" formatter={(value: string) => <span className="text-xs text-muted-foreground">{value}</span>} />
-                <Tooltip contentStyle={{ background: 'rgba(12,12,20,0.9)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', fontSize: '12px', backdropFilter: 'blur(16px)' }} />
+                <Tooltip contentStyle={{ background: '#0f0f0f', border: '1px solid rgba(255,107,0,0.3)', borderRadius: '8px', fontSize: '12px', backdropFilter: 'blur(16px)' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Mission history — from API */}
+        {/* Mission history */}
         <div className="glass-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-4">Mission History</h3>
           <div className="overflow-x-auto">
