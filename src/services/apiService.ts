@@ -110,7 +110,11 @@ export const api = {
   uploadFile: async (file: File): Promise<{ name: string; size: string }> => {
     const form = new FormData();
     form.append('file', file);
-    const res = await fetch(`${BASE_URL}/api/upload`, { method: 'POST', body: form });
+    const res = await fetch(`${BASE_URL}/api/upload`, {
+      method: 'POST',
+      body: form,
+      headers: { 'ngrok-skip-browser-warning': 'true' },
+    });
     if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
     return res.json();
   },
