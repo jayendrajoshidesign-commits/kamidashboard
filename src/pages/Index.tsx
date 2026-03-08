@@ -1,5 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { TERMINAL_MESSAGES } from '@/data/dashboardData';
+import { useApiConnection, usePolledData } from '@/hooks/useApiConnection';
+import { api, mockData } from '@/services/apiService';
+import type { ApiLogEntry, ApiAgent, ApiMissionsResponse, ApiFile, ApiManifest } from '@/services/apiService';
 import LeftPanel from '@/components/dashboard/LeftPanel';
 import RightPanel from '@/components/dashboard/RightPanel';
 import BottomBar from '@/components/dashboard/BottomBar';
@@ -25,17 +28,67 @@ export interface LogEntry {
 const Index = () => {
   const [activeTab, setActiveTab] = useState<TabId>('Mission Control');
   const [seconds, setSeconds] = useState(863);
-  const [logs, setLogs] = useState<LogEntry[]>([
-    { time: '10:42:01', msg: '[Supervisor] System core initialized', type: 'info' },
-    { time: '10:42:02', msg: '[Supervisor] Connecting to vector DB...', type: 'info' },
-    { time: '10:42:03', msg: '[Supervisor] DB Connection established', type: 'success' },
-    { time: '10:42:05', msg: '[COO] High latency on Node-3 (142ms)', type: 'warn' },
-    { time: '10:42:08', msg: '[Supervisor] Task #402 assigned to Market Research', type: 'info' },
-    { time: '10:42:15', msg: '[Market Research] Beginning competitor scan...', type: 'info' },
-    { time: '10:42:18', msg: '[Market Research] Scraping freshbooks.com/pricing', type: 'info' },
-    { time: '10:43:01', msg: '[Design] Generating hero section assets...', type: 'info' },
-    { time: '10:43:05', msg: '[Design] Asset generation complete', type: 'success' },
-  ]);
+
+  const { isConnected } = useApiConnection();
+
+  // ─── Terminal logs (polled or mock) ────────────────────────
+  const [logs, setLogs] = useState<LogEntry[]>(mockData.terminal());
+  
+  useEffect(() => {
+    if (!isConnected) {
+      // Mock: append random log every 3s
+      const interval = setInterval(() => {
+        const entry = TERMINAL_MESSAGES[Math.floor(Math.random() * TERMINAL_MESSAGES.length)];
+        const now = new Date();
+        const time = now.toLocaleTimeString('en-US', { hour12: false });
+        setLogs(prev => [...prev.slice(-50), { time, msg: entry.msg, type: entry.type as LogEntry['type'] }]);
+      }, 3000);
+      return () => clearInterval(interval);
+    } else {
+      // Live: poll every 2s
+      const poll = async () => {
+        try {
+          const data = await api.getTerminal();
+          setLogs(data);
+        } catch { /* keep existing */ }
+      };
+      poll();
+      const interval = setInterval(poll, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [isConnected]);
+
+  // ─── Agents (polled) ──────────────────────────────────────
+  const { data: agents } = usePolledData(
+    api.getAgents,
+    mockData.agents,
+    3000,
+    isConnected,
+  );
+
+  // ─── Missions (polled) ────────────────────────────────────
+  const { data: missions } = usePolledData(
+    api.getMissions,
+    mockData.missions,
+    5000,
+    isConnected,
+  );
+
+  // ─── Files (polled) ───────────────────────────────────────
+  const { data: files } = usePolledData(
+    api.getFiles,
+    mockData.files,
+    10000,
+    isConnected,
+  );
+
+  // ─── Manifest (polled slowly) ─────────────────────────────
+  const { data: manifest } = usePolledData(
+    api.getManifest,
+    mockData.manifest,
+    30000,
+    isConnected,
+  );
 
   // Runtime timer
   useEffect(() => {
@@ -43,35 +96,23 @@ const Index = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Terminal auto-log
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const entry = TERMINAL_MESSAGES[Math.floor(Math.random() * TERMINAL_MESSAGES.length)];
-      const now = new Date();
-      const time = now.toLocaleTimeString('en-US', { hour12: false });
-      setLogs(prev => [...prev.slice(-50), { time, msg: entry.msg, type: entry.type as LogEntry['type'] }]);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
   const runtime = `${Math.floor(seconds / 3600).toString().padStart(2, '0')}:${Math.floor((seconds % 3600) / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
 
   const renderTab = useCallback(() => {
     switch (activeTab) {
-      case 'Mission Control': return <MissionControl />;
-      case 'Live Agents': return <LiveAgents />;
-      case 'Live Browser': return <LiveBrowser />;
+      case 'Mission Control': return <MissionControl isConnected={isConnected} missions={missions} />;
+      case 'Live Agents': return <LiveAgents agents={agents} />;
+      case 'Live Browser': return <LiveBrowser isConnected={isConnected} />;
       case 'Sources': return <Sources />;
       case 'Studio': return <Studio />;
-      case 'Files': return <FilesTab />;
-      case 'Analytics': return <Analytics />;
-      case 'Settings': return <SettingsTab />;
+      case 'Files': return <FilesTab files={files} isConnected={isConnected} />;
+      case 'Analytics': return <Analytics missions={missions} />;
+      case 'Settings': return <SettingsTab manifest={manifest} />;
     }
-  }, [activeTab]);
+  }, [activeTab, isConnected, agents, missions, files, manifest]);
 
   return (
     <div className="w-screen h-screen overflow-hidden flex flex-col relative">
-      {/* Animated mesh gradient background */}
       <div className="mesh-gradient-bg">
         <div className="mesh-orb mesh-orb-purple" />
         <div className="mesh-orb mesh-orb-cyan" />
@@ -79,10 +120,10 @@ const Index = () => {
       </div>
 
       <div className="flex flex-1 overflow-hidden relative z-10">
-        <LeftPanel />
+        <LeftPanel isConnected={isConnected} />
 
         <main className="flex-1 flex flex-col overflow-hidden">
-          <TabNav tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
+          <TabNav tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} isConnected={isConnected} />
           <div className="flex-1 overflow-y-auto p-6 tab-fade-in" key={activeTab}>
             {renderTab()}
           </div>
@@ -91,7 +132,16 @@ const Index = () => {
         <RightPanel logs={logs} />
       </div>
 
-      <BottomBar runtime={runtime} />
+      <BottomBar
+        runtime={runtime}
+        isConnected={isConnected}
+        missions={missions}
+        onStop={async () => {
+          if (isConnected) {
+            try { await api.stopMission(); } catch {}
+          }
+        }}
+      />
     </div>
   );
 };
