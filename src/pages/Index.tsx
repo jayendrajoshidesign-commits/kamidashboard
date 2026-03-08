@@ -304,8 +304,12 @@ const Index = () => {
           <div className="fixed inset-0 z-50" style={{ background: 'rgba(0,0,0,0.6)' }} onClick={() => setShowRightPanel(false)} />
           {isMobile ? (
             <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl overflow-hidden animate-slide-up"
-              style={{ height: '80vh', background: 'rgba(8,8,10,0.98)', backdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,107,0,0.15)' }}>
-              <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+              style={{ height: '80vh', background: 'rgba(8,8,10,0.98)', backdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,107,0,0.15)' }}
+              {...rightSheetSwipe}>
+              <div className="flex justify-center pt-2 pb-1">
+                <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.15)' }} />
+              </div>
+              <div className="flex items-center justify-between px-4 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                 <span className="text-sm font-semibold text-foreground">Terminal & System</span>
                 <button onClick={() => setShowRightPanel(false)} className="p-1"><X className="w-5 h-5 text-muted-foreground" /></button>
               </div>
