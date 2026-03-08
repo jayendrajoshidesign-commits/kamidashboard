@@ -70,9 +70,20 @@ const Index = () => {
   // Normalize API responses - backend returns wrapped objects
   const fetchAgents = useCallback(async () => {
     const data = await api.getAgents();
-    if (Array.isArray(data)) return data;
-    if (data && Array.isArray((data as any).agents)) return (data as any).agents;
-    return mockData.agents();
+    const rawList = Array.isArray(data) ? data : Array.isArray((data as any)?.agents) ? (data as any).agents : null;
+    if (!rawList) return mockData.agents();
+    // Map API fields to UI fields
+    return rawList.map((a: any) => ({
+      id: a.id,
+      name: a.name,
+      emoji: a.icon || a.emoji || '🤖',
+      color: a.color || 'gray',
+      status: a.status === 'done' ? 'idle' : (a.status || 'idle'),
+      progress: a.progress ?? (a.status === 'working' ? 50 : a.status === 'done' ? 100 : 0),
+      task: a.current_task || a.last_task || a.task || '',
+      lastTool: a.last_tool || a.lastTool || 'none',
+      output: a.output || (a.last_task ? [`> ${a.last_task}`] : ['> Standby']),
+    })) as ApiAgent[];
   }, []);
   const fetchMissions = useCallback(async () => {
     const data = await api.getMissions();
