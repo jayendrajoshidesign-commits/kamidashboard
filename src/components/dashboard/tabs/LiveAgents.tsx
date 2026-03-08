@@ -1,11 +1,16 @@
-import { AGENTS, AGENT_COLORS } from '@/data/dashboardData';
+import { AGENT_COLORS } from '@/data/dashboardData';
+import type { ApiAgent } from '@/services/apiService';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 
 const genSparkData = () => Array.from({ length: 12 }, () => ({ v: Math.floor(Math.random() * 3000) + 500 }));
 
-const LiveAgents = () => (
+interface Props {
+  agents: ApiAgent[];
+}
+
+const LiveAgents = ({ agents }: Props) => (
   <div className="grid grid-cols-3 gap-4">
-    {AGENTS.map(agent => {
+    {agents.map(agent => {
       const isWorking = agent.status === 'working';
       const color = AGENT_COLORS[agent.color] || 'hsl(var(--muted-foreground))';
       const sparkData = genSparkData();
@@ -20,10 +25,10 @@ const LiveAgents = () => (
               <span className="text-sm font-semibold text-foreground">{agent.name}</span>
             </div>
             <span className={`text-[10px] px-2 py-1 rounded-full font-medium flex items-center gap-1.5 ${
-              isWorking ? 'bg-neon-green/10 text-neon-green' : 'bg-muted text-muted-foreground'
+              isWorking ? 'bg-neon-green/10 text-neon-green' : agent.status === 'error' ? 'bg-neon-red/10 text-neon-red' : 'bg-muted text-muted-foreground'
             }`}>
-              <span className={`inline-block w-1.5 h-1.5 rounded-full ${isWorking ? 'bg-neon-green pulse-dot' : 'bg-muted-foreground'}`} />
-              {isWorking ? 'WORKING' : 'IDLE'}
+              <span className={`inline-block w-1.5 h-1.5 rounded-full ${isWorking ? 'bg-neon-green pulse-dot' : agent.status === 'error' ? 'bg-neon-red pulse-dot' : 'bg-muted-foreground'}`} />
+              {agent.status === 'error' ? 'ERROR' : isWorking ? 'WORKING' : 'IDLE'}
             </span>
           </div>
 

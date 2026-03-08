@@ -1,29 +1,17 @@
 import { useState } from 'react';
 import { RefreshCw } from 'lucide-react';
+import type { ApiManifest } from '@/services/apiService';
 
-const SettingsTab = () => {
+interface Props {
+  manifest: ApiManifest;
+}
+
+const SettingsTab = ({ manifest }: Props) => {
   const [execMode, setExecMode] = useState<'sequential' | 'parallel'>('parallel');
   const [debugMode, setDebugMode] = useState(false);
 
-  const apiKeys = [
-    { name: 'Ollama', status: 'green' as const, statusText: 'Running', key: 'localhost:11434' },
-    { name: 'Anthropic', status: 'yellow' as const, statusText: 'Key in .env', key: 'sk-ant-••••••••' },
-    { name: 'OpenAI', status: 'red' as const, statusText: 'Not connected', key: '—' },
-    { name: 'Google AI', status: 'green' as const, statusText: 'Connected', key: 'AIza••••••••' },
-    { name: 'Stability AI', status: 'red' as const, statusText: 'Not connected', key: '—' },
-    { name: 'Stripe', status: 'red' as const, statusText: 'Not connected', key: '—' },
-  ];
-
-  const healthItems = [
-    { name: 'Flask Server', status: 'green' as const },
-    { name: 'ChromaDB', status: 'green' as const },
-    { name: 'AgentDB (SQLite)', status: 'green' as const },
-    { name: 'LiteLLM Router', status: 'green' as const },
-    { name: 'Ollama (Local LLM)', status: 'green' as const },
-    { name: 'Browser Automation', status: 'yellow' as const },
-    { name: 'Image Generation', status: 'red' as const },
-    { name: 'WebSocket Server', status: 'green' as const },
-  ];
+  const apiKeys = manifest.apiKeys;
+  const healthItems = manifest.health;
 
   return (
     <div className="space-y-4">
@@ -33,7 +21,7 @@ const SettingsTab = () => {
           <h3 className="text-sm font-semibold text-foreground mb-4">🖥️ System Info</h3>
           <div className="space-y-2.5 text-xs">
             {[
-              ['Dashboard Version', 'v2.1.0-beta'],
+              ['Dashboard Version', manifest.version],
               ['Local URL', 'http://localhost:5000'],
               ['Network URL', 'http://192.168.1.42:5000'],
               ['Memory Backend', 'ChromaDB + AgentDB'],
@@ -51,14 +39,14 @@ const SettingsTab = () => {
         <div className="glass-card p-5">
           <h3 className="text-sm font-semibold text-foreground mb-4">🔑 API Keys</h3>
           <div className="space-y-2">
-            {apiKeys.map(api => (
-              <div key={api.name} className={`flex items-center gap-3 py-1.5 border-b border-border/30 text-xs ${api.status === 'green' ? 'connected-row-glow' : ''}`}>
-                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${api.status === 'green' ? 'status-dot-green' : api.status === 'yellow' ? 'status-dot-yellow' : 'status-dot-red'}`} />
-                <span className="text-foreground w-24">{api.name}</span>
-                <span className="font-mono text-muted-foreground flex-1 truncate">{api.key}</span>
-                <span className={`text-[10px] ${api.status === 'green' ? 'text-neon-green' : api.status === 'yellow' ? 'text-neon-yellow' : 'text-neon-red'}`}>{api.statusText}</span>
-                <button className={`text-[10px] px-2 py-0.5 rounded glass-card transition-all ${api.status === 'red' ? 'text-primary hover:neon-glow-purple hover:text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-                  {api.status === 'red' ? 'Add Key' : 'Edit'}
+            {apiKeys.map(a => (
+              <div key={a.name} className={`flex items-center gap-3 py-1.5 border-b border-border/30 text-xs ${a.status === 'green' ? 'connected-row-glow' : ''}`}>
+                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${a.status === 'green' ? 'status-dot-green' : a.status === 'yellow' ? 'status-dot-yellow' : 'status-dot-red'}`} />
+                <span className="text-foreground w-24">{a.name}</span>
+                <span className="font-mono text-muted-foreground flex-1 truncate">{a.key}</span>
+                <span className={`text-[10px] ${a.status === 'green' ? 'text-neon-green' : a.status === 'yellow' ? 'text-neon-yellow' : 'text-neon-red'}`}>{a.statusText}</span>
+                <button className={`text-[10px] px-2 py-0.5 rounded glass-card transition-all ${a.status === 'red' ? 'text-primary hover:neon-glow-purple hover:text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+                  {a.status === 'red' ? 'Add Key' : 'Edit'}
                 </button>
               </div>
             ))}

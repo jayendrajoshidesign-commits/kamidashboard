@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Play, Square } from 'lucide-react';
 import { KANBAN_TASKS } from '@/data/dashboardData';
+import { api } from '@/services/apiService';
+import type { ApiMissionsResponse } from '@/services/apiService';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 
 const TAG_COLORS: Record<string, string> = {
@@ -49,8 +51,36 @@ const MiniSparkline = ({ data, color }: { data: { v: number }[]; color: string }
   </div>
 );
 
-const MissionControl = () => {
+interface Props {
+  isConnected: boolean;
+  missions: ApiMissionsResponse;
+}
+
+const MissionControl = ({ isConnected, missions }: Props) => {
   const [missionText, setMissionText] = useState('');
+  const [launching, setLaunching] = useState(false);
+
+  const handleRun = async () => {
+    if (!missionText.trim()) return;
+    if (isConnected) {
+      setLaunching(true);
+      try {
+        await api.startMission(missionText);
+        setMissionText('');
+      } catch { /* keep text */ }
+      finally { setLaunching(false); }
+    }
+  };
+
+  const handleStop = async () => {
+    if (isConnected) {
+      try { await api.stopMission(); } catch {}
+    }
+  };
+
+  const current = missions.current;
+  const tasksCompleted = current ? current.tasks : 22;
+  const activeAgents = current ? `${current.agents}/11` : '8/11';
 
   return (
     <div className="space-y-6">
@@ -71,10 +101,17 @@ const MissionControl = () => {
           placeholder="Describe your mission objective..."
         />
         <div className="flex gap-2 mt-3">
-          <button className="bg-gradient-to-r from-primary to-accent text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:opacity-90 pulse-glow-btn transition-all">
-            <Play className="w-4 h-4" /> RUN MISSION
+          <button
+            onClick={handleRun}
+            disabled={launching || !missionText.trim()}
+            className="bg-gradient-to-r from-primary to-accent text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:opacity-90 pulse-glow-btn transition-all disabled:opacity-50"
+          >
+            <Play className="w-4 h-4" /> {launching ? 'LAUNCHING...' : 'RUN MISSION'}
           </button>
-          <button className="bg-neon-red/10 text-neon-red border border-neon-red/30 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-neon-red/20 glow-red-hover transition-all">
+          <button
+            onClick={handleStop}
+            className="bg-neon-red/10 text-neon-red border border-neon-red/30 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-neon-red/20 glow-red-hover transition-all"
+          >
             <Square className="w-4 h-4" /> STOP
           </button>
         </div>
@@ -83,8 +120,8 @@ const MissionControl = () => {
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: 'Tasks Completed', value: '22', sub: '↑ 12% vs last hr', subColor: 'text-neon-green', sparkData: sparkGreen, sparkColor: 'hsl(142,71%,45%)' },
-          { label: 'Active Agents', value: '8/11', sub: 'Optimization active', subColor: 'text-neon-cyan', sparkData: sparkCyan, sparkColor: 'hsl(187,86%,43%)' },
+          { label: 'Tasks Completed', value: String(tasksCompleted), sub: '↑ 12% vs last hr', subColor: 'text-neon-green', sparkData: sparkGreen, sparkColor: 'hsl(142,71%,45%)' },
+          { label: 'Active Agents', value: activeAgents, sub: 'Optimization active', subColor: 'text-neon-cyan', sparkData: sparkCyan, sparkColor: 'hsl(187,86%,43%)' },
           { label: 'Tokens Used', value: '142K', sub: '~$0.00 (local)', subColor: 'text-neon-yellow', sparkData: sparkPurple, sparkColor: 'hsl(263,70%,58%)' },
           { label: 'Success Rate', value: '98.5%', sub: 'Optimal', subColor: 'text-neon-green', sparkData: sparkFlat, sparkColor: 'hsl(142,71%,45%)' },
         ].map((s, i) => (

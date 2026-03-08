@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BROWSER_WINDOWS } from '@/data/dashboardData';
+import { api } from '@/services/apiService';
 
 const PANEL_CONTENT = [
   // freshbooks.com/pricing
@@ -44,7 +45,6 @@ const PANEL_CONTENT = [
           <div key={f} className="bg-emerald-50 rounded p-1.5 text-[9px] text-emerald-700">{f}</div>
         ))}
       </div>
-      <div className="mt-2 text-[9px] text-gray-500">Payment processing: 2.9% + $0.60 per transaction</div>
     </div>
   </div>,
   // invoiceninja.com/features
@@ -60,7 +60,6 @@ const PANEL_CONTENT = [
       {['✅ Unlimited Invoices', '✅ 40+ Payment Gateways', '✅ Multi-language', '✅ Custom Branding', '✅ Self-hosted Option', '✅ REST API'].map(f => (
         <div key={f} className="text-gray-300 text-[9px] py-0.5">{f}</div>
       ))}
-      <div className="mt-2 text-[9px] text-blue-400">Pro Plan: $10/mo</div>
     </div>
   </div>,
   // g2.com/categories/invoicing
@@ -88,8 +87,13 @@ const PANEL_CONTENT = [
   </div>,
 ];
 
-const LiveBrowser = () => {
+interface Props {
+  isConnected: boolean;
+}
+
+const LiveBrowser = ({ isConnected }: Props) => {
   const [extractCounts, setExtractCounts] = useState([0, 0, 0, 0]);
+  const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const i = setInterval(() => {
@@ -98,8 +102,33 @@ const LiveBrowser = () => {
     return () => clearInterval(i);
   }, []);
 
+  // Poll screenshot from backend
+  useEffect(() => {
+    if (!isConnected) return;
+    const poll = async () => {
+      try {
+        const { url } = await api.getScreenshot();
+        setScreenshotUrl(url);
+      } catch {}
+    };
+    poll();
+    const id = setInterval(poll, 3000);
+    return () => clearInterval(id);
+  }, [isConnected]);
+
   return (
     <div className="space-y-6">
+      {/* Live screenshot from backend */}
+      {screenshotUrl && (
+        <div className="glass-card overflow-hidden">
+          <div className="px-3 py-2 border-b border-border/50 flex items-center gap-2 bg-muted/30">
+            <span className="w-1.5 h-1.5 rounded-full bg-neon-green pulse-dot" />
+            <span className="text-[11px] font-mono text-neon-green">LIVE BROWSER</span>
+          </div>
+          <img src={screenshotUrl} alt="Live browser screenshot" className="w-full" />
+        </div>
+      )}
+
       {/* Browser grid */}
       <div className="grid grid-cols-2 gap-4 h-[400px]">
         {BROWSER_WINDOWS.map((bw, i) => (
@@ -118,7 +147,6 @@ const LiveBrowser = () => {
                 style={{ animation: `scan 3s infinite linear`, animationDelay: bw.delay, boxShadow: '0 0 10px hsl(var(--neon-cyan))' }}
               />
               {PANEL_CONTENT[i]}
-              {/* Extracting overlay */}
               <div className="absolute bottom-0 left-0 right-0 bg-black/70 backdrop-blur-sm px-3 py-1.5 flex items-center justify-between z-10">
                 <span className="text-[10px] font-mono text-neon-cyan flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan pulse-dot" />
@@ -131,7 +159,7 @@ const LiveBrowser = () => {
         ))}
       </div>
 
-      {/* Sources collected feed */}
+      {/* Sources collected */}
       <div className="glass-card">
         <div className="px-4 py-3 border-b border-border/50">
           <h3 className="text-sm font-semibold text-foreground">📋 Sources Collected</h3>

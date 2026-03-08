@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Mic, Paperclip, Sparkles, SendHorizontal } from 'lucide-react';
 import { AGENTS, AGENT_COLORS } from '@/data/dashboardData';
+import { api } from '@/services/apiService';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ChatMessage {
@@ -8,7 +9,11 @@ interface ChatMessage {
   text: string;
 }
 
-const LeftPanel = () => {
+interface Props {
+  isConnected: boolean;
+}
+
+const LeftPanel = ({ isConnected }: Props) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'ai', text: 'System initialized. Connected to 11 agent nodes. Ready for instructions.' },
     { role: 'user', text: 'Research the freelance invoicing SaaS market — competitors, pricing, and key features.' },
@@ -16,19 +21,35 @@ const LeftPanel = () => {
     { role: 'ai', text: 'Initial findings ready. 3 direct competitors identified. Shall I generate a comparison matrix?' },
   ]);
   const [input, setInput] = useState('');
+  const [sending, setSending] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
   }, [messages]);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-    setMessages(prev => [...prev, { role: 'user', text: input }]);
+  const handleSend = async () => {
+    if (!input.trim() || sending) return;
+    const userMsg = input;
+    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setInput('');
-    setTimeout(() => {
-      setMessages(prev => [...prev, { role: 'ai', text: 'Processing your request. Routing to relevant agents...' }]);
-    }, 1000);
+
+    if (isConnected) {
+      setSending(true);
+      try {
+        const { reply } = await api.chat(userMsg, messages);
+        setMessages(prev => [...prev, { role: 'ai', text: reply }]);
+      } catch {
+        setMessages(prev => [...prev, { role: 'ai', text: 'Connection error. Backend may be offline.' }]);
+      } finally {
+        setSending(false);
+      }
+    } else {
+      // Mock response
+      setTimeout(() => {
+        setMessages(prev => [...prev, { role: 'ai', text: 'Processing your request. Routing to relevant agents...' }]);
+      }, 1000);
+    }
   };
 
   return (
@@ -60,7 +81,14 @@ const LeftPanel = () => {
             </div>
           </div>
         ))}
-        {/* Deploy pill */}
+        {sending && (
+          <div className="flex gap-3">
+            <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 text-xs bg-primary text-primary-foreground">🤖</div>
+            <div className="glass-card-static px-3 py-2 text-sm text-muted-foreground rounded-xl rounded-tl-none" style={{ borderLeft: '2px solid hsla(263,70%,58%,0.4)' }}>
+              <span className="pulse-dot inline-block w-2 h-2 rounded-full bg-primary mr-1" /> Thinking...
+            </div>
+          </div>
+        )}
         <button className="self-start ml-10 text-[11px] px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 transition-colors flex items-center gap-1.5 neon-glow-purple">
           ▶ Deploy as Mission
         </button>
@@ -82,7 +110,7 @@ const LeftPanel = () => {
               <button className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"><Paperclip className="w-4 h-4" /></button>
               <button className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"><Sparkles className="w-4 h-4" /></button>
             </div>
-            <button onClick={handleSend} className="bg-primary text-primary-foreground px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 hover:opacity-90 transition-opacity pulse-glow-btn">
+            <button onClick={handleSend} disabled={sending} className="bg-primary text-primary-foreground px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 hover:opacity-90 transition-opacity pulse-glow-btn disabled:opacity-50">
               SEND <SendHorizontal className="w-3.5 h-3.5" />
             </button>
           </div>
