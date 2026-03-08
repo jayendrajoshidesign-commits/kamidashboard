@@ -1,15 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
 import { Play, Check } from 'lucide-react';
-import { KANBAN_TASKS } from '@/data/dashboardData';
+import { KANBAN_TASKS, AGENT_COLORS } from '@/data/dashboardData';
 import { api } from '@/services/apiService';
 import type { ApiMissionsResponse } from '@/services/apiService';
-import { AreaChart, Area, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, ResponsiveContainer, LineChart, Line, BarChart, Bar } from 'recharts';
 
 const TAG_STYLES: Record<string, { bg: string; text: string; border: string }> = {
   cyan: { bg: 'rgba(34,211,238,0.06)', text: '#22d3ee', border: 'rgba(34,211,238,0.2)' },
   purple: { bg: 'rgba(192,132,252,0.06)', text: '#c084fc', border: 'rgba(192,132,252,0.2)' },
-  gold: { bg: 'rgba(251,191,36,0.06)', text: '#fbbf24', border: 'rgba(251,191,36,0.2)' },
-  orange: { bg: 'rgba(251,146,60,0.06)', text: '#fb923c', border: 'rgba(251,146,60,0.2)' },
+  gold: { bg: 'rgba(255,140,0,0.06)', text: '#FF8C00', border: 'rgba(255,140,0,0.2)' },
+  orange: { bg: 'rgba(255,107,0,0.06)', text: '#FF6B00', border: 'rgba(255,107,0,0.2)' },
   green: { bg: 'rgba(74,222,128,0.06)', text: '#4ade80', border: 'rgba(74,222,128,0.2)' },
   pink: { bg: 'rgba(244,114,182,0.06)', text: '#f472b6', border: 'rgba(244,114,182,0.2)' },
 };
@@ -43,6 +43,27 @@ const MiniSparkline = ({ data, color }: { data: { v: number }[]; color: string }
   </div>
 );
 
+const genSysData = () => Array.from({ length: 15 }, () => ({
+  cpu: Math.floor(Math.random() * 15) + 25,
+  ram: Math.floor(Math.random() * 10) + 33,
+  gpu: Math.floor(Math.random() * 12) + 83,
+}));
+
+const genNetData = () => Array.from({ length: 15 }, () => ({
+  rps: Math.floor(Math.random() * 8) + 1,
+}));
+
+const FEED_ITEMS = [
+  { agent: 'Research', color: AGENT_COLORS.cyan, desc: 'committed competitor_matrix.csv', time: '2m' },
+  { agent: 'Research', color: AGENT_COLORS.cyan, desc: 'added FreshBooks pricing data', time: '3m' },
+  { agent: 'Sales', color: AGENT_COLORS.green, desc: 'email template v3 ready', time: '5m' },
+  { agent: 'Finance', color: AGENT_COLORS['yellow-green'], desc: 'Y1 projection generated', time: '6m' },
+  { agent: 'Design', color: AGENT_COLORS.purple, desc: 'hero_v2.png rendered', time: '8m' },
+  { agent: 'Marketing', color: AGENT_COLORS.pink, desc: '12 posts scheduled', time: '10m' },
+];
+
+const TICKER_URLS = ['freshbooks.com', 'waveapps.com', 'g2.com', 'stripe.com', 'producthunt.com'];
+
 interface Props {
   isConnected: boolean;
   missions: ApiMissionsResponse;
@@ -52,6 +73,18 @@ const MissionControl = ({ isConnected, missions }: Props) => {
   const [missionText, setMissionText] = useState('');
   const [launching, setLaunching] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [sysData, setSysData] = useState(genSysData);
+  const [netData, setNetData] = useState(genNetData);
+  const [reqCount, setReqCount] = useState(48);
+
+  useEffect(() => {
+    const i = setInterval(() => {
+      setSysData(prev => [...prev.slice(1), { cpu: Math.floor(Math.random() * 15) + 25, ram: Math.floor(Math.random() * 10) + 33, gpu: Math.floor(Math.random() * 12) + 83 }]);
+      setNetData(prev => [...prev.slice(1), { rps: Math.floor(Math.random() * 8) + 1 }]);
+      setReqCount(c => c + Math.floor(Math.random() * 3));
+    }, 2000);
+    return () => clearInterval(i);
+  }, []);
 
   const handleRun = async () => {
     if (!missionText.trim()) return;
@@ -76,6 +109,7 @@ const MissionControl = ({ isConnected, missions }: Props) => {
   const current = missions.current;
   const tasksCompleted = current ? current.tasks : 22;
   const activeAgents = current ? `${current.agents}/11` : '8/11';
+  const lastSys = sysData[sysData.length - 1];
 
   return (
     <div className="space-y-5">
@@ -103,7 +137,7 @@ const MissionControl = ({ isConnected, missions }: Props) => {
             onClick={handleRun}
             disabled={launching || !missionText.trim()}
             className="text-primary-foreground px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 mission-pulse-btn transition-all disabled:opacity-40"
-            style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC3300 100%)' }}
+            style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
           >
             <Play className="w-4 h-4" /> {launching ? 'LAUNCHING...' : 'RUN MISSION'}
           </button>
@@ -134,6 +168,80 @@ const MissionControl = ({ isConnected, missions }: Props) => {
         <KanbanColumn title="IN PROGRESS" count={KANBAN_TASKS.inProgress.length} items={KANBAN_TASKS.inProgress} isProgress />
         <KanbanColumn title="DONE" count={KANBAN_TASKS.done.length} items={KANBAN_TASKS.done} isDone />
       </div>
+
+      {/* ROW 4: Live System Monitor */}
+      <div>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-1 h-5 rounded-full" style={{ background: '#FF6B00' }} />
+          <span className="section-header">Live System Monitor</span>
+          <div className="flex-1 h-px" style={{ background: 'rgba(255,107,0,0.1)' }} />
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          {/* PANEL 1: System Resources */}
+          <div className="glass-card p-3">
+            <span className="section-header">System</span>
+            <div className="flex justify-between text-[10px] font-mono mt-2 mb-1">
+              <span style={{ color: '#FF8C00' }}>CPU {lastSys.cpu}%</span>
+              <span style={{ color: '#c084fc' }}>RAM 12GB</span>
+              <span style={{ color: '#4ade80' }}>GPU {lastSys.gpu}% 67°C</span>
+            </div>
+            <div style={{ height: 80 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={sysData}>
+                  <Line type="monotone" dataKey="cpu" stroke="#FF8C00" strokeWidth={1.5} dot={false} />
+                  <Line type="monotone" dataKey="ram" stroke="rgba(192,132,252,0.6)" strokeWidth={1.5} dot={false} />
+                  <Line type="monotone" dataKey="gpu" stroke="#4ade80" strokeWidth={1.5} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="text-[10px] font-mono mt-1" style={{ color: '#FF8C00' }}>NET ↓ 24KB/s  ↑ 0KB/s</p>
+          </div>
+
+          {/* PANEL 2: Network Activity */}
+          <div className="glass-card p-3">
+            <div className="flex items-center gap-2">
+              <span className="section-header">Network</span>
+              <span className="ml-auto text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ backgroundColor: 'rgba(255,107,0,0.06)', color: '#FF8C00' }}>{reqCount}</span>
+            </div>
+            <div style={{ height: 80 }} className="mt-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={netData}>
+                  <Bar dataKey="rps" fill="#FF6B00" radius={[2, 2, 0, 0]} opacity={0.6} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex justify-between text-[9px] font-mono text-muted-foreground mt-1">
+              <span>🌐 67 URLs visited</span>
+              <span>⬇ 2880 KB</span>
+            </div>
+            <div className="mt-1 overflow-hidden h-3 relative">
+              <div className="url-ticker text-[9px] font-mono flex items-center gap-3 absolute" style={{ color: 'rgba(255,140,0,0.4)' }}>
+                {TICKER_URLS.map((u, i) => (
+                  <span key={i} className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full inline-block" style={{ backgroundColor: '#FF8C00' }} />
+                    {u}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* PANEL 3: Agent Feed */}
+          <div className="glass-card p-3">
+            <span className="section-header">Live Feed</span>
+            <div className="mt-2 space-y-0">
+              {FEED_ITEMS.map((item, i) => (
+                <div key={i} className="flex items-center gap-2 py-1.5 text-[10px]" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+                  <span className="font-medium" style={{ color: '#FF8C00' }}>{item.agent}</span>
+                  <span className="text-muted-foreground truncate flex-1">{item.desc}</span>
+                  <span className="text-muted-foreground flex-shrink-0">{item.time}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -163,10 +271,10 @@ const KanbanColumn = ({ title, count, items, isProgress, isDone }: { title: stri
           style={{
             maxHeight: '72px',
             ...(isProgress
-              ? { background: 'rgba(12, 12, 16, 0.9)', border: '1px solid rgba(255, 107, 0, 0.12)', borderLeft: '3px solid #FF6B00' }
+              ? { background: 'rgba(8, 8, 10, 0.9)', border: '1px solid rgba(255, 107, 0, 0.12)', borderLeft: '3px solid #FF6B00' }
               : isDone
-                ? { background: 'rgba(10, 10, 14, 0.5)', border: '1px solid rgba(255, 255, 255, 0.03)', borderLeft: '3px solid rgba(34, 197, 94, 0.3)', opacity: 0.7 }
-                : { background: 'rgba(10, 10, 14, 0.7)', border: '1px solid rgba(255, 255, 255, 0.04)', borderLeft: '3px solid rgba(255, 107, 0, 0.25)' })
+                ? { background: 'rgba(8, 8, 10, 0.5)', border: '1px solid rgba(255, 255, 255, 0.03)', borderLeft: '3px solid rgba(34, 197, 94, 0.3)', opacity: 0.7 }
+                : { background: 'rgba(8, 8, 10, 0.7)', border: '1px solid rgba(255, 255, 255, 0.04)', borderLeft: '3px solid rgba(255, 107, 0, 0.25)' })
           }}
         >
           <div className="flex items-center gap-2 mb-1">
