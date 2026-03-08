@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Monitor, Tablet, Smartphone, FolderTree, File, Rocket, RefreshCw, ChevronDown, Check, Circle, X } from 'lucide-react';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const FILE_TREE = [
   { name: 'src/', icon: FolderTree, color: '#FF8C00', indent: 0, isDir: true },
