@@ -4,6 +4,7 @@ import { useApiConnection, usePolledData } from '@/hooks/useApiConnection';
 import { api, mockData } from '@/services/apiService';
 import type { ApiLogEntry, ApiAgent, ApiMissionsResponse, ApiFile, ApiManifest } from '@/services/apiService';
 import { useResponsive } from '@/hooks/useResponsive';
+import { useSwipeGesture } from '@/hooks/useSwipeGesture';
 import LeftPanel from '@/components/dashboard/LeftPanel';
 import RightPanel from '@/components/dashboard/RightPanel';
 import BottomBar from '@/components/dashboard/BottomBar';
@@ -21,7 +22,7 @@ import Analytics from '@/components/dashboard/tabs/Analytics';
 import SettingsTab from '@/components/dashboard/tabs/SettingsTab';
 import Revenue from '@/components/dashboard/tabs/Revenue';
 import Comms from '@/components/dashboard/tabs/Comms';
-import { Menu, Terminal, X } from 'lucide-react';
+import { Menu, Terminal, X, RefreshCw } from 'lucide-react';
 
 const TABS = ['Mission Control', 'KAMI', 'Projects', 'Live Agents', 'Live Browser', 'Sources', 'Analytics', 'Files', 'Studio', 'Revenue', 'Comms', 'Settings'] as const;
 type TabId = typeof TABS[number];
