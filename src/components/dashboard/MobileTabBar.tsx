@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Target, Bot, Globe, BarChart3, MoreHorizontal, X, Brain, FolderKanban, Database, FileText, Palette, DollarSign, MessageSquare, Settings } from 'lucide-react';
+import { useSwipeGesture } from '@/hooks/useSwipeGesture';
 
 const PRIMARY_TABS = [
   { id: 'Mission Control', icon: Target, label: 'Mission' },
