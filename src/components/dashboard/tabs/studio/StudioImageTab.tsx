@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { Camera, Check, ZoomIn, ZoomOut, Maximize2, Grid3X3, X, ChevronDown, ChevronRight, Key, Clock } from 'lucide-react';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const STYLES = [
   { name: 'Photorealistic', icon: '📷', gradient: 'from-blue-950/40 to-slate-900/30' },
