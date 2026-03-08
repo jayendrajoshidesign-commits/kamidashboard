@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { Camera, Check, ZoomIn, ZoomOut, Maximize2, Grid3X3, X } from 'lucide-react';
+import { Camera, Check, ZoomIn, ZoomOut, Maximize2, Grid3X3, X, ChevronDown, ChevronRight, Key, Clock } from 'lucide-react';
 
 const STYLES = [
   { name: 'Photorealistic', icon: '📷', gradient: 'from-blue-950/40 to-slate-900/30' },
@@ -16,6 +16,25 @@ const EXAMPLE_PROMPTS = [
   'Minimal SaaS dashboard UI',
 ];
 
+const LOCAL_MODELS = [
+  { id: 'sdxl', name: 'Stable Diffusion XL' },
+  { id: 'sd15', name: 'Stable Diffusion 1.5' },
+  { id: 'lcm', name: 'LCM Turbo (Fast)' },
+];
+
+const API_MODELS = [
+  { id: 'dalle3', name: 'DALL-E 3', note: 'OpenAI key needed' },
+  { id: 'dalle2', name: 'DALL-E 2', note: 'OpenAI key needed' },
+  { id: 'gemini', name: 'Gemini Imagen', note: 'Google key needed' },
+  { id: 'stability', name: 'Stability AI', note: 'Stability key needed' },
+];
+
+const CLOUD_MODELS = [
+  { id: 'midjourney', name: 'Midjourney' },
+  { id: 'firefly', name: 'Adobe Firefly' },
+  { id: 'ideogram', name: 'Ideogram' },
+];
+
 interface Props {
   showControls: boolean;
   showHistory: boolean;
@@ -26,13 +45,14 @@ interface Props {
 const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHistory }: Props) => {
   const [selectedStyle, setSelectedStyle] = useState('Photorealistic');
   const [aspectRatio, setAspectRatio] = useState('16:9');
-  const [provider, setProvider] = useState('Local SD');
+  const [selectedModel, setSelectedModel] = useState('sdxl');
   const [generating, setGenerating] = useState(false);
   const [prompt, setPrompt] = useState('');
   const [zoom, setZoom] = useState(100);
   const [showGrid, setShowGrid] = useState(true);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({ local: true, api: false, cloud: false });
   const panStart = useRef({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -40,6 +60,15 @@ const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHis
     setGenerating(true);
     setTimeout(() => setGenerating(false), 3000);
   };
+
+  const toggleCategory = (cat: string) => {
+    setExpandedCategories(prev => ({ ...prev, [cat]: !prev[cat] }));
+  };
+
+  const selectedModelName = LOCAL_MODELS.find(m => m.id === selectedModel)?.name
+    || API_MODELS.find(m => m.id === selectedModel)?.name
+    || CLOUD_MODELS.find(m => m.id === selectedModel)?.name
+    || 'Unknown';
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
@@ -66,23 +95,22 @@ const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHis
       {/* CANVAS — always full size */}
       <div
         ref={canvasRef}
-        className={`absolute inset-0 ${isPanning ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`canvas-bg absolute inset-0 ${isPanning ? 'cursor-grabbing' : 'cursor-grab'}`}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onClick={() => { onCloseControls(); onCloseHistory(); }}
-        style={{ background: '#060608' }}
+        style={{
+          backgroundColor: '#050507',
+          backgroundImage: showGrid
+            ? 'radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px)'
+            : 'none',
+          backgroundSize: '24px 24px',
+          backgroundPosition: `${panOffset.x % 24}px ${panOffset.y % 24}px`,
+        }}
       >
-        {showGrid && (
-          <div className="canvas-bg absolute inset-0 pointer-events-none" style={{
-            backgroundImage: 'radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
-            transform: `translate(${panOffset.x % 24}px, ${panOffset.y % 24}px)`,
-          }} />
-        )}
-
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{
           transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom / 100})`,
           transition: isPanning ? 'none' : 'transform 0.1s ease',
@@ -145,6 +173,11 @@ const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHis
               </button>
             </div>
 
+            {/* Current model indicator */}
+            <div className="text-[10px] text-muted-foreground px-2 py-1.5 rounded" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }}>
+              Using: <span className="text-foreground font-medium">{selectedModelName}</span> <span className="text-[#4ade80]">(Local)</span>
+            </div>
+
             {/* PROMPT */}
             <div>
               <label className="section-header block mb-2">Prompt</label>
@@ -196,18 +229,90 @@ const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHis
               </div>
             </div>
 
-            {/* PROVIDER */}
+            {/* MODEL — categorized selector */}
             <div>
-              <label className="section-header block mb-2">Provider</label>
-              <div className="flex gap-1.5">
-                {['Local SD', 'Gemini', 'DALL-E'].map(p => (
-                  <button key={p} onClick={() => setProvider(p)}
-                    className="flex-1 py-1.5 rounded text-[10px] font-medium transition-all"
-                    style={provider === p
-                      ? { background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--neon-pink)))', color: '#fff' }
-                      : { background: 'rgba(255,255,255,0.03)', color: 'hsl(var(--muted-foreground))', border: '1px solid rgba(255,255,255,0.05)' }
-                    }>{p}</button>
-                ))}
+              <label className="section-header block mb-2">Model</label>
+              <div className="space-y-1">
+                {/* LOCAL MODELS */}
+                <div className="rounded-lg overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <button onClick={() => toggleCategory('local')}
+                    className="w-full flex items-center gap-2 px-2.5 py-2 text-[11px] font-medium text-foreground/90 hover:bg-[rgba(255,255,255,0.03)] transition-colors">
+                    {expandedCategories.local ? <ChevronDown className="w-3 h-3 text-muted-foreground" /> : <ChevronRight className="w-3 h-3 text-muted-foreground" />}
+                    <span>💻 Local Models</span>
+                    <span className="ml-auto flex items-center gap-1 text-[9px]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80]" />
+                      <span className="text-[#4ade80]">Running</span>
+                    </span>
+                  </button>
+                  <div className="overflow-hidden transition-all duration-200" style={{ maxHeight: expandedCategories.local ? 200 : 0 }}>
+                    <div className="px-2.5 pb-2 space-y-1">
+                      {LOCAL_MODELS.map(m => (
+                        <button key={m.id} onClick={() => setSelectedModel(m.id)}
+                          className="w-full text-left px-2 py-1.5 rounded text-[10px] transition-all"
+                          style={selectedModel === m.id
+                            ? { background: 'rgba(255,107,0,0.1)', border: '1px solid rgba(255,107,0,0.3)', color: '#FF8C00' }
+                            : { background: 'rgba(255,255,255,0.02)', border: '1px solid transparent', color: 'hsl(var(--muted-foreground))' }
+                          }>
+                          {m.name}
+                        </button>
+                      ))}
+                      <p className="text-[9px] text-[#4ade80]/70 px-1 pt-1">Free • Runs on your GPU • Private</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* API MODELS */}
+                <div className="rounded-lg overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <button onClick={() => toggleCategory('api')}
+                    className="w-full flex items-center gap-2 px-2.5 py-2 text-[11px] font-medium text-foreground/90 hover:bg-[rgba(255,255,255,0.03)] transition-colors">
+                    {expandedCategories.api ? <ChevronDown className="w-3 h-3 text-muted-foreground" /> : <ChevronRight className="w-3 h-3 text-muted-foreground" />}
+                    <span>🔑 API Models</span>
+                    <span className="ml-auto flex items-center gap-1 text-[9px]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                      <span className="text-muted-foreground">Key required</span>
+                    </span>
+                  </button>
+                  <div className="overflow-hidden transition-all duration-200" style={{ maxHeight: expandedCategories.api ? 300 : 0 }}>
+                    <div className="px-2.5 pb-2 space-y-1">
+                      {API_MODELS.map(m => (
+                        <button key={m.id}
+                          className="w-full text-left px-2 py-1.5 rounded text-[10px] flex items-center gap-1.5 opacity-60 cursor-not-allowed"
+                          style={{ background: 'rgba(255,255,255,0.02)', color: 'hsl(var(--muted-foreground))' }}
+                          title="Add API key in Settings">
+                          <Key className="w-3 h-3 flex-shrink-0" />
+                          <span className="flex-1">{m.name}</span>
+                          <span className="text-[8px] opacity-70">{m.note}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* CLOUD MODELS */}
+                <div className="rounded-lg overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <button onClick={() => toggleCategory('cloud')}
+                    className="w-full flex items-center gap-2 px-2.5 py-2 text-[11px] font-medium text-foreground/90 hover:bg-[rgba(255,255,255,0.03)] transition-colors">
+                    {expandedCategories.cloud ? <ChevronDown className="w-3 h-3 text-muted-foreground" /> : <ChevronRight className="w-3 h-3 text-muted-foreground" />}
+                    <span>☁ Cloud Models</span>
+                    <span className="ml-auto flex items-center gap-1 text-[9px]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                      <span className="text-muted-foreground">Coming Soon</span>
+                    </span>
+                  </button>
+                  <div className="overflow-hidden transition-all duration-200" style={{ maxHeight: expandedCategories.cloud ? 200 : 0 }}>
+                    <div className="px-2.5 pb-2 space-y-1">
+                      {CLOUD_MODELS.map(m => (
+                        <div key={m.id}
+                          className="w-full text-left px-2 py-1.5 rounded text-[10px] flex items-center gap-1.5 opacity-40"
+                          style={{ background: 'rgba(255,255,255,0.02)', color: 'hsl(var(--muted-foreground))' }}>
+                          <Clock className="w-3 h-3 flex-shrink-0" />
+                          <span className="flex-1">{m.name}</span>
+                          <span className="text-[8px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>🔜 Soon</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -250,7 +355,7 @@ const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHis
             <div>
               <label className="section-header block mb-2">Info</label>
               <div className="space-y-1.5 text-[10px]">
-                {[['Last generated', '—'], ['Model', provider], ['Resolution', aspectRatio === '16:9' ? '1920×1080' : aspectRatio === '1:1' ? '1024×1024' : '1080×1920'], ['Gen time', '—']].map(([k, v]) => (
+                {[['Last generated', '—'], ['Model', selectedModelName], ['Resolution', aspectRatio === '16:9' ? '1920×1080' : aspectRatio === '1:1' ? '1024×1024' : '1080×1920'], ['Gen time', '—']].map(([k, v]) => (
                   <div key={k} className="flex justify-between">
                     <span className="text-muted-foreground">{k}</span>
                     <span className="text-foreground font-mono">{v}</span>
