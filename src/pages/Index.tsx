@@ -32,11 +32,9 @@ export interface LogEntry {
 const Index = () => {
   const [activeTab, setActiveTab] = useState<TabId>('Mission Control');
   const [seconds, setSeconds] = useState(863);
-
   const { isConnected } = useApiConnection();
-
   const [logs, setLogs] = useState<LogEntry[]>(mockData.terminal());
-  
+
   useEffect(() => {
     if (!isConnected) {
       const interval = setInterval(() => {
@@ -48,10 +46,7 @@ const Index = () => {
       return () => clearInterval(interval);
     } else {
       const poll = async () => {
-        try {
-          const data = await api.getTerminal();
-          setLogs(data);
-        } catch { /* keep existing */ }
+        try { const data = await api.getTerminal(); setLogs(data); } catch {}
       };
       poll();
       const interval = setInterval(poll, 2000);
@@ -71,6 +66,14 @@ const Index = () => {
 
   const runtime = `${Math.floor(seconds / 3600).toString().padStart(2, '0')}:${Math.floor((seconds % 3600) / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
 
+  const isStudio = activeTab === 'Studio';
+  const [leftOverlay, setLeftOverlay] = useState(false);
+  const [rightOverlay, setRightOverlay] = useState(false);
+
+  useEffect(() => {
+    if (!isStudio) { setLeftOverlay(false); setRightOverlay(false); }
+  }, [isStudio]);
+
   const renderTab = useCallback(() => {
     switch (activeTab) {
       case 'Mission Control': return <MissionControl isConnected={isConnected} missions={missions} />;
@@ -88,48 +91,41 @@ const Index = () => {
     }
   }, [activeTab, isConnected, agents, missions, files, manifest]);
 
-  const isStudio = activeTab === 'Studio';
-  const [leftOverlay, setLeftOverlay] = useState(false);
-  const [rightOverlay, setRightOverlay] = useState(false);
-
-  // Close overlays when leaving studio or clicking canvas
-  useEffect(() => {
-    if (!isStudio) { setLeftOverlay(false); setRightOverlay(false); }
-  }, [isStudio]);
-
   return (
     <div className="w-screen h-screen overflow-hidden flex flex-col relative noise-overlay"
-      style={{ borderTop: '1px solid rgba(255,107,0,0.2)' }}
-      onClick={() => { if (isStudio) { setLeftOverlay(false); setRightOverlay(false); } }}>
+      style={{ borderTop: '1px solid rgba(255,107,0,0.2)' }}>
       <div className="mesh-gradient-bg">
         <div className="mesh-orb mesh-orb-1" />
         <div className="mesh-orb mesh-orb-2" />
         <div className="mesh-orb mesh-orb-3" />
       </div>
 
-      <div className="flex flex-1 overflow-hidden relative z-10">
-        {/* Left panel — slides off when Studio active */}
-        <div className="relative flex-shrink-0 transition-all duration-300 ease-in-out overflow-visible"
-          style={{ width: isStudio ? 0 : undefined, marginLeft: isStudio ? -280 : 0 }}>
-          <LeftPanel isConnected={isConnected} />
+      {/* Tab nav — ALWAYS full width, never affected by panels */}
+      <div className="relative z-20">
+        <TabNav tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} isConnected={isConnected} fileBadge={files.length} />
+      </div>
+
+      {/* Main content row */}
+      <div className="flex flex-1 overflow-hidden relative z-10"
+        onClick={() => { if (isStudio) { setLeftOverlay(false); setRightOverlay(false); } }}>
+
+        {/* Left panel — hidden in Studio mode */}
+        <div className="flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden"
+          style={{ width: isStudio ? 0 : undefined }}>
+          {!isStudio && <LeftPanel isConnected={isConnected} />}
         </div>
 
-        {/* Left edge strip in Studio mode */}
+        {/* Left edge strip in Studio */}
         {isStudio && !leftOverlay && (
-          <div
-            className="absolute left-0 top-0 bottom-0 z-30 flex items-center cursor-pointer group"
-            style={{ width: 24 }}
-            onClick={e => { e.stopPropagation(); setLeftOverlay(true); }}
-            title="Click to temporarily show KAMI panel"
-          >
-            <div className="w-full h-full flex items-center justify-center" style={{ background: 'rgba(8,8,11,0.6)', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
-              <span className="text-[9px] text-muted-foreground group-hover:text-[#FF8C00] transition-colors whitespace-nowrap"
-                style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>◀ KAMI</span>
-            </div>
+          <div className="flex-shrink-0 flex items-center cursor-pointer group"
+            style={{ width: 24, background: 'rgba(8,8,11,0.6)', borderRight: '1px solid rgba(255,255,255,0.05)' }}
+            onClick={e => { e.stopPropagation(); setLeftOverlay(true); }}>
+            <span className="text-[9px] text-muted-foreground group-hover:text-[#FF8C00] transition-colors mx-auto"
+              style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>◀ KAMI</span>
           </div>
         )}
 
-        {/* Left overlay panel in Studio */}
+        {/* Left overlay in Studio */}
         {isStudio && leftOverlay && (
           <div className="absolute left-0 top-0 bottom-0 z-40 animate-slide-in-left" onClick={e => e.stopPropagation()}
             style={{ width: 260, boxShadow: '4px 0 24px rgba(0,0,0,0.5)' }}>
@@ -137,35 +133,30 @@ const Index = () => {
           </div>
         )}
 
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <TabNav tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} isConnected={isConnected} fileBadge={files.length} />
-          <div className={`flex-1 overflow-y-auto ${isStudio ? 'p-0' : 'p-6'} tab-fade-in`} key={activeTab}>
+        {/* Main content area */}
+        <div className={`flex-1 overflow-hidden ${isStudio ? '' : 'overflow-y-auto'}`}>
+          <div className={`h-full ${isStudio ? '' : 'p-6'} tab-fade-in`} key={activeTab}>
             {renderTab()}
           </div>
-        </main>
-
-        {/* Right panel — slides off when Studio active */}
-        <div className="relative flex-shrink-0 transition-all duration-300 ease-in-out overflow-visible"
-          style={{ width: isStudio ? 0 : undefined, marginRight: isStudio ? -320 : 0 }}>
-          <RightPanel logs={logs} />
         </div>
 
-        {/* Right edge strip in Studio mode */}
+        {/* Right panel — hidden in Studio mode */}
+        <div className="flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden"
+          style={{ width: isStudio ? 0 : undefined }}>
+          {!isStudio && <RightPanel logs={logs} />}
+        </div>
+
+        {/* Right edge strip in Studio */}
         {isStudio && !rightOverlay && (
-          <div
-            className="absolute right-0 top-0 bottom-0 z-30 flex items-center cursor-pointer group"
-            style={{ width: 24 }}
-            onClick={e => { e.stopPropagation(); setRightOverlay(true); }}
-            title="Click to temporarily show Terminal panel"
-          >
-            <div className="w-full h-full flex items-center justify-center" style={{ background: 'rgba(8,8,11,0.6)', borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
-              <span className="text-[9px] text-muted-foreground group-hover:text-[#FF8C00] transition-colors whitespace-nowrap"
-                style={{ writingMode: 'vertical-rl' }}>TERM ▶</span>
-            </div>
+          <div className="flex-shrink-0 flex items-center cursor-pointer group"
+            style={{ width: 24, background: 'rgba(8,8,11,0.6)', borderLeft: '1px solid rgba(255,255,255,0.05)' }}
+            onClick={e => { e.stopPropagation(); setRightOverlay(true); }}>
+            <span className="text-[9px] text-muted-foreground group-hover:text-[#FF8C00] transition-colors mx-auto"
+              style={{ writingMode: 'vertical-rl' }}>TERM ▶</span>
           </div>
         )}
 
-        {/* Right overlay panel in Studio */}
+        {/* Right overlay in Studio */}
         {isStudio && rightOverlay && (
           <div className="absolute right-0 top-0 bottom-0 z-40 animate-slide-in-right" onClick={e => e.stopPropagation()}
             style={{ width: 320, boxShadow: '-4px 0 24px rgba(0,0,0,0.5)' }}>
@@ -179,9 +170,7 @@ const Index = () => {
         isConnected={isConnected}
         missions={missions}
         onStop={async () => {
-          if (isConnected) {
-            try { await api.stopMission(); } catch {}
-          }
+          if (isConnected) { try { await api.stopMission(); } catch {} }
         }}
       />
     </div>
