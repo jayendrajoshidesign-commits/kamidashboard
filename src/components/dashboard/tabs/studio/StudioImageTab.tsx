@@ -345,7 +345,8 @@ const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHis
             ? { width: 200, background: 'rgba(8,8,12,0.95)', backdropFilter: 'blur(20px)', borderLeft: '1px solid rgba(255,107,0,0.15)', borderRadius: '12px 0 0 12px' }
             : { height: '40%', maxHeight: 320, background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px 16px 0 0' }
           }
-          onClick={e => e.stopPropagation()}>
+          onClick={e => e.stopPropagation()}
+          {...(!isDesktop ? historySwipe : {})}>
           {!isDesktop && (
             <div className="flex justify-center pt-1.5 pb-1">
               <div className="w-8 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />
