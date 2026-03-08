@@ -10,7 +10,7 @@ interface Props {
 }
 
 const TAB_GROUPS = [
-  { label: 'OPERATIONS', tabs: ['Mission Control', 'KAMI', 'Projects'] },
+  { label: 'OPERATIONS', tabs: ['Mission Control', 'Results', 'KAMI', 'Projects'] },
   { label: 'AGENTS', tabs: ['Live Agents', 'Live Browser'] },
   { label: 'INTELLIGENCE', tabs: ['Sources', 'Analytics', 'Files'] },
   { label: 'TOOLS', tabs: ['Studio', 'Revenue', 'Comms', 'Settings'] },
