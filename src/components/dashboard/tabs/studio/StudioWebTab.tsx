@@ -59,14 +59,16 @@ interface Props {
 const StudioWebTab = ({ showChat, showFiles, onCloseChat, onCloseFiles }: Props) => {
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'phone'>('desktop');
   const [leftMode, setLeftMode] = useState<'chat' | 'code'>('chat');
+  const { isDesktop } = useResponsive();
 
   const previewWidth = device === 'desktop' ? '100%' : device === 'tablet' ? 768 : 375;
 
-  const leftPanelWidth = showChat ? 200 : 0;
-  const rightPanelWidth = showFiles ? 160 : 0;
+  // On desktop, panels push the preview. On mobile/tablet, panels are bottom sheets.
+  const leftPanelWidth = isDesktop && showChat ? 200 : 0;
+  const rightPanelWidth = isDesktop && showFiles ? 160 : 0;
 
   return (
-    <div className="relative w-full h-full flex overflow-hidden">
+    <div className="relative w-full h-full flex flex-col overflow-hidden">
       {/* LEFT PANEL — Chat (pushes preview) */}
       <div className="flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out"
         style={{ width: leftPanelWidth, background: 'rgba(8,8,12,0.95)', borderRight: showChat ? '1px solid rgba(255,107,0,0.15)' : 'none' }}>
