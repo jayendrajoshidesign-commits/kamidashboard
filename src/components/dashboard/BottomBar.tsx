@@ -14,8 +14,12 @@ const BottomBar = ({ runtime, isConnected, missions, onStop }: Props) => {
   const missionGoal = current?.goal ?? 'Freelance Invoicing SaaS Research';
 
   return (
-    <footer className="h-12 glass-panel flex items-center px-4 font-mono text-xs relative z-10"
-      style={{ borderTop: '1px solid rgba(255,107,0,0.15)', backgroundColor: 'rgba(8,8,8,0.95)' }}>
+    <footer className="h-12 flex items-center px-4 font-mono text-xs relative z-10"
+      style={{
+        background: 'rgba(6, 4, 3, 0.95)',
+        backdropFilter: 'blur(20px)',
+        borderTop: '1px solid rgba(255,80,0,0.15)',
+      }}>
       <div className="flex items-center">
         <div className="flex items-center gap-2 mr-4">
           <div className="status-dot-green" />
@@ -25,22 +29,22 @@ const BottomBar = ({ runtime, isConnected, missions, onStop }: Props) => {
         <Metric label="MEM" value="12GB" />
         <div className="flex items-center gap-2 mr-4">
           <span className="text-muted-foreground">GPU</span>
-          <span className="text-neon-green font-semibold">89%</span>
-          <span className="text-neon-yellow font-semibold">67°C</span>
+          <span className="font-bold text-glow-orange" style={{ color: '#FF8C00' }}>89%</span>
+          <span className="font-semibold text-neon-green">67°C</span>
         </div>
         <div className="flex items-center gap-2 mr-4">
           <span className="text-muted-foreground">NET</span>
-          <span className="font-semibold" style={{ color: '#FF8C00' }}>↓ 24KB/s</span>
+          <span className="font-bold text-glow-orange" style={{ color: '#FF8C00' }}>↓ 24KB/s</span>
           <span className="text-muted-foreground">↑ 0KB/s</span>
         </div>
-        <div className="flex items-center gap-2 mr-4 pl-4 border-l border-border/50">
+        <div className="flex items-center gap-2 mr-4 pl-4" style={{ borderLeft: '1px solid rgba(255,80,0,0.1)' }}>
           <span className="text-muted-foreground">TOKENS</span>
-          <span className="font-semibold" style={{ color: '#FF8C00' }}>142K</span>
+          <span className="font-bold text-glow-orange" style={{ color: '#FF8C00' }}>142K</span>
           <span className="text-neon-green">— $0.00</span>
         </div>
-        <div className="pl-4 border-l border-border/50 flex items-center gap-2">
+        <div className="pl-4 flex items-center gap-2" style={{ borderLeft: '1px solid rgba(255,80,0,0.1)' }}>
           <span className="text-muted-foreground">RUNTIME</span>
-          <span className="font-semibold" style={{ color: '#FF8C00' }}>{runtime}</span>
+          <span className="font-bold text-glow-orange" style={{ color: '#FF8C00' }}>{runtime}</span>
         </div>
       </div>
 
@@ -70,7 +74,7 @@ const BottomBar = ({ runtime, isConnected, missions, onStop }: Props) => {
 const Metric = ({ label, value }: { label: string; value: string }) => (
   <div className="flex items-center gap-2 mr-4">
     <span className="text-muted-foreground">{label}</span>
-    <span className="font-semibold" style={{ color: '#FF8C00' }}>{value}</span>
+    <span className="font-bold text-glow-orange" style={{ color: '#FF8C00' }}>{value}</span>
   </div>
 );
 

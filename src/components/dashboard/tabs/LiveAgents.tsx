@@ -17,17 +17,19 @@ const LiveAgents = ({ agents }: Props) => (
       return (
         <div
           key={agent.id}
-          className={`glass-card p-4 flex flex-col gap-3 transition-all group ${isWorking ? 'pulse-border' : ''}`}
+          className={`glass-card p-4 flex flex-col gap-3 transition-all group ${isWorking ? 'working-glow' : ''}`}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <span className="text-xl">{agent.emoji}</span>
-              <span className="text-sm font-semibold text-foreground">{agent.name}</span>
+              <span className="text-sm font-semibold text-foreground heading-cinematic">{agent.name}</span>
             </div>
-            <span className={`text-[10px] px-2 py-1 rounded-full font-medium flex items-center gap-1.5`}
-              style={isWorking ? { backgroundColor: 'rgba(255,107,0,0.15)', color: '#FF6B00', border: '1px solid rgba(255,107,0,0.4)' } :
-                agent.status === 'error' ? { backgroundColor: 'rgba(239,68,68,0.1)', color: '#ef4444' } :
-                { backgroundColor: 'rgba(80,80,80,0.15)', color: '#666666' }}>
+            <span className="text-[10px] px-2 py-1 rounded-full font-medium flex items-center gap-1.5"
+              style={isWorking
+                ? { backgroundColor: 'rgba(255,107,0,0.12)', color: '#FF8C00', border: '1px solid rgba(255,107,0,0.4)' }
+                : agent.status === 'error'
+                  ? { backgroundColor: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)' }
+                  : { backgroundColor: 'rgba(80,80,80,0.1)', color: '#666666', border: '1px solid rgba(255,255,255,0.06)' }}>
               <span className={`inline-block w-1.5 h-1.5 rounded-full ${isWorking ? 'pulse-dot' : agent.status === 'error' ? 'bg-neon-red pulse-dot' : ''}`}
                 style={isWorking ? { backgroundColor: '#FF6B00' } : agent.status === 'error' ? {} : { backgroundColor: '#666666' }} />
               {agent.status === 'error' ? 'ERROR' : isWorking ? 'WORKING' : 'IDLE'}
@@ -37,13 +39,13 @@ const LiveAgents = ({ agents }: Props) => (
           {/* Progress */}
           <div className="h-1.5 bg-muted rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all duration-1000 ${isWorking ? 'progress-shimmer' : ''}`}
+              className={`h-full rounded-full transition-all duration-1000 relative ${isWorking ? 'progress-shimmer progress-glow-tip' : ''}`}
               style={{ width: `${agent.progress}%`, backgroundColor: !isWorking ? 'hsl(var(--muted))' : undefined }}
             />
           </div>
 
           {/* Task */}
-          <p className="text-[11px] text-muted-foreground leading-snug">{agent.task}</p>
+          <p className="text-[11px] leading-snug" style={{ color: '#6b6b6b' }}>{agent.task}</p>
 
           {/* Token sparkline for working agents */}
           {isWorking && (
@@ -70,7 +72,8 @@ const LiveAgents = ({ agents }: Props) => (
           </div>
 
           {/* Output */}
-          <div className="bg-terminal rounded p-2 font-mono text-[10px] text-muted-foreground/80 leading-relaxed whitespace-pre-line group-hover:text-muted-foreground transition-colors">
+          <div className="rounded p-2 font-mono text-[10px] leading-relaxed whitespace-pre-line group-hover:text-muted-foreground transition-colors"
+            style={{ backgroundColor: '#050505', color: '#555' }}>
             {agent.output[0]}
           </div>
         </div>

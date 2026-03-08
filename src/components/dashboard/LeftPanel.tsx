@@ -52,15 +52,20 @@ const LeftPanel = ({ isConnected }: Props) => {
   };
 
   return (
-    <aside className="w-[340px] flex-shrink-0 glass-panel flex flex-col border-r border-border/50 z-10">
+    <aside className="w-[340px] flex-shrink-0 flex flex-col z-10"
+      style={{
+        background: 'rgba(10, 7, 5, 0.85)',
+        backdropFilter: 'blur(24px)',
+        borderRight: '1px solid rgba(255, 80, 0, 0.1)',
+      }}>
       {/* Logo */}
-      <div className="p-4 border-b border-border/50 flex items-center gap-3">
+      <div className="p-4 flex items-center gap-3" style={{ borderBottom: '1px solid rgba(255,80,0,0.1)' }}>
         <div className="w-8 h-8 rounded-lg flex items-center justify-center text-primary-foreground text-sm font-bold"
-          style={{ background: 'linear-gradient(135deg, #FF6B00, #FF4500)', boxShadow: '0 0 20px rgba(255, 107, 0, 0.5)' }}>
+          style={{ background: 'linear-gradient(135deg, #FF6B00, #CC3300)', boxShadow: '0 0 20px rgba(255, 107, 0, 0.5)' }}>
           AI
         </div>
         <div>
-          <h1 className="text-sm font-bold tracking-tight text-foreground">AIOperator Brain</h1>
+          <h1 className="text-sm font-bold tracking-tight text-foreground heading-cinematic">AIOperator Brain</h1>
           <div className="flex items-center gap-2 mt-0.5">
             <div className="status-dot-green" />
             <span className="text-xs font-mono text-neon-green">ONLINE</span>
@@ -75,8 +80,10 @@ const LeftPanel = ({ isConnected }: Props) => {
             <div className={`w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 text-xs ${m.role === 'ai' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
               {m.role === 'ai' ? '🤖' : '👤'}
             </div>
-            <div className={`glass-card-static px-3 py-2 text-sm leading-relaxed max-w-[85%] ${m.role === 'user' ? 'text-foreground rounded-xl rounded-tr-none' : 'text-muted-foreground rounded-xl rounded-tl-none'}`}
-              style={m.role === 'ai' ? { borderLeft: '2px solid rgba(255,107,0,0.4)', boxShadow: '-3px 0 10px rgba(255,107,0,0.08)' } : { backgroundColor: 'rgba(255,107,0,0.08)', borderColor: 'rgba(255,107,0,0.3)' }}>
+            <div className={`glass-card-static px-3 py-2 text-sm leading-relaxed max-w-[85%] ${m.role === 'user' ? 'text-foreground rounded-xl rounded-tr-none' : 'rounded-xl rounded-tl-none'}`}
+              style={m.role === 'ai'
+                ? { borderLeft: '2px solid rgba(255,107,0,0.4)', boxShadow: '-3px 0 10px rgba(255,107,0,0.08)', color: '#bbbbbb' }
+                : { backgroundColor: 'rgba(255,107,0,0.08)', borderColor: 'rgba(255,107,0,0.3)' }}>
               {m.text}
             </div>
           </div>
@@ -89,14 +96,14 @@ const LeftPanel = ({ isConnected }: Props) => {
             </div>
           </div>
         )}
-        <button className="self-start ml-10 text-[11px] px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 transition-colors flex items-center gap-1.5 neon-glow-purple"
-          style={{ background: 'linear-gradient(135deg, rgba(255,107,0,0.15), rgba(255,69,0,0.1))' }}>
+        <button className="self-start ml-10 text-[11px] px-3 py-1.5 rounded-full text-primary-foreground font-semibold flex items-center gap-1.5 mission-pulse-btn"
+          style={{ background: 'linear-gradient(135deg, #FF6B00, #CC3300)', boxShadow: '0 0 20px rgba(255,107,0,0.35)' }}>
           ▶ Deploy as Mission
         </button>
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-border/50">
+      <div className="p-4" style={{ borderTop: '1px solid rgba(255,80,0,0.1)' }}>
         <div className="glass-card-static p-2 focus-glow-purple transition-all">
           <textarea
             className="w-full bg-transparent border-none text-foreground resize-none outline-none min-h-[60px] text-sm font-sans placeholder:text-muted-foreground"
@@ -111,7 +118,7 @@ const LeftPanel = ({ isConnected }: Props) => {
               <button className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"><Paperclip className="w-4 h-4" /></button>
               <button className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"><Sparkles className="w-4 h-4" /></button>
             </div>
-            <button onClick={handleSend} disabled={sending} className="text-primary-foreground px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 hover:opacity-90 transition-opacity pulse-glow-btn disabled:opacity-50"
+            <button onClick={handleSend} disabled={sending} className="text-primary-foreground px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 hover:opacity-90 transition-opacity mission-pulse-btn disabled:opacity-50"
               style={{ background: 'linear-gradient(135deg, #FF6B00, #FF4500)' }}>
               SEND <SendHorizontal className="w-3.5 h-3.5" />
             </button>
@@ -121,7 +128,7 @@ const LeftPanel = ({ isConnected }: Props) => {
 
       {/* Agent strip */}
       <TooltipProvider delayDuration={200}>
-        <div className="px-4 py-3 border-t border-border/50 flex gap-1.5 overflow-x-auto">
+        <div className="px-4 py-3 flex gap-1.5 overflow-x-auto" style={{ borderTop: '1px solid rgba(255,80,0,0.1)' }}>
           {AGENTS.map(a => (
             <Tooltip key={a.id}>
               <TooltipTrigger asChild>

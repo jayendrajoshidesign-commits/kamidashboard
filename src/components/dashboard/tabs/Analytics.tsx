@@ -57,9 +57,9 @@ const Analytics = ({ missions }: Props) => {
                 <div className={`glass-card p-4 relative overflow-hidden ${s.isGreen ? 'glow-green-card border-neon-green/20' : ''}`}>
                   <div className="flex items-center gap-2 mb-2">
                     <span>{s.icon}</span>
-                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{s.label}</span>
+                    <span className="section-header">{s.label}</span>
                   </div>
-                  <div className={`text-2xl font-mono font-bold relative z-10 ${s.isGreen ? 'text-neon-green' : ''}`} style={!s.isGreen ? { color: '#f0f0f0' } : undefined}>
+                  <div className={`text-2xl font-mono mono-value relative z-10 ${s.isGreen ? 'text-neon-green' : ''}`}>
                     <AnimatedNumber value={s.value} />
                   </div>
                   {s.sub && <div className={`text-[11px] mt-1 ${s.isGreen ? 'text-neon-green' : 'text-neon-green'}`}>{s.sub}</div>}
@@ -82,17 +82,24 @@ const Analytics = ({ missions }: Props) => {
       <div className="grid grid-cols-2 gap-4">
         {/* Tasks per agent */}
         <div className="glass-card p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-4">Tasks Per Agent</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-4 heading-cinematic">Tasks Per Agent</h3>
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={ANALYTICS_TASKS_PER_AGENT} layout="vertical" margin={{ left: 100, right: 30 }}>
-                <XAxis type="number" tick={{ fill: '#999999', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <defs>
+                  <linearGradient id="barGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#FF6B00" />
+                    <stop offset="100%" stopColor="#FF4500" />
+                  </linearGradient>
+                  <filter id="barGlow"><feGaussianBlur stdDeviation="2" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+                </defs>
+                <XAxis type="number" tick={{ fill: '#6b6b6b', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis type="category" dataKey="agent" tick={({ x, y, payload }: any) => (
-                  <text x={x} y={y} dy={4} textAnchor="end" fill="#999999" fontSize={11}>
+                  <text x={x} y={y} dy={4} textAnchor="end" fill="#6b6b6b" fontSize={11}>
                     {AGENT_EMOJIS[payload.value] || ''} {payload.value}
                   </text>
                 )} axisLine={false} tickLine={false} width={100} />
-                <Bar dataKey="tasks" radius={[0, 6, 6, 0]} barSize={14} label={{ position: 'right', fill: '#999999', fontSize: 11 }}>
+                <Bar dataKey="tasks" radius={[0, 6, 6, 0]} barSize={14} label={{ position: 'right', fill: '#ffffff', fontSize: 11, fontFamily: 'JetBrains Mono' }} filter="url(#barGlow)">
                   {ANALYTICS_TASKS_PER_AGENT.map((entry, i) => (
                     <Cell key={i} fill={entry.color} />
                   ))}
@@ -104,20 +111,21 @@ const Analytics = ({ missions }: Props) => {
 
         {/* Activity over time */}
         <div className="glass-card p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-4">Activity Over Time</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-4 heading-cinematic">Activity Over Time</h3>
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={ANALYTICS_ACTIVITY}>
                 <defs>
                   <linearGradient id="activityGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#FF6B00" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="#FF8C00" stopOpacity={0.05} />
+                    <stop offset="100%" stopColor="#FF8C00" stopOpacity={0.02} />
                   </linearGradient>
+                  <filter id="actGlow"><feGaussianBlur stdDeviation="3" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
                 </defs>
-                <XAxis dataKey="time" tick={{ fill: '#999999', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#999999', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Area type="monotone" dataKey="tasks" stroke="#FF6B00" fill="url(#activityGrad)" strokeWidth={2} dot={{ r: 3, fill: '#FF6B00', stroke: '#FF6B00' }} />
-                <ReferenceLine x={ANALYTICS_ACTIVITY[ANALYTICS_ACTIVITY.length - 1]?.time} stroke="#FF8C00" strokeDasharray="3 3" label={{ value: 'NOW', fill: '#FF8C00', fontSize: 10, position: 'top' }} />
+                <XAxis dataKey="time" tick={{ fill: '#6b6b6b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: '#6b6b6b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <Area type="monotone" dataKey="tasks" stroke="#FF6B00" fill="url(#activityGrad)" strokeWidth={2} dot={{ r: 4, fill: '#FF6B00', stroke: '#fff', strokeWidth: 1 }} filter="url(#actGlow)" />
+                <ReferenceLine x={ANALYTICS_ACTIVITY[ANALYTICS_ACTIVITY.length - 1]?.time} stroke="rgba(255,255,255,0.3)" strokeDasharray="3 3" label={{ value: 'NOW', fill: '#FF8C00', fontSize: 10, position: 'top' }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -125,7 +133,7 @@ const Analytics = ({ missions }: Props) => {
 
         {/* Tool usage */}
         <div className="glass-card p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-4">Tool Usage Distribution</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-4 heading-cinematic">Tool Usage Distribution</h3>
           <div className="h-[280px] flex items-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -135,7 +143,7 @@ const Analytics = ({ missions }: Props) => {
                     <Cell key={i} fill={entry.color} />
                   ))}
                 </Pie>
-                <Legend layout="vertical" verticalAlign="middle" align="right" formatter={(value: string) => <span className="text-xs text-muted-foreground">{value}</span>} />
+                <Legend layout="vertical" verticalAlign="middle" align="right" formatter={(value: string) => <span className="text-xs" style={{ color: '#6b6b6b' }}>{value}</span>} />
                 <Tooltip contentStyle={{ background: '#0f0f0f', border: '1px solid rgba(255,107,0,0.3)', borderRadius: '8px', fontSize: '12px', backdropFilter: 'blur(16px)' }} />
               </PieChart>
             </ResponsiveContainer>
@@ -144,11 +152,11 @@ const Analytics = ({ missions }: Props) => {
 
         {/* Mission history */}
         <div className="glass-card p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-4">Mission History</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-4 heading-cinematic">Mission History</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="text-muted-foreground border-b border-border/50">
+                <tr className="text-muted-foreground" style={{ borderBottom: '1px solid rgba(255,80,0,0.1)' }}>
                   <th className="text-left pb-2 font-medium">Date</th>
                   <th className="text-left pb-2 font-medium">Goal</th>
                   <th className="text-center pb-2 font-medium">Agents</th>
@@ -160,11 +168,11 @@ const Analytics = ({ missions }: Props) => {
               </thead>
               <tbody>
                 {history.map((m, i) => (
-                  <tr key={i} className="border-b border-border/30 hover:bg-muted/20 transition-colors">
+                  <tr key={i} className="hover:bg-muted/20 transition-colors" style={{ borderBottom: '1px solid rgba(255,80,0,0.06)' }}>
                     <td className="py-2.5 font-mono text-muted-foreground">{m.date}</td>
                     <td className="py-2.5 text-foreground">{m.goal}</td>
-                    <td className="py-2.5 text-center text-foreground">{m.agents}</td>
-                    <td className="py-2.5 text-center text-foreground">{m.tasks}</td>
+                    <td className="py-2.5 text-center mono-value">{m.agents}</td>
+                    <td className="py-2.5 text-center mono-value">{m.tasks}</td>
                     <td className="py-2.5 text-center font-mono text-muted-foreground">{m.duration}</td>
                     <td className="py-2.5 text-center">
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${m.status === 'completed' ? 'bg-neon-green/10 text-neon-green' : 'bg-neon-yellow/10 text-neon-yellow'}`}
