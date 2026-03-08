@@ -8,6 +8,8 @@ import RightPanel from '@/components/dashboard/RightPanel';
 import BottomBar from '@/components/dashboard/BottomBar';
 import TabNav from '@/components/dashboard/TabNav';
 import MissionControl from '@/components/dashboard/tabs/MissionControl';
+import KamiTab from '@/components/dashboard/tabs/KamiTab';
+import ProjectsTab from '@/components/dashboard/tabs/ProjectsTab';
 import LiveAgents from '@/components/dashboard/tabs/LiveAgents';
 import LiveBrowser from '@/components/dashboard/tabs/LiveBrowser';
 import Sources from '@/components/dashboard/tabs/Sources';
@@ -18,7 +20,7 @@ import SettingsTab from '@/components/dashboard/tabs/SettingsTab';
 import Revenue from '@/components/dashboard/tabs/Revenue';
 import Comms from '@/components/dashboard/tabs/Comms';
 
-const TABS = ['Mission Control', 'Live Agents', 'Live Browser', 'Sources', 'Analytics', 'Files', 'Studio', 'Revenue', 'Comms', 'Settings'] as const;
+const TABS = ['Mission Control', 'KAMI', 'Projects', 'Live Agents', 'Live Browser', 'Sources', 'Analytics', 'Files', 'Studio', 'Revenue', 'Comms', 'Settings'] as const;
 type TabId = typeof TABS[number];
 
 export interface LogEntry {
@@ -72,6 +74,8 @@ const Index = () => {
   const renderTab = useCallback(() => {
     switch (activeTab) {
       case 'Mission Control': return <MissionControl isConnected={isConnected} missions={missions} />;
+      case 'KAMI': return <KamiTab isConnected={isConnected} />;
+      case 'Projects': return <ProjectsTab />;
       case 'Live Agents': return <LiveAgents agents={agents} />;
       case 'Live Browser': return <LiveBrowser isConnected={isConnected} />;
       case 'Sources': return <Sources />;
@@ -86,7 +90,7 @@ const Index = () => {
 
   return (
     <div className="w-screen h-screen overflow-hidden flex flex-col relative noise-overlay"
-      style={{ borderTop: '1px solid rgba(255,107,0,0.3)', boxShadow: '0 0 40px rgba(255,107,0,0.1) inset' }}>
+      style={{ borderTop: '1px solid rgba(255,107,0,0.2)' }}>
       <div className="mesh-gradient-bg">
         <div className="mesh-orb mesh-orb-1" />
         <div className="mesh-orb mesh-orb-2" />
