@@ -502,3 +502,19 @@
   from { stroke-dashoffset: 100; }
   to { stroke-dashoffset: 0; }
 }
+
+@keyframes shimmer-sweep {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+.shimmer-sweep::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(34,197,94,0.15), transparent);
+  animation: shimmer-sweep 3s ease-in-out infinite;
+}

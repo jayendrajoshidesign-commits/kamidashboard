@@ -15,8 +15,10 @@ import Studio from '@/components/dashboard/tabs/Studio';
 import FilesTab from '@/components/dashboard/tabs/FilesTab';
 import Analytics from '@/components/dashboard/tabs/Analytics';
 import SettingsTab from '@/components/dashboard/tabs/SettingsTab';
+import Revenue from '@/components/dashboard/tabs/Revenue';
+import Comms from '@/components/dashboard/tabs/Comms';
 
-const TABS = ['Mission Control', 'Live Agents', 'Live Browser', 'Sources', 'Studio', 'Files', 'Analytics', 'Settings'] as const;
+const TABS = ['Mission Control', 'Live Agents', 'Live Browser', 'Sources', 'Analytics', 'Files', 'Studio', 'Revenue', 'Comms', 'Settings'] as const;
 type TabId = typeof TABS[number];
 
 export interface LogEntry {
@@ -31,7 +33,6 @@ const Index = () => {
 
   const { isConnected } = useApiConnection();
 
-  // ─── Terminal logs (polled or mock) ────────────────────────
   const [logs, setLogs] = useState<LogEntry[]>(mockData.terminal());
   
   useEffect(() => {
@@ -78,13 +79,14 @@ const Index = () => {
       case 'Files': return <FilesTab files={files} isConnected={isConnected} />;
       case 'Analytics': return <Analytics missions={missions} />;
       case 'Settings': return <SettingsTab manifest={manifest} />;
+      case 'Revenue': return <Revenue />;
+      case 'Comms': return <Comms />;
     }
   }, [activeTab, isConnected, agents, missions, files, manifest]);
 
   return (
     <div className="w-screen h-screen overflow-hidden flex flex-col relative noise-overlay"
       style={{ borderTop: '1px solid rgba(255,107,0,0.3)', boxShadow: '0 0 40px rgba(255,107,0,0.1) inset' }}>
-      {/* Atmospheric background */}
       <div className="mesh-gradient-bg">
         <div className="mesh-orb mesh-orb-1" />
         <div className="mesh-orb mesh-orb-2" />
@@ -95,7 +97,7 @@ const Index = () => {
         <LeftPanel isConnected={isConnected} />
 
         <main className="flex-1 flex flex-col overflow-hidden">
-          <TabNav tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} isConnected={isConnected} />
+          <TabNav tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} isConnected={isConnected} fileBadge={files.length} />
           <div className="flex-1 overflow-y-auto p-6 tab-fade-in" key={activeTab}>
             {renderTab()}
           </div>
