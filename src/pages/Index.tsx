@@ -227,7 +227,15 @@ const Index = () => {
         )}
 
         {/* Main content area */}
-        <div className={`flex-1 overflow-hidden ${isStudio ? '' : 'overflow-y-auto'}`}>
+        <div className={`flex-1 overflow-hidden ${isStudio ? '' : 'overflow-y-auto'}`}
+          {...(!isDesktop && !isStudio ? contentSwipe : {})}>
+          {/* Pull-to-refresh indicator */}
+          {!isDesktop && refreshing && (
+            <div className="flex items-center justify-center py-2">
+              <RefreshCw className="w-4 h-4 text-[#FF8C00] animate-spin" />
+              <span className="text-[10px] text-[#FF8C00] ml-2">Refreshing...</span>
+            </div>
+          )}
           <div className={`h-full ${isStudio ? '' : isMobile ? 'p-3' : 'p-6'} tab-fade-in`} key={activeTab}>
             {renderTab()}
           </div>
