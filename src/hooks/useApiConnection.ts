@@ -6,8 +6,12 @@ export function useApiConnection() {
   const [checking, setChecking] = useState(true);
 
   const check = useCallback(async () => {
-    const result = await api.ping();
-    setIsConnected(result);
+    try {
+      const agents = await api.getAgents();
+      setIsConnected(Array.isArray(agents));
+    } catch {
+      setIsConnected(false);
+    }
     setChecking(false);
   }, []);
 

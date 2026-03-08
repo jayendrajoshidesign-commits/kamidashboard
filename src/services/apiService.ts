@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://nonnormal-phillip-isocarpic.ngrok-free.dev';
 
 // ─── Types ───────────────────────────────────────────────────
 export interface ApiAgent {
@@ -62,6 +62,7 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true',
       ...options?.headers,
     },
   });
@@ -74,7 +75,11 @@ export const api = {
   // Health check
   async ping(): Promise<boolean> {
     try {
-      await fetch(`${BASE_URL}/api/manifest`, { method: 'GET', signal: AbortSignal.timeout(3000) });
+      await fetch(`${BASE_URL}/api/agents`, {
+        method: 'GET',
+        headers: { 'ngrok-skip-browser-warning': 'true' },
+        signal: AbortSignal.timeout(5000),
+      });
       return true;
     } catch {
       return false;
@@ -105,7 +110,11 @@ export const api = {
   uploadFile: async (file: File): Promise<{ name: string; size: string }> => {
     const form = new FormData();
     form.append('file', file);
-    const res = await fetch(`${BASE_URL}/api/upload`, { method: 'POST', body: form });
+    const res = await fetch(`${BASE_URL}/api/upload`, {
+      method: 'POST',
+      body: form,
+      headers: { 'ngrok-skip-browser-warning': 'true' },
+    });
     if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
     return res.json();
   },
