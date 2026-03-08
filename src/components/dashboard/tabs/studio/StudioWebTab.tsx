@@ -207,7 +207,8 @@ const StudioWebTab = ({ showChat, showFiles, onCloseChat, onCloseFiles }: Props)
       {/* MOBILE/TABLET — Chat bottom sheet */}
       {!isDesktop && showChat && (
         <div className="absolute left-0 right-0 bottom-0 z-30 animate-slide-up"
-          style={{ height: '45%', maxHeight: 360, background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px 16px 0 0' }}>
+          style={{ height: '45%', maxHeight: 360, background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px 16px 0 0' }}
+          {...chatSheetSwipe}>
           <div className="flex justify-center pt-1.5 pb-1">
             <div className="w-8 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />
           </div>
