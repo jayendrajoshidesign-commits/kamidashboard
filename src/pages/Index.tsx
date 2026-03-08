@@ -88,6 +88,45 @@ const Index = () => {
     if (isDesktop) { setShowLeftPanel(false); setShowRightPanel(false); }
   }, [isDesktop]);
 
+  // --- TOUCH GESTURES (mobile + tablet only) ---
+  const goNextTab = useCallback(() => {
+    const idx = TABS.indexOf(activeTab);
+    if (idx < TABS.length - 1) setActiveTab(TABS[idx + 1]);
+  }, [activeTab]);
+  const goPrevTab = useCallback(() => {
+    const idx = TABS.indexOf(activeTab);
+    if (idx > 0) setActiveTab(TABS[idx - 1]);
+  }, [activeTab]);
+  const contentSwipe = useSwipeGesture({
+    onSwipeLeft: goNextTab,
+    onSwipeRight: goPrevTab,
+    threshold: 60,
+    maxTime: 400,
+  });
+  const edgeSwipe = useSwipeGesture({
+    onSwipeRight: () => { if (!showLeftPanel) setShowLeftPanel(true); },
+    onSwipeLeft: () => { if (!showRightPanel) setShowRightPanel(true); },
+    threshold: 40,
+    edgeOnly: true,
+    edgeWidth: 25,
+  });
+  const leftSheetSwipe = useSwipeGesture({
+    onSwipeDown: () => setShowLeftPanel(false),
+    threshold: 40,
+    maxTime: 400,
+  });
+  const rightSheetSwipe = useSwipeGesture({
+    onSwipeDown: () => setShowRightPanel(false),
+    threshold: 40,
+    maxTime: 400,
+  });
+  const [refreshing, setRefreshing] = useState(false);
+  const handlePullRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await new Promise(r => setTimeout(r, 800));
+    setRefreshing(false);
+  }, []);
+
   const renderTab = useCallback(() => {
     switch (activeTab) {
       case 'Mission Control': return <MissionControl isConnected={isConnected} missions={missions} />;
