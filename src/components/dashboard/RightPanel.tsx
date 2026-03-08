@@ -83,10 +83,10 @@ const RightPanel = ({ logs }: Props) => {
       </div>
 
       {/* Terminal */}
-      <div ref={termRef} className="overflow-y-auto p-3 font-mono text-[11px] bg-terminal max-h-[200px]">
+      <div ref={termRef} className="overflow-y-auto p-3 font-mono text-[11px] max-h-[200px]" style={{ backgroundColor: '#050505' }}>
         {logs.map((log, i) => (
           <div key={i} className={`mb-0.5 leading-relaxed ${i === logs.length - 1 ? 'terminal-line-enter' : ''}`}>
-            <span className="text-muted-foreground mr-2">{log.time}</span>
+            <span className="mr-2" style={{ color: '#444444' }}>{log.time}</span>
             <span className={LOG_COLORS[log.type]}>{LOG_LABELS[log.type]}</span>
             <span className="text-foreground/70 ml-1">{log.msg}</span>
           </div>
@@ -104,23 +104,23 @@ const RightPanel = ({ logs }: Props) => {
             <AreaChart data={tokenData}>
               <defs>
                 <linearGradient id="thinkGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#7c3aed" stopOpacity={0.5} />
-                  <stop offset="100%" stopColor="#7c3aed" stopOpacity={0.05} />
+                  <stop offset="0%" stopColor="#FF6B00" stopOpacity={0.5} />
+                  <stop offset="100%" stopColor="#FF6B00" stopOpacity={0.05} />
                 </linearGradient>
                 <linearGradient id="toolGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.4} />
-                  <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.05} />
+                  <stop offset="0%" stopColor="#FF8C00" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="#FF8C00" stopOpacity={0.05} />
                 </linearGradient>
               </defs>
-              <Area type="monotone" dataKey="thinking" stroke="#7c3aed" fill="url(#thinkGrad)" strokeWidth={1.5} dot={false} stackId="1" />
-              <Area type="monotone" dataKey="tools" stroke="#06b6d4" fill="url(#toolGrad)" strokeWidth={1.5} dot={false} stackId="1" />
+              <Area type="monotone" dataKey="thinking" stroke="#FF6B00" fill="url(#thinkGrad)" strokeWidth={1.5} dot={false} stackId="1" />
+              <Area type="monotone" dataKey="tools" stroke="#FF8C00" fill="url(#toolGrad)" strokeWidth={1.5} dot={false} stackId="1" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
         {/* Token bar */}
         <div className="mt-2">
           <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <div className="h-full w-[13%] bg-primary rounded-full progress-shimmer" />
+            <div className="h-full w-[13%] rounded-full progress-shimmer" />
           </div>
           <p className="text-[10px] text-muted-foreground mt-1 font-mono">$0.00 local • ~$0.43 saved vs Claude API</p>
         </div>
@@ -129,15 +129,15 @@ const RightPanel = ({ logs }: Props) => {
       {/* SECTION B: SYSTEM RESOURCES */}
       <div className="px-4 py-3 border-t border-border/50">
         <div className="flex gap-2 mb-2">
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded" style={{ backgroundColor: 'rgba(6,182,212,0.1)', color: '#06b6d4' }}>CPU {lastSys.cpu}%</span>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded" style={{ backgroundColor: 'rgba(124,58,237,0.1)', color: '#7c3aed' }}>RAM 12GB</span>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded" style={{ backgroundColor: 'rgba(255,140,0,0.1)', color: '#FF8C00' }}>CPU {lastSys.cpu}%</span>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded" style={{ backgroundColor: 'rgba(255,107,0,0.1)', color: '#FF6B00' }}>RAM 12GB</span>
           <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${lastSys.gpu > 80 ? 'pulse-dot' : ''}`} style={{ backgroundColor: 'rgba(34,197,94,0.1)', color: '#22c55e' }}>GPU {lastSys.gpu}% 67°C</span>
         </div>
         <div className="h-[80px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={sysData}>
-              <Line type="monotone" dataKey="cpu" stroke="#06b6d4" strokeWidth={1.5} dot={false} />
-              <Line type="monotone" dataKey="ram" stroke="#7c3aed" strokeWidth={1.5} dot={false} />
+              <Line type="monotone" dataKey="cpu" stroke="#FF8C00" strokeWidth={1.5} dot={false} />
+              <Line type="monotone" dataKey="ram" stroke="#FF6B00" strokeWidth={1.5} dot={false} />
               <Line type="monotone" dataKey="gpu" stroke="#22c55e" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
@@ -148,27 +148,27 @@ const RightPanel = ({ logs }: Props) => {
       {/* SECTION C: NETWORK ACTIVITY */}
       <div className="px-4 py-3 border-t border-border/50">
         <div className="flex items-center gap-2 mb-2">
-          <Globe className="w-3.5 h-3.5 text-neon-cyan" />
+          <Globe className="w-3.5 h-3.5" style={{ color: '#FF8C00' }} />
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Network</span>
-          <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-neon-cyan/10 text-neon-cyan">{reqCount} reqs</span>
+          <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ backgroundColor: 'rgba(255,140,0,0.1)', color: '#FF8C00' }}>{reqCount} reqs</span>
         </div>
         <div className="h-[60px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={netData}>
-              <Bar dataKey="rps" fill="#06b6d4" radius={[2, 2, 0, 0]} opacity={0.7} />
+              <Bar dataKey="rps" fill="#FF6B00" radius={[2, 2, 0, 0]} opacity={0.7} />
             </BarChart>
           </ResponsiveContainer>
         </div>
         <div className="flex justify-between mt-2 text-[10px] font-mono text-muted-foreground">
-          <span className="flex items-center gap-1"><Globe className="w-3 h-3 text-neon-cyan" />{urlCount} URLs visited</span>
+          <span className="flex items-center gap-1"><Globe className="w-3 h-3" style={{ color: '#FF8C00' }} />{urlCount} URLs visited</span>
           <span className="flex items-center gap-1"><Download className="w-3 h-3" />{kbExtracted} KB extracted</span>
         </div>
         {/* URL ticker */}
         <div className="mt-2 overflow-hidden h-4 relative">
-          <div className="url-ticker text-[10px] font-mono text-neon-cyan/60 flex items-center gap-3 absolute">
+          <div className="url-ticker text-[10px] font-mono flex items-center gap-3 absolute" style={{ color: 'rgba(255,140,0,0.6)' }}>
             {TICKER_URLS.map((u, i) => (
               <span key={i} className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan inline-block" />
+                <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: '#FF8C00' }} />
                 {u}
               </span>
             ))}
@@ -183,10 +183,10 @@ const RightPanel = ({ logs }: Props) => {
         </div>
         <div className="overflow-y-auto flex-1">
           {[
-            { icon: '💻', color: 'text-primary', title: 'Code Update', desc: 'Market Research committed competitor_matrix.csv' },
-            { icon: '🔍', color: 'text-neon-cyan', title: 'New Source Found', desc: 'Added FreshBooks pricing data to knowledge base' },
-            { icon: '📧', color: 'text-neon-yellow', title: 'Draft Ready', desc: 'Sales email template v3 ready for review' },
-            { icon: '📊', color: 'text-neon-green', title: 'Analysis Complete', desc: 'Finance: Year 1 projection model generated' },
+            { icon: '💻', color: '#FF6B00', title: 'Code Update', desc: 'Market Research committed competitor_matrix.csv' },
+            { icon: '🔍', color: '#FF8C00', title: 'New Source Found', desc: 'Added FreshBooks pricing data to knowledge base' },
+            { icon: '📧', color: 'hsl(var(--neon-yellow))', title: 'Draft Ready', desc: 'Sales email template v3 ready for review' },
+            { icon: '📊', color: 'hsl(var(--neon-green))', title: 'Analysis Complete', desc: 'Finance: Year 1 projection model generated' },
           ].map((item, i) => (
             <div key={i} className="px-4 py-3 border-b border-border/30 flex gap-3">
               <span className="text-lg">{item.icon}</span>

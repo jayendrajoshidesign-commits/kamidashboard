@@ -24,10 +24,12 @@ const LiveAgents = ({ agents }: Props) => (
               <span className="text-xl">{agent.emoji}</span>
               <span className="text-sm font-semibold text-foreground">{agent.name}</span>
             </div>
-            <span className={`text-[10px] px-2 py-1 rounded-full font-medium flex items-center gap-1.5 ${
-              isWorking ? 'bg-neon-green/10 text-neon-green' : agent.status === 'error' ? 'bg-neon-red/10 text-neon-red' : 'bg-muted text-muted-foreground'
-            }`}>
-              <span className={`inline-block w-1.5 h-1.5 rounded-full ${isWorking ? 'bg-neon-green pulse-dot' : agent.status === 'error' ? 'bg-neon-red pulse-dot' : 'bg-muted-foreground'}`} />
+            <span className={`text-[10px] px-2 py-1 rounded-full font-medium flex items-center gap-1.5`}
+              style={isWorking ? { backgroundColor: 'rgba(255,107,0,0.15)', color: '#FF6B00', border: '1px solid rgba(255,107,0,0.4)' } :
+                agent.status === 'error' ? { backgroundColor: 'rgba(239,68,68,0.1)', color: '#ef4444' } :
+                { backgroundColor: 'rgba(80,80,80,0.15)', color: '#666666' }}>
+              <span className={`inline-block w-1.5 h-1.5 rounded-full ${isWorking ? 'pulse-dot' : agent.status === 'error' ? 'bg-neon-red pulse-dot' : ''}`}
+                style={isWorking ? { backgroundColor: '#FF6B00' } : agent.status === 'error' ? {} : { backgroundColor: '#666666' }} />
               {agent.status === 'error' ? 'ERROR' : isWorking ? 'WORKING' : 'IDLE'}
             </span>
           </div>

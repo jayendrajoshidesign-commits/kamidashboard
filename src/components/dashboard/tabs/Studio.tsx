@@ -2,19 +2,19 @@ import { useState } from 'react';
 import { Image, Layout, Code, Palette, PenTool, Zap, Boxes, Monitor, Tablet, Smartphone, FolderTree, File, Download, RefreshCw, Rocket, Check } from 'lucide-react';
 
 const STYLES = [
-  { name: 'Photorealistic', icon: Image, gradient: 'from-blue-900/40 to-blue-800/20' },
-  { name: 'Illustration', icon: PenTool, gradient: 'from-purple-900/40 to-pink-800/20' },
-  { name: 'Diagram', icon: Boxes, gradient: 'from-cyan-900/40 to-teal-800/20' },
+  { name: 'Photorealistic', icon: Image, gradient: 'from-orange-900/40 to-amber-800/20' },
+  { name: 'Illustration', icon: PenTool, gradient: 'from-orange-900/40 to-red-800/20' },
+  { name: 'Diagram', icon: Boxes, gradient: 'from-amber-900/40 to-orange-800/20' },
   { name: 'Logo', icon: Zap, gradient: 'from-amber-900/40 to-orange-800/20' },
-  { name: 'UI Mockup', icon: Layout, gradient: 'from-purple-900/40 to-gray-800/20' },
-  { name: 'Abstract', icon: Palette, gradient: 'from-pink-900/30 via-purple-900/30 to-cyan-900/30' },
+  { name: 'UI Mockup', icon: Layout, gradient: 'from-orange-900/40 to-gray-800/20' },
+  { name: 'Abstract', icon: Palette, gradient: 'from-red-900/30 via-orange-900/30 to-amber-900/30' },
 ];
 
 const HISTORY_GRADIENTS = [
-  'from-purple-600/40 to-cyan-600/20',
-  'from-pink-600/40 to-purple-600/20',
-  'from-cyan-600/40 to-blue-600/20',
-  'from-amber-600/40 to-red-600/20',
+  'from-orange-600/40 to-amber-600/20',
+  'from-red-600/40 to-orange-600/20',
+  'from-amber-600/40 to-yellow-600/20',
+  'from-orange-600/40 to-red-600/20',
 ];
 
 const SAMPLE_HTML = `<div class="hero">
@@ -100,7 +100,8 @@ const Studio = () => {
               </div>
             </div>
 
-            <button onClick={handleGenerate} disabled={generating} className="w-full bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_100%] text-primary-foreground py-2.5 rounded-lg text-sm font-bold hover:opacity-90 pulse-glow-btn transition-all disabled:opacity-50" style={generating ? undefined : { animation: 'shimmer-move 3s ease infinite' }}>
+            <button onClick={handleGenerate} disabled={generating} className="w-full text-primary-foreground py-2.5 rounded-lg text-sm font-bold hover:opacity-90 pulse-glow-btn transition-all disabled:opacity-50"
+              style={{ background: 'linear-gradient(135deg, #FF6B00, #FF4500)', ...(generating ? {} : { animation: 'shimmer-move 3s ease infinite' }) }}>
               {generating ? '⏳ Generating...' : '✨ GENERATE'}
             </button>
           </div>
@@ -114,14 +115,12 @@ const Studio = () => {
                 <p className="text-[11px] mt-1">Select a style and click Generate</p>
               </div>
             </div>
-            {/* Action buttons */}
             <div className="flex gap-2">
               <button className="glass-card px-3 py-1.5 text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1.5 transition-colors"><Download className="w-3.5 h-3.5" /> Download</button>
               <button className="glass-card px-3 py-1.5 text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1.5 transition-colors"><Rocket className="w-3.5 h-3.5" /> Use in Mission</button>
               <button className="glass-card px-3 py-1.5 text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1.5 transition-colors"><RefreshCw className="w-3.5 h-3.5" /> Regenerate</button>
               <button className="glass-card px-3 py-1.5 text-[11px] text-primary hover:text-foreground flex items-center gap-1.5 transition-colors"><Palette className="w-3.5 h-3.5" /> Set as Brand Asset</button>
             </div>
-            {/* History thumbnails */}
             <div className="flex gap-3">
               {HISTORY_GRADIENTS.map((g, i) => (
                 <div key={i} className={`w-16 h-16 glass-card overflow-hidden bg-gradient-to-br ${g} flex items-center justify-center`}>
@@ -132,9 +131,7 @@ const Studio = () => {
           </div>
         </div>
       ) : (
-        /* Web Builder */
         <div className="grid gap-4 h-[calc(100%-60px)]" style={{ gridTemplateColumns: '280px 1fr 180px' }}>
-          {/* Left */}
           <div className="glass-card p-4 space-y-4 flex flex-col">
             <div className="flex gap-2">
               <button onClick={() => setCodeMode(false)} className={`flex-1 py-1.5 rounded text-[11px] font-medium ${!codeMode ? 'bg-primary text-primary-foreground' : 'glass-card text-muted-foreground'}`}>Prompt</button>
@@ -164,7 +161,6 @@ const Studio = () => {
             </div>
           </div>
 
-          {/* Center - preview */}
           <div className="glass-card flex flex-col overflow-hidden">
             <div className="px-3 py-2 border-b border-border/50 flex items-center gap-3">
               <div className="flex gap-1">
@@ -179,9 +175,7 @@ const Studio = () => {
                 <Smartphone className="w-4 h-4 text-muted-foreground" />
               </div>
             </div>
-            {/* Realistic preview */}
             <div className="flex-1 bg-gray-950 overflow-hidden">
-              {/* Nav */}
               <div className="flex items-center justify-between px-6 py-3 border-b border-gray-800">
                 <span className="text-white font-bold text-sm">InvoiceFlow</span>
                 <div className="flex gap-4 text-gray-400 text-[11px]">
@@ -189,14 +183,13 @@ const Studio = () => {
                   <span className="text-primary">Login</span>
                 </div>
               </div>
-              {/* Hero */}
               <div className="px-8 py-8 text-center">
                 <h2 className="text-white text-xl font-bold">Invoice Faster.</h2>
                 <h2 className="text-white text-xl font-bold mb-2">Get Paid Sooner.</h2>
                 <p className="text-gray-400 text-xs mb-4 max-w-[280px] mx-auto">Smart invoicing for modern freelancers. Create, send, and track invoices in seconds.</p>
-                <button className="bg-gradient-to-r from-primary to-accent text-white text-xs px-5 py-2 rounded-lg font-semibold neon-glow-purple">Start Free Trial</button>
+                <button className="text-white text-xs px-5 py-2 rounded-lg font-semibold neon-glow-purple"
+                  style={{ background: 'linear-gradient(135deg, #FF6B00, #FF4500)' }}>Start Free Trial</button>
               </div>
-              {/* Features */}
               <div className="grid grid-cols-3 gap-3 px-6 pb-4">
                 {[
                   { icon: '⚡', title: 'Lightning Fast', desc: 'Create invoices in under 60 seconds' },
@@ -213,7 +206,6 @@ const Studio = () => {
             </div>
           </div>
 
-          {/* Right - file tree */}
           <div className="glass-card p-4 flex flex-col gap-4">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Files</div>
             <div className="space-y-1.5 text-xs">
@@ -230,7 +222,8 @@ const Studio = () => {
               ))}
             </div>
             <div className="mt-auto">
-              <button className="w-full bg-primary text-primary-foreground py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 neon-glow-purple hover:opacity-90 transition-opacity">
+              <button className="w-full text-primary-foreground py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 neon-glow-purple hover:opacity-90 transition-opacity"
+                style={{ background: 'linear-gradient(135deg, #FF6B00, #FF4500)' }}>
                 <Rocket className="w-3.5 h-3.5" /> Deploy
               </button>
             </div>

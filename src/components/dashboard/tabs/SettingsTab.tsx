@@ -18,7 +18,7 @@ const SettingsTab = ({ manifest }: Props) => {
       <div className="grid grid-cols-2 gap-4">
         {/* System Info */}
         <div className="glass-card p-5">
-          <h3 className="text-sm font-semibold text-foreground mb-4">🖥️ System Info</h3>
+          <h3 className="text-sm font-semibold mb-4" style={{ color: '#FF6B00', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,107,0,0.2)', paddingBottom: '8px' }}>🖥️ System Info</h3>
           <div className="space-y-2.5 text-xs">
             {[
               ['Dashboard Version', manifest.version],
@@ -37,7 +37,7 @@ const SettingsTab = ({ manifest }: Props) => {
 
         {/* API Keys */}
         <div className="glass-card p-5">
-          <h3 className="text-sm font-semibold text-foreground mb-4">🔑 API Keys</h3>
+          <h3 className="text-sm font-semibold mb-4" style={{ color: '#FF6B00', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,107,0,0.2)', paddingBottom: '8px' }}>🔑 API Keys</h3>
           <div className="space-y-2">
             {apiKeys.map(a => (
               <div key={a.name} className={`flex items-center gap-3 py-1.5 border-b border-border/30 text-xs ${a.status === 'green' ? 'connected-row-glow' : ''}`}>
@@ -51,14 +51,15 @@ const SettingsTab = ({ manifest }: Props) => {
               </div>
             ))}
           </div>
-          <button className="mt-4 w-full bg-primary text-primary-foreground py-2 rounded-lg text-xs font-semibold neon-glow-purple hover:opacity-90 transition-opacity">
+          <button className="mt-4 w-full text-primary-foreground py-2 rounded-lg text-xs font-semibold neon-glow-purple hover:opacity-90 transition-opacity"
+            style={{ background: 'linear-gradient(135deg, #FF6B00, #FF4500)' }}>
             🧙 API Setup Wizard
           </button>
         </div>
 
         {/* Agent Team */}
         <div className="glass-card p-5">
-          <h3 className="text-sm font-semibold text-foreground mb-4">🤖 Agent Team Config</h3>
+          <h3 className="text-sm font-semibold mb-4" style={{ color: '#FF6B00', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,107,0,0.2)', paddingBottom: '8px' }}>🤖 Agent Team Config</h3>
           <div className="space-y-4">
             <div>
               <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 block">Execution Mode</label>
@@ -90,13 +91,14 @@ const SettingsTab = ({ manifest }: Props) => {
 
         {/* Health */}
         <div className="glass-card p-5">
-          <h3 className="text-sm font-semibold text-foreground mb-4">🏥 Health & Updates</h3>
+          <h3 className="text-sm font-semibold mb-4" style={{ color: '#FF6B00', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,107,0,0.2)', paddingBottom: '8px' }}>🏥 Health & Updates</h3>
           <div className="space-y-2">
             {healthItems.map((c, idx) => (
               <div key={c.name} className="flex items-center gap-3 text-xs py-1.5 border-b border-border/30 health-item-enter" style={{ animationDelay: `${idx * 60}ms` }}>
                 <span className={`w-2 h-2 rounded-full flex-shrink-0 ${c.status === 'green' ? 'status-dot-green' : c.status === 'yellow' ? 'status-dot-yellow' : 'status-dot-red'}`} />
                 <span className="text-foreground">{c.name}</span>
-                <span className={`ml-auto text-[10px] ${c.status === 'green' ? 'text-neon-green' : c.status === 'yellow' ? 'text-neon-yellow' : 'text-neon-red'}`}>
+                <span className={`ml-auto text-[10px] ${c.status === 'green' ? 'text-neon-green' : c.status === 'yellow' ? '' : 'text-neon-red'}`}
+                  style={c.status === 'yellow' ? { color: '#FF8C00' } : undefined}>
                   {c.status === 'green' ? 'Healthy' : c.status === 'yellow' ? 'Degraded' : 'Offline'}
                 </span>
               </div>

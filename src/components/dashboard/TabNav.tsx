@@ -17,7 +17,7 @@ const TabNav = ({ tabs, activeTab, onTabChange, isConnected }: Props) => (
       >
         {tab}
         {activeTab === tab && (
-          <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-full" style={{ boxShadow: '0 -2px 12px hsla(263,70%,58%,0.5)' }} />
+          <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-full" style={{ boxShadow: '0 -2px 12px rgba(255,107,0,0.5)' }} />
         )}
       </button>
     ))}

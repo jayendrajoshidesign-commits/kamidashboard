@@ -15,17 +15,17 @@ export const AGENTS = [
 export type AgentStatus = 'working' | 'idle' | 'error';
 
 export const AGENT_COLORS: Record<string, string> = {
-  gray: 'hsl(var(--muted-foreground))',
-  gold: 'hsl(var(--neon-gold))',
+  gray: '#999999',
+  gold: '#FF8C00',
   blue: '#3b82f6',
-  cyan: 'hsl(var(--neon-cyan))',
+  cyan: '#FF8C00',
   green: 'hsl(var(--neon-green))',
-  pink: 'hsl(var(--neon-pink))',
-  purple: 'hsl(var(--neon-purple))',
-  orange: 'hsl(var(--neon-orange))',
+  pink: '#FF4500',
+  purple: '#FF6B00',
+  orange: '#FF6B00',
   'yellow-green': '#84cc16',
   'red-orange': '#f97316',
-  teal: 'hsl(var(--neon-teal))',
+  teal: '#FF8C00',
 };
 
 export const TERMINAL_MESSAGES = [
@@ -110,17 +110,17 @@ export const FILES_GENERATED = [
 ];
 
 export const ANALYTICS_TASKS_PER_AGENT = [
-  { agent: 'Market Research', tasks: 8, color: 'hsl(var(--neon-cyan))' },
-  { agent: 'CEO', tasks: 5, color: 'hsl(var(--neon-gold))' },
+  { agent: 'Market Research', tasks: 8, color: '#FF8C00' },
+  { agent: 'CEO', tasks: 5, color: '#FF8C00' },
   { agent: 'Sales', tasks: 4, color: 'hsl(var(--neon-green))' },
-  { agent: 'Marketing', tasks: 3, color: 'hsl(var(--neon-pink))' },
-  { agent: 'Design', tasks: 3, color: 'hsl(var(--neon-purple))' },
+  { agent: 'Marketing', tasks: 3, color: '#FF4500' },
+  { agent: 'Design', tasks: 3, color: '#FF6B00' },
   { agent: 'COO', tasks: 2, color: '#3b82f6' },
   { agent: 'Finance', tasks: 2, color: '#84cc16' },
-  { agent: 'Supervisor', tasks: 1, color: 'hsl(var(--muted-foreground))' },
-  { agent: 'R&D', tasks: 1, color: 'hsl(var(--neon-orange))' },
+  { agent: 'Supervisor', tasks: 1, color: '#999999' },
+  { agent: 'R&D', tasks: 1, color: '#FF6B00' },
   { agent: 'Legal', tasks: 0, color: '#f97316' },
-  { agent: 'Customer Success', tasks: 0, color: 'hsl(var(--neon-teal))' },
+  { agent: 'Customer Success', tasks: 0, color: '#FF8C00' },
 ];
 
 export const ANALYTICS_ACTIVITY = Array.from({ length: 12 }, (_, i) => ({
@@ -129,11 +129,11 @@ export const ANALYTICS_ACTIVITY = Array.from({ length: 12 }, (_, i) => ({
 }));
 
 export const TOOL_USAGE = [
-  { name: 'web_search', value: 35, color: 'hsl(var(--neon-cyan))' },
+  { name: 'web_search', value: 35, color: '#FF8C00' },
   { name: 'browser_read', value: 25, color: '#3b82f6' },
   { name: 'run_code', value: 20, color: 'hsl(var(--neon-green))' },
   { name: 'write_file', value: 15, color: 'hsl(var(--neon-yellow))' },
-  { name: 'other', value: 5, color: 'hsl(var(--muted-foreground))' },
+  { name: 'other', value: 5, color: '#999999' },
 ];
 
 export const MISSION_HISTORY = [
