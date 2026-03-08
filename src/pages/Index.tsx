@@ -195,9 +195,10 @@ const Index = () => {
         </div>
       )}
 
-      {/* Main content row */}
+      {/* Main content row — with edge swipe + tab swipe gestures on mobile/tablet */}
       <div className={`flex flex-1 overflow-hidden relative z-10 ${isMobile ? 'pb-[92px]' : ''}`}
-        onClick={() => { if (isStudio) { setLeftOverlay(false); setRightOverlay(false); } }}>
+        onClick={() => { if (isStudio) { setLeftOverlay(false); setRightOverlay(false); } }}
+        {...(!isDesktop ? edgeSwipe : {})}>
 
         {/* Left panel — desktop only (not studio) */}
         {isDesktop && (
