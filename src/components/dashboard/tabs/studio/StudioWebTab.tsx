@@ -61,6 +61,8 @@ const StudioWebTab = ({ showChat, showFiles, onCloseChat, onCloseFiles }: Props)
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'phone'>('desktop');
   const [leftMode, setLeftMode] = useState<'chat' | 'code'>('chat');
   const { isDesktop } = useResponsive();
+  const chatSheetSwipe = useSwipeGesture({ onSwipeDown: onCloseChat, threshold: 40, maxTime: 400 });
+  const filesSheetSwipe = useSwipeGesture({ onSwipeDown: onCloseFiles, threshold: 40, maxTime: 400 });
 
   const previewWidth = device === 'desktop' ? '100%' : device === 'tablet' ? 768 : 375;
 
