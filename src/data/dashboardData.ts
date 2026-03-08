@@ -110,16 +110,16 @@ export const FILES_GENERATED = [
 ];
 
 export const ANALYTICS_TASKS_PER_AGENT = [
-  { agent: 'Market Research', tasks: 8, color: '#FF8C00' },
+  { agent: 'Market Research', tasks: 8, color: '#FF6B00' },
   { agent: 'CEO', tasks: 5, color: '#FF8C00' },
-  { agent: 'Sales', tasks: 4, color: 'hsl(var(--neon-green))' },
-  { agent: 'Marketing', tasks: 3, color: '#FF4500' },
-  { agent: 'Design', tasks: 3, color: '#FF6B00' },
+  { agent: 'Sales', tasks: 4, color: '#4ade80' },
+  { agent: 'Marketing', tasks: 3, color: '#facc15' },
+  { agent: 'Design', tasks: 3, color: '#c084fc' },
   { agent: 'COO', tasks: 2, color: '#3b82f6' },
   { agent: 'Finance', tasks: 2, color: '#84cc16' },
   { agent: 'Supervisor', tasks: 1, color: '#999999' },
   { agent: 'R&D', tasks: 1, color: '#FF6B00' },
-  { agent: 'Legal', tasks: 0, color: '#f97316' },
+  { agent: 'Legal', tasks: 0, color: '#f87171' },
   { agent: 'Customer Success', tasks: 0, color: '#FF8C00' },
 ];
 
@@ -129,11 +129,11 @@ export const ANALYTICS_ACTIVITY = Array.from({ length: 12 }, (_, i) => ({
 }));
 
 export const TOOL_USAGE = [
-  { name: 'web_search', value: 35, color: '#FF8C00' },
+  { name: 'web_search', value: 35, color: '#FF6B00' },
   { name: 'browser_read', value: 25, color: '#3b82f6' },
-  { name: 'run_code', value: 20, color: 'hsl(var(--neon-green))' },
-  { name: 'write_file', value: 15, color: 'hsl(var(--neon-yellow))' },
-  { name: 'other', value: 5, color: '#999999' },
+  { name: 'run_code', value: 20, color: '#4ade80' },
+  { name: 'write_file', value: 15, color: '#facc15' },
+  { name: 'other', value: 5, color: '#444444' },
 ];
 
 export const MISSION_HISTORY = [

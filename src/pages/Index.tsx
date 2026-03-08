@@ -36,7 +36,6 @@ const Index = () => {
   
   useEffect(() => {
     if (!isConnected) {
-      // Mock: append random log every 3s
       const interval = setInterval(() => {
         const entry = TERMINAL_MESSAGES[Math.floor(Math.random() * TERMINAL_MESSAGES.length)];
         const now = new Date();
@@ -45,7 +44,6 @@ const Index = () => {
       }, 3000);
       return () => clearInterval(interval);
     } else {
-      // Live: poll every 2s
       const poll = async () => {
         try {
           const data = await api.getTerminal();
@@ -58,39 +56,11 @@ const Index = () => {
     }
   }, [isConnected]);
 
-  // ─── Agents (polled) ──────────────────────────────────────
-  const { data: agents } = usePolledData(
-    api.getAgents,
-    mockData.agents,
-    3000,
-    isConnected,
-  );
+  const { data: agents } = usePolledData(api.getAgents, mockData.agents, 3000, isConnected);
+  const { data: missions } = usePolledData(api.getMissions, mockData.missions, 5000, isConnected);
+  const { data: files } = usePolledData(api.getFiles, mockData.files, 10000, isConnected);
+  const { data: manifest } = usePolledData(api.getManifest, mockData.manifest, 30000, isConnected);
 
-  // ─── Missions (polled) ────────────────────────────────────
-  const { data: missions } = usePolledData(
-    api.getMissions,
-    mockData.missions,
-    5000,
-    isConnected,
-  );
-
-  // ─── Files (polled) ───────────────────────────────────────
-  const { data: files } = usePolledData(
-    api.getFiles,
-    mockData.files,
-    10000,
-    isConnected,
-  );
-
-  // ─── Manifest (polled slowly) ─────────────────────────────
-  const { data: manifest } = usePolledData(
-    api.getManifest,
-    mockData.manifest,
-    30000,
-    isConnected,
-  );
-
-  // Runtime timer
   useEffect(() => {
     const interval = setInterval(() => setSeconds(s => s + 1), 1000);
     return () => clearInterval(interval);
@@ -112,11 +82,13 @@ const Index = () => {
   }, [activeTab, isConnected, agents, missions, files, manifest]);
 
   return (
-    <div className="w-screen h-screen overflow-hidden flex flex-col relative">
+    <div className="w-screen h-screen overflow-hidden flex flex-col relative noise-overlay"
+      style={{ borderTop: '1px solid rgba(255,107,0,0.3)', boxShadow: '0 0 40px rgba(255,107,0,0.1) inset' }}>
+      {/* Atmospheric background */}
       <div className="mesh-gradient-bg">
-        <div className="mesh-orb mesh-orb-purple" />
-        <div className="mesh-orb mesh-orb-cyan" />
-        <div className="mesh-orb mesh-orb-pink" />
+        <div className="mesh-orb mesh-orb-1" />
+        <div className="mesh-orb mesh-orb-2" />
+        <div className="mesh-orb mesh-orb-3" />
       </div>
 
       <div className="flex flex-1 overflow-hidden relative z-10">
