@@ -46,6 +46,8 @@ interface Props {
 
 const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHistory }: Props) => {
   const { isDesktop } = useResponsive();
+  const controlsSwipe = useSwipeGesture({ onSwipeDown: onCloseControls, threshold: 40, maxTime: 400 });
+  const historySwipe = useSwipeGesture({ onSwipeDown: onCloseHistory, threshold: 40, maxTime: 400 });
   const [selectedStyle, setSelectedStyle] = useState('Photorealistic');
   const [aspectRatio, setAspectRatio] = useState('16:9');
   const [selectedModel, setSelectedModel] = useState('sdxl');
