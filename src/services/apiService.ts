@@ -75,7 +75,11 @@ export const api = {
   // Health check
   async ping(): Promise<boolean> {
     try {
-      await fetch(`${BASE_URL}/api/manifest`, { method: 'GET', signal: AbortSignal.timeout(3000) });
+      await fetch(`${BASE_URL}/api/agents`, {
+        method: 'GET',
+        headers: { 'ngrok-skip-browser-warning': 'true' },
+        signal: AbortSignal.timeout(5000),
+      });
       return true;
     } catch {
       return false;
