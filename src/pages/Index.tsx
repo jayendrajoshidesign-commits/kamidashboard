@@ -22,9 +22,10 @@ import Analytics from '@/components/dashboard/tabs/Analytics';
 import SettingsTab from '@/components/dashboard/tabs/SettingsTab';
 import Revenue from '@/components/dashboard/tabs/Revenue';
 import Comms from '@/components/dashboard/tabs/Comms';
+import ResultsTab from '@/components/dashboard/tabs/ResultsTab';
 import { Menu, Terminal, X, RefreshCw } from 'lucide-react';
 
-const TABS = ['Mission Control', 'KAMI', 'Projects', 'Live Agents', 'Live Browser', 'Sources', 'Analytics', 'Files', 'Studio', 'Revenue', 'Comms', 'Settings'] as const;
+const TABS = ['Mission Control', 'Results', 'KAMI', 'Projects', 'Live Agents', 'Live Browser', 'Sources', 'Analytics', 'Files', 'Studio', 'Revenue', 'Comms', 'Settings'] as const;
 type TabId = typeof TABS[number];
 
 export interface LogEntry {
