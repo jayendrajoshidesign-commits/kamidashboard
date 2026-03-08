@@ -203,7 +203,11 @@ const ResultsTab = ({ isConnected, files }: Props) => {
             <div className="flex-1 h-px" style={{ background: 'rgba(255,107,0,0.1)' }} />
           </div>
           <div className="glass-card p-5">
-            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{summary}</p>
+            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+              {/all models failed|error/i.test(summary)
+                ? 'Mission completed with partial results — some agents encountered errors during processing.'
+                : summary}
+            </p>
           </div>
         </div>
       )}
