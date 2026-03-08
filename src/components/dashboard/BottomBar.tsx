@@ -15,7 +15,7 @@ const BottomBar = ({ runtime, isConnected, missions, onStop }: Props) => {
   return (
     <footer className="h-11 flex items-center px-4 font-mono text-[11px] relative z-10"
       style={{
-        background: 'rgba(4, 4, 6, 0.95)',
+        background: 'rgba(4, 4, 6, 0.96)',
         backdropFilter: 'blur(20px)',
         borderTop: '1px solid rgba(255,255,255,0.05)',
       }}>

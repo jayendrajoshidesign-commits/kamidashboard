@@ -16,7 +16,7 @@ const TAB_GROUPS = [
 const TabNav = ({ tabs, activeTab, onTabChange, isConnected, fileBadge }: Props) => (
   <nav className="px-4 flex items-center h-12 overflow-x-auto gap-0"
     style={{
-      background: 'rgba(6, 6, 9, 0.92)',
+      background: 'rgba(5, 5, 7, 0.95)',
       backdropFilter: 'blur(20px)',
       borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
     }}>
