@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Monitor, Tablet, Smartphone, FolderTree, File, Rocket, RefreshCw, ChevronDown, Check, Circle, X } from 'lucide-react';
 import { useResponsive } from '@/hooks/useResponsive';
+import { useSwipeGesture } from '@/hooks/useSwipeGesture';
 
 const FILE_TREE = [
   { name: 'src/', icon: FolderTree, color: '#FF8C00', indent: 0, isDir: true },
@@ -60,6 +61,8 @@ const StudioWebTab = ({ showChat, showFiles, onCloseChat, onCloseFiles }: Props)
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'phone'>('desktop');
   const [leftMode, setLeftMode] = useState<'chat' | 'code'>('chat');
   const { isDesktop } = useResponsive();
+  const chatSheetSwipe = useSwipeGesture({ onSwipeDown: onCloseChat, threshold: 40, maxTime: 400 });
+  const filesSheetSwipe = useSwipeGesture({ onSwipeDown: onCloseFiles, threshold: 40, maxTime: 400 });
 
   const previewWidth = device === 'desktop' ? '100%' : device === 'tablet' ? 768 : 375;
 
@@ -204,7 +207,8 @@ const StudioWebTab = ({ showChat, showFiles, onCloseChat, onCloseFiles }: Props)
       {/* MOBILE/TABLET — Chat bottom sheet */}
       {!isDesktop && showChat && (
         <div className="absolute left-0 right-0 bottom-0 z-30 animate-slide-up"
-          style={{ height: '45%', maxHeight: 360, background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px 16px 0 0' }}>
+          style={{ height: '45%', maxHeight: 360, background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px 16px 0 0' }}
+          {...chatSheetSwipe}>
           <div className="flex justify-center pt-1.5 pb-1">
             <div className="w-8 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />
           </div>
@@ -215,7 +219,8 @@ const StudioWebTab = ({ showChat, showFiles, onCloseChat, onCloseFiles }: Props)
       {/* MOBILE/TABLET — Files bottom sheet */}
       {!isDesktop && showFiles && (
         <div className="absolute left-0 right-0 bottom-0 z-30 animate-slide-up"
-          style={{ height: '40%', maxHeight: 320, background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px 16px 0 0' }}>
+          style={{ height: '40%', maxHeight: 320, background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px 16px 0 0' }}
+          {...filesSheetSwipe}>
           <div className="flex justify-center pt-1.5 pb-1">
             <div className="w-8 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />
           </div>

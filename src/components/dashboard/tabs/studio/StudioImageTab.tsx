@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { Camera, Check, ZoomIn, ZoomOut, Maximize2, Grid3X3, X, ChevronDown, ChevronRight, Key, Clock } from 'lucide-react';
 import { useResponsive } from '@/hooks/useResponsive';
+import { useSwipeGesture } from '@/hooks/useSwipeGesture';
 
 const STYLES = [
   { name: 'Photorealistic', icon: '📷', gradient: 'from-blue-950/40 to-slate-900/30' },
@@ -45,6 +46,8 @@ interface Props {
 
 const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHistory }: Props) => {
   const { isDesktop } = useResponsive();
+  const controlsSwipe = useSwipeGesture({ onSwipeDown: onCloseControls, threshold: 40, maxTime: 400 });
+  const historySwipe = useSwipeGesture({ onSwipeDown: onCloseHistory, threshold: 40, maxTime: 400 });
   const [selectedStyle, setSelectedStyle] = useState('Photorealistic');
   const [aspectRatio, setAspectRatio] = useState('16:9');
   const [selectedModel, setSelectedModel] = useState('sdxl');
@@ -168,7 +171,8 @@ const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHis
             ? { width: 280, background: 'rgba(8,8,12,0.95)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(255,107,0,0.15)', borderRadius: '0 12px 12px 0' }
             : { height: '45%', maxHeight: 360, background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px 16px 0 0' }
           }
-          onClick={e => e.stopPropagation()}>
+          onClick={e => e.stopPropagation()}
+          {...(!isDesktop ? controlsSwipe : {})}>
           {!isDesktop && (
             <div className="flex justify-center pt-1.5 pb-1">
               <div className="w-8 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />
@@ -341,7 +345,8 @@ const StudioImageTab = ({ showControls, showHistory, onCloseControls, onCloseHis
             ? { width: 200, background: 'rgba(8,8,12,0.95)', backdropFilter: 'blur(20px)', borderLeft: '1px solid rgba(255,107,0,0.15)', borderRadius: '12px 0 0 12px' }
             : { height: '40%', maxHeight: 320, background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px 16px 0 0' }
           }
-          onClick={e => e.stopPropagation()}>
+          onClick={e => e.stopPropagation()}
+          {...(!isDesktop ? historySwipe : {})}>
           {!isDesktop && (
             <div className="flex justify-center pt-1.5 pb-1">
               <div className="w-8 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />

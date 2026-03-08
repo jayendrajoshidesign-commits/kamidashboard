@@ -4,6 +4,7 @@ import { useApiConnection, usePolledData } from '@/hooks/useApiConnection';
 import { api, mockData } from '@/services/apiService';
 import type { ApiLogEntry, ApiAgent, ApiMissionsResponse, ApiFile, ApiManifest } from '@/services/apiService';
 import { useResponsive } from '@/hooks/useResponsive';
+import { useSwipeGesture } from '@/hooks/useSwipeGesture';
 import LeftPanel from '@/components/dashboard/LeftPanel';
 import RightPanel from '@/components/dashboard/RightPanel';
 import BottomBar from '@/components/dashboard/BottomBar';
@@ -21,7 +22,7 @@ import Analytics from '@/components/dashboard/tabs/Analytics';
 import SettingsTab from '@/components/dashboard/tabs/SettingsTab';
 import Revenue from '@/components/dashboard/tabs/Revenue';
 import Comms from '@/components/dashboard/tabs/Comms';
-import { Menu, Terminal, X } from 'lucide-react';
+import { Menu, Terminal, X, RefreshCw } from 'lucide-react';
 
 const TABS = ['Mission Control', 'KAMI', 'Projects', 'Live Agents', 'Live Browser', 'Sources', 'Analytics', 'Files', 'Studio', 'Revenue', 'Comms', 'Settings'] as const;
 type TabId = typeof TABS[number];
@@ -86,6 +87,45 @@ const Index = () => {
   useEffect(() => {
     if (isDesktop) { setShowLeftPanel(false); setShowRightPanel(false); }
   }, [isDesktop]);
+
+  // --- TOUCH GESTURES (mobile + tablet only) ---
+  const goNextTab = useCallback(() => {
+    const idx = TABS.indexOf(activeTab);
+    if (idx < TABS.length - 1) setActiveTab(TABS[idx + 1]);
+  }, [activeTab]);
+  const goPrevTab = useCallback(() => {
+    const idx = TABS.indexOf(activeTab);
+    if (idx > 0) setActiveTab(TABS[idx - 1]);
+  }, [activeTab]);
+  const contentSwipe = useSwipeGesture({
+    onSwipeLeft: goNextTab,
+    onSwipeRight: goPrevTab,
+    threshold: 60,
+    maxTime: 400,
+  });
+  const edgeSwipe = useSwipeGesture({
+    onSwipeRight: () => { if (!showLeftPanel) setShowLeftPanel(true); },
+    onSwipeLeft: () => { if (!showRightPanel) setShowRightPanel(true); },
+    threshold: 40,
+    edgeOnly: true,
+    edgeWidth: 25,
+  });
+  const leftSheetSwipe = useSwipeGesture({
+    onSwipeDown: () => setShowLeftPanel(false),
+    threshold: 40,
+    maxTime: 400,
+  });
+  const rightSheetSwipe = useSwipeGesture({
+    onSwipeDown: () => setShowRightPanel(false),
+    threshold: 40,
+    maxTime: 400,
+  });
+  const [refreshing, setRefreshing] = useState(false);
+  const handlePullRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await new Promise(r => setTimeout(r, 800));
+    setRefreshing(false);
+  }, []);
 
   const renderTab = useCallback(() => {
     switch (activeTab) {
@@ -155,9 +195,10 @@ const Index = () => {
         </div>
       )}
 
-      {/* Main content row */}
+      {/* Main content row — with edge swipe + tab swipe gestures on mobile/tablet */}
       <div className={`flex flex-1 overflow-hidden relative z-10 ${isMobile ? 'pb-[92px]' : ''}`}
-        onClick={() => { if (isStudio) { setLeftOverlay(false); setRightOverlay(false); } }}>
+        onClick={() => { if (isStudio) { setLeftOverlay(false); setRightOverlay(false); } }}
+        {...(!isDesktop ? edgeSwipe : {})}>
 
         {/* Left panel — desktop only (not studio) */}
         {isDesktop && (
@@ -186,7 +227,15 @@ const Index = () => {
         )}
 
         {/* Main content area */}
-        <div className={`flex-1 overflow-hidden ${isStudio ? '' : 'overflow-y-auto'}`}>
+        <div className={`flex-1 overflow-hidden ${isStudio ? '' : 'overflow-y-auto'}`}
+          {...(!isDesktop && !isStudio ? contentSwipe : {})}>
+          {/* Pull-to-refresh indicator */}
+          {!isDesktop && refreshing && (
+            <div className="flex items-center justify-center py-2">
+              <RefreshCw className="w-4 h-4 text-[#FF8C00] animate-spin" />
+              <span className="text-[10px] text-[#FF8C00] ml-2">Refreshing...</span>
+            </div>
+          )}
           <div className={`h-full ${isStudio ? '' : isMobile ? 'p-3' : 'p-6'} tab-fade-in`} key={activeTab}>
             {renderTab()}
           </div>
@@ -226,8 +275,12 @@ const Index = () => {
           {isMobile ? (
             /* Mobile: bottom sheet */
             <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl overflow-hidden animate-slide-up"
-              style={{ height: '80vh', background: 'rgba(8,8,10,0.98)', backdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,107,0,0.15)' }}>
-              <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+              style={{ height: '80vh', background: 'rgba(8,8,10,0.98)', backdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,107,0,0.15)' }}
+              {...leftSheetSwipe}>
+              <div className="flex justify-center pt-2 pb-1">
+                <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.15)' }} />
+              </div>
+              <div className="flex items-center justify-between px-4 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                 <span className="text-sm font-semibold text-foreground">Agent Status</span>
                 <button onClick={() => setShowLeftPanel(false)} className="p-1"><X className="w-5 h-5 text-muted-foreground" /></button>
               </div>
@@ -251,8 +304,12 @@ const Index = () => {
           <div className="fixed inset-0 z-50" style={{ background: 'rgba(0,0,0,0.6)' }} onClick={() => setShowRightPanel(false)} />
           {isMobile ? (
             <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl overflow-hidden animate-slide-up"
-              style={{ height: '80vh', background: 'rgba(8,8,10,0.98)', backdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,107,0,0.15)' }}>
-              <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+              style={{ height: '80vh', background: 'rgba(8,8,10,0.98)', backdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,107,0,0.15)' }}
+              {...rightSheetSwipe}>
+              <div className="flex justify-center pt-2 pb-1">
+                <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.15)' }} />
+              </div>
+              <div className="flex items-center justify-between px-4 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                 <span className="text-sm font-semibold text-foreground">Terminal & System</span>
                 <button onClick={() => setShowRightPanel(false)} className="p-1"><X className="w-5 h-5 text-muted-foreground" /></button>
               </div>
