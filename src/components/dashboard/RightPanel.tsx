@@ -64,7 +64,7 @@ const RightPanel = ({ logs }: Props) => {
   return (
     <aside className="w-[280px] flex-shrink-0 flex flex-col"
       style={{
-        background: 'rgba(8, 8, 11, 0.90)',
+        background: 'rgba(8, 8, 10, 0.92)',
         backdropFilter: 'blur(24px)',
         borderLeft: '1px solid rgba(255, 255, 255, 0.05)',
       }}>
@@ -78,7 +78,7 @@ const RightPanel = ({ logs }: Props) => {
             <button className="text-[9px] text-muted-foreground hover:text-foreground transition-colors">CLEAR</button>
           </div>
         </div>
-        <div ref={termRef} className="overflow-y-auto p-2 font-mono text-xs flex-1" style={{ backgroundColor: '#030306', lineHeight: '1.6' }}>
+        <div ref={termRef} className="overflow-y-auto p-2 font-mono text-xs flex-1" style={{ backgroundColor: '#030305', lineHeight: '1.6' }}>
           {logs.map((log, i) => (
             <div key={i} className={`${i === logs.length - 1 ? 'terminal-line-enter' : ''}`}>
               <span style={{ color: '#333' }}>{log.time} </span>

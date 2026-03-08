@@ -16,7 +16,7 @@ const LeftPanel = ({ isConnected }: Props) => {
   return (
     <aside className="w-[280px] flex-shrink-0 flex flex-col z-10"
       style={{
-        background: 'rgba(8, 8, 11, 0.90)',
+        background: 'rgba(8, 8, 10, 0.92)',
         backdropFilter: 'blur(24px)',
         borderRight: '1px solid rgba(255, 255, 255, 0.05)',
       }}>

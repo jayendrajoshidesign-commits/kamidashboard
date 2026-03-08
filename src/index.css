@@ -6,22 +6,22 @@
 
 @layer base {
   :root {
-    --background: 240 12% 2%;
+    --background: 220 15% 2%;
     --foreground: 0 0% 100%;
 
-    --card: 240 10% 4%;
+    --card: 220 12% 4%;
     --card-foreground: 0 0% 100%;
 
-    --popover: 240 10% 4%;
+    --popover: 220 12% 4%;
     --popover-foreground: 0 0% 100%;
 
     --primary: 24 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 8% 6%;
+    --secondary: 220 10% 6%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 240 6% 8%;
+    --muted: 220 8% 8%;
     --muted-foreground: 0 0% 42%;
 
     --accent: 30 100% 50%;
@@ -30,9 +30,9 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 5% 12%;
+    --border: 220 8% 12%;
     --border-light: 0 0% 20%;
-    --input: 240 5% 12%;
+    --input: 220 8% 12%;
     --ring: 24 100% 50%;
 
     --radius: 0.75rem;
@@ -47,11 +47,11 @@
     --neon-teal: 30 100% 42%;
     --neon-gold: 30 100% 50%;
 
-    --glass-bg: 240 10% 3%;
+    --glass-bg: 220 12% 3%;
     --glass-border: 0 0% 100%;
     --glass-highlight: 0 0% 100%;
 
-    --terminal-bg: 240 15% 1.5%;
+    --terminal-bg: 220 15% 1.5%;
   }
 }
 
@@ -97,7 +97,7 @@
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  background: #050507;
+  background: #050506;
 }
 
 .mesh-orb {
@@ -159,7 +159,7 @@
    ═══════════════════════════════════════════════ */
 @layer components {
   .glass-card {
-    background: rgba(10, 10, 14, 0.80);
+    background: rgba(8, 8, 10, 0.85);
     backdrop-filter: blur(20px) saturate(130%);
     -webkit-backdrop-filter: blur(20px) saturate(130%);
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -175,7 +175,7 @@
   }
 
   .glass-card-static {
-    background: rgba(10, 10, 14, 0.80);
+    background: rgba(8, 8, 10, 0.85);
     backdrop-filter: blur(20px) saturate(130%);
     -webkit-backdrop-filter: blur(20px) saturate(130%);
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -184,7 +184,7 @@
   }
 
   .glass-panel {
-    background: rgba(8, 8, 11, 0.90);
+    background: rgba(8, 8, 10, 0.92);
     backdrop-filter: blur(24px) saturate(130%);
     -webkit-backdrop-filter: blur(24px) saturate(130%);
     border: 1px solid rgba(255, 255, 255, 0.05);
