@@ -159,7 +159,7 @@
    ═══════════════════════════════════════════════ */
 @layer components {
   .glass-card {
-    background: rgba(10, 10, 14, 0.80);
+    background: rgba(8, 8, 10, 0.85);
     backdrop-filter: blur(20px) saturate(130%);
     -webkit-backdrop-filter: blur(20px) saturate(130%);
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -175,7 +175,7 @@
   }
 
   .glass-card-static {
-    background: rgba(10, 10, 14, 0.80);
+    background: rgba(8, 8, 10, 0.85);
     backdrop-filter: blur(20px) saturate(130%);
     -webkit-backdrop-filter: blur(20px) saturate(130%);
     border: 1px solid rgba(255, 255, 255, 0.05);
