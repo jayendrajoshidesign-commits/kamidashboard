@@ -37,7 +37,6 @@
 
     --radius: 0.5rem;
 
-    /* Custom dashboard colors */
     --neon-purple: 263 70% 58%;
     --neon-cyan: 187 86% 43%;
     --neon-green: 142 71% 45%;
@@ -48,7 +47,7 @@
     --neon-teal: 174 72% 46%;
     --neon-gold: 43 96% 56%;
 
-    --glass-bg: 240 18% 8%;
+    --glass-bg: 240 25% 5%;
     --glass-border: 0 0% 100%;
     --glass-highlight: 0 0% 100%;
 
@@ -60,7 +59,7 @@
   * {
     @apply border-border;
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--border)) hsl(var(--card));
+    scrollbar-color: hsl(var(--border)) transparent;
   }
 
   body {
@@ -71,37 +70,57 @@
 
 @layer components {
   .glass-card {
-    background: hsla(var(--glass-bg), 0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid hsla(var(--glass-border), 0.05);
+    background: rgba(12, 12, 20, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: var(--radius);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   }
 
   .glass-card:hover {
-    transform: translateY(-2px);
-    border-color: hsla(var(--glass-border), 0.1);
-    box-shadow: 0 8px 32px hsla(var(--neon-purple), 0.1);
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 15px hsla(var(--neon-purple), 0.08);
+  }
+
+  .glass-card-static {
+    background: rgba(12, 12, 20, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   }
 
   .glass-panel {
-    background: hsla(var(--glass-bg), 0.6);
+    background: rgba(12, 12, 20, 0.75);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid hsla(var(--glass-border), 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   }
 
   .neon-glow-purple {
-    box-shadow: 0 0 15px hsla(var(--neon-purple), 0.4);
+    box-shadow: 0 0 15px hsla(var(--neon-purple), 0.4), 0 0 30px hsla(var(--neon-purple), 0.15);
   }
 
   .neon-glow-cyan {
-    box-shadow: 0 0 15px hsla(var(--neon-cyan), 0.4);
+    box-shadow: 0 0 15px hsla(var(--neon-cyan), 0.4), 0 0 30px hsla(var(--neon-cyan), 0.15);
   }
 
   .neon-glow-green {
-    box-shadow: 0 0 15px hsla(var(--neon-green), 0.4);
+    box-shadow: 0 0 15px hsla(var(--neon-green), 0.4), 0 0 30px hsla(var(--neon-green), 0.15);
+  }
+
+  .neon-glow-red {
+    box-shadow: 0 0 15px hsla(var(--neon-red), 0.4), 0 0 30px hsla(var(--neon-red), 0.15);
+  }
+
+  .btn-glow-hover:hover {
+    filter: brightness(1.2);
+    box-shadow: 0 0 20px currentColor;
   }
 
   .gradient-border-active {
@@ -126,7 +145,7 @@
 
   .shimmer-border-left {
     border-left: 3px solid transparent;
-    background-image: linear-gradient(hsl(var(--card)), hsl(var(--card))),
+    background-image: linear-gradient(rgba(12,12,20,0.75), rgba(12,12,20,0.75)),
       linear-gradient(180deg, hsl(var(--neon-purple)), hsl(var(--neon-cyan)), hsl(var(--neon-purple)));
     background-origin: border-box;
     background-clip: padding-box, border-box;
@@ -134,12 +153,7 @@
   }
 
   .progress-shimmer {
-    background: linear-gradient(
-      90deg,
-      hsl(var(--neon-purple)) 0%,
-      hsl(var(--neon-cyan)) 50%,
-      hsl(var(--neon-purple)) 100%
-    );
+    background: linear-gradient(90deg, hsl(var(--neon-purple)) 0%, hsl(var(--neon-cyan)) 50%, hsl(var(--neon-purple)) 100%);
     background-size: 200% 100%;
     animation: shimmer-move 2s ease infinite;
   }
@@ -151,14 +165,15 @@
   .progress-glow-tip::after {
     content: '';
     position: absolute;
-    right: 0;
+    right: -2px;
     top: 50%;
     transform: translateY(-50%);
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     background: hsl(var(--neon-cyan));
     border-radius: 50%;
-    box-shadow: 0 0 12px hsl(var(--neon-cyan)), 0 0 24px hsla(var(--neon-cyan), 0.5);
+    box-shadow: 0 0 12px hsl(var(--neon-cyan)), 0 0 24px hsla(var(--neon-cyan), 0.5), 0 0 36px hsla(var(--neon-cyan), 0.2);
+    animation: glow-pulse-tip 1.5s ease-in-out infinite;
   }
 
   .pulse-dot {
@@ -174,14 +189,14 @@
   }
 
   .terminal-line-enter {
-    animation: slideInFromBottom 0.3s ease-out;
+    animation: slideInFromRight 0.2s ease-out;
   }
 
   .status-dot-green {
     @apply w-2 h-2 rounded-full;
     background-color: hsl(var(--neon-green));
     box-shadow: 0 0 8px hsl(var(--neon-green));
-    animation: pulse-glow 2s infinite;
+    animation: pulse-glow-green 2s infinite;
   }
 
   .status-dot-yellow {
@@ -194,6 +209,7 @@
     @apply w-2 h-2 rounded-full;
     background-color: hsl(var(--neon-red));
     box-shadow: 0 0 8px hsl(var(--neon-red));
+    animation: pulse-glow-red 2s infinite;
   }
 
   .mesh-gradient-bg {
@@ -202,35 +218,82 @@
     z-index: 0;
     overflow: hidden;
     pointer-events: none;
+    background: hsl(var(--background));
   }
 
   .mesh-orb {
     position: absolute;
     border-radius: 50%;
-    filter: blur(120px);
-    opacity: 0.3;
+    filter: blur(140px);
   }
 
   .mesh-orb-purple {
-    width: 600px;
-    height: 600px;
-    background: hsl(var(--neon-purple));
+    width: 700px;
+    height: 700px;
+    background: #7c3aed;
+    opacity: 0.15;
+    left: -10%;
+    bottom: -20%;
     animation: float-orb-1 20s ease-in-out infinite;
   }
 
   .mesh-orb-cyan {
-    width: 500px;
-    height: 500px;
-    background: hsl(var(--neon-cyan));
-    animation: float-orb-2 25s ease-in-out infinite;
+    width: 600px;
+    height: 600px;
+    background: #06b6d4;
+    opacity: 0.1;
+    right: -5%;
+    top: -15%;
+    animation: float-orb-2 20s ease-in-out infinite;
   }
 
   .mesh-orb-pink {
     width: 400px;
     height: 400px;
     background: hsl(var(--neon-pink));
-    opacity: 0.15;
+    opacity: 0.06;
     animation: float-orb-3 18s ease-in-out infinite;
+  }
+
+  .pulse-glow-btn {
+    animation: pulse-btn 2s ease-in-out infinite;
+  }
+
+  .glow-green-card {
+    box-shadow: 0 0 20px hsla(var(--neon-green), 0.15), 0 8px 32px rgba(0,0,0,0.4);
+    border-color: hsla(var(--neon-green), 0.2);
+  }
+
+  .glow-red-hover:hover {
+    box-shadow: 0 0 25px hsla(var(--neon-red), 0.4);
+  }
+
+  .url-ticker {
+    animation: ticker-scroll 20s linear infinite;
+    white-space: nowrap;
+  }
+
+  .focus-glow-purple:focus-within {
+    border-color: hsla(var(--neon-purple), 0.5) !important;
+    box-shadow: 0 0 20px hsla(var(--neon-purple), 0.2), 0 0 40px hsla(var(--neon-purple), 0.08);
+  }
+
+  .connected-row-glow {
+    box-shadow: inset 0 0 20px hsla(var(--neon-green), 0.03);
+  }
+
+  .health-item-enter {
+    animation: fadeSlideIn 0.3s ease-out both;
+  }
+
+  .sparkline-watermark {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 80px;
+    height: 40px;
+    opacity: 0.15;
+    pointer-events: none;
   }
 }
 
@@ -250,23 +313,33 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 hsla(var(--neon-green), 0.4); }
-  50% { opacity: 1; box-shadow: 0 0 0 6px hsla(var(--neon-green), 0); }
+  0%, 100% { opacity: 1; box-shadow: 0 0 4px currentColor; }
+  50% { opacity: 0.7; box-shadow: 0 0 12px currentColor; }
+}
+
+@keyframes pulse-glow-green {
+  0%, 100% { box-shadow: 0 0 4px hsl(var(--neon-green)); }
+  50% { box-shadow: 0 0 12px hsl(var(--neon-green)), 0 0 20px hsla(var(--neon-green), 0.3); }
+}
+
+@keyframes pulse-glow-red {
+  0%, 100% { box-shadow: 0 0 4px hsl(var(--neon-red)); }
+  50% { box-shadow: 0 0 12px hsl(var(--neon-red)), 0 0 20px hsla(var(--neon-red), 0.3); }
 }
 
 @keyframes pulse-border-glow {
-  0%, 100% { box-shadow: 0 0 8px hsla(var(--neon-purple), 0.3); }
-  50% { box-shadow: 0 0 20px hsla(var(--neon-purple), 0.6), 0 0 40px hsla(var(--neon-cyan), 0.2); }
+  0%, 100% { box-shadow: 0 0 8px hsla(var(--neon-purple), 0.3), 0 8px 32px rgba(0,0,0,0.4); }
+  50% { box-shadow: 0 0 25px hsla(var(--neon-purple), 0.5), 0 0 50px hsla(var(--neon-cyan), 0.15), 0 8px 32px rgba(0,0,0,0.4); }
 }
 
 @keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(5px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes slideInFromBottom {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes slideInFromRight {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes scan {
@@ -277,19 +350,51 @@
 }
 
 @keyframes float-orb-1 {
-  0%, 100% { transform: translate(-20%, -10%); }
-  33% { transform: translate(10%, 20%); }
-  66% { transform: translate(-30%, 30%); }
+  0%, 100% { transform: translate(0%, 0%); }
+  25% { transform: translate(15%, -10%); }
+  50% { transform: translate(5%, 15%); }
+  75% { transform: translate(-10%, 5%); }
 }
 
 @keyframes float-orb-2 {
-  0%, 100% { transform: translate(80%, 60%); }
-  33% { transform: translate(50%, 20%); }
-  66% { transform: translate(90%, 40%); }
+  0%, 100% { transform: translate(0%, 0%); }
+  25% { transform: translate(-10%, 12%); }
+  50% { transform: translate(-15%, -5%); }
+  75% { transform: translate(5%, 8%); }
 }
 
 @keyframes float-orb-3 {
   0%, 100% { transform: translate(30%, 80%); }
   33% { transform: translate(60%, 50%); }
   66% { transform: translate(20%, 30%); }
+}
+
+@keyframes pulse-btn {
+  0%, 100% { box-shadow: 0 0 10px hsla(var(--neon-purple), 0.3); }
+  50% { box-shadow: 0 0 25px hsla(var(--neon-purple), 0.6), 0 0 50px hsla(var(--neon-purple), 0.2); }
+}
+
+@keyframes glow-pulse-tip {
+  0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
+  50% { opacity: 0.7; transform: translateY(-50%) scale(1.3); }
+}
+
+@keyframes ticker-scroll {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+@keyframes count-flash {
+  0% { color: hsl(var(--neon-cyan)); }
+  100% { color: hsl(var(--foreground)); }
+}
+
+@keyframes shimmer-green {
+  0%, 100% { box-shadow: inset 0 0 15px hsla(var(--neon-green), 0.05), 0 8px 32px rgba(0,0,0,0.4); }
+  50% { box-shadow: inset 0 0 25px hsla(var(--neon-green), 0.1), 0 8px 32px rgba(0,0,0,0.4); }
+}
+
+@keyframes draw-segment {
+  from { stroke-dashoffset: 100; }
+  to { stroke-dashoffset: 0; }
 }
