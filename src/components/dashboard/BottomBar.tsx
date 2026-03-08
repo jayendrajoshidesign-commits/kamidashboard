@@ -1,4 +1,3 @@
-import { api } from '@/services/apiService';
 import type { ApiMissionsResponse } from '@/services/apiService';
 
 interface Props {
@@ -16,48 +15,49 @@ const BottomBar = ({ runtime, isConnected, missions, onStop }: Props) => {
   return (
     <footer className="h-11 flex items-center px-4 font-mono text-[11px] relative z-10"
       style={{
-        background: 'rgba(6, 4, 3, 0.95)',
+        background: 'rgba(4, 4, 6, 0.95)',
         backdropFilter: 'blur(20px)',
-        borderTop: '1px solid rgba(255,80,0,0.15)',
+        borderTop: '1px solid rgba(255,255,255,0.05)',
       }}>
 
-      {/* LEFT: System Status */}
+      {/* LEFT */}
       <div className="flex items-center gap-3 flex-shrink-0">
         <div className="flex items-center gap-1.5">
-          <div className="status-dot-green" style={{ width: '6px', height: '6px' }} />
-          <span className="text-neon-green font-semibold text-[10px]">ONLINE</span>
+          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'hsl(142,71%,45%)' }} />
+          <span className="font-semibold text-[10px]" style={{ color: 'hsl(142,71%,45%)' }}>ONLINE</span>
         </div>
-        <span className="text-muted-foreground/30">|</span>
+        <span style={{ color: 'rgba(255,255,255,0.1)' }}>|</span>
         <span className="text-muted-foreground">CPU</span> <span className="font-bold" style={{ color: '#FF8C00' }}>32%</span>
         <span className="text-muted-foreground">RAM</span> <span className="font-bold" style={{ color: '#FF8C00' }}>12G</span>
         <span className="text-muted-foreground">GPU</span> <span className="font-bold" style={{ color: '#FF8C00' }}>89%</span>
-        <span className="font-semibold text-neon-green">67°C</span>
+        <span className="font-semibold" style={{ color: '#4ade80' }}>67°C</span>
         <span className="text-muted-foreground">NET</span> <span className="font-bold" style={{ color: '#FF8C00' }}>↓24K</span>
       </div>
 
-      {/* CENTER: Mission Progress */}
+      {/* CENTER */}
       <div className="flex-1 max-w-[350px] mx-6">
         <div className="flex items-center justify-between text-[9px] mb-0.5">
           <span className="text-muted-foreground truncate max-w-[180px]">{missionGoal}</span>
           <span className="mono-value text-[10px]">{progress}%</span>
         </div>
-        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+        <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}>
           <div className="h-full progress-shimmer rounded-full progress-glow-tip relative" style={{ width: `${progress}%` }} />
         </div>
       </div>
 
-      {/* RIGHT: Tokens & Controls */}
+      {/* RIGHT */}
       <div className="flex items-center gap-3 ml-auto flex-shrink-0">
-        <span className="text-muted-foreground/30">|</span>
+        <span style={{ color: 'rgba(255,255,255,0.1)' }}>|</span>
         <span className="text-muted-foreground">TOKENS</span>
         <span className="font-bold" style={{ color: '#FF8C00' }}>142K</span>
-        <span className="text-neon-green">— $0.00</span>
-        <span className="text-muted-foreground/30">|</span>
+        <span style={{ color: '#4ade80' }}>— $0.00</span>
+        <span style={{ color: 'rgba(255,255,255,0.1)' }}>|</span>
         <span className="text-muted-foreground">RT</span>
         <span className="font-bold" style={{ color: '#FF8C00' }}>{runtime}</span>
         <button
           onClick={onStop}
-          className="ml-2 bg-neon-red/10 text-neon-red border border-neon-red/30 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider hover:bg-neon-red/20 transition-colors glow-red-hover"
+          className="ml-2 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors"
+          style={{ background: 'rgba(239,68,68,0.06)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)' }}
         >
           STOP ALL
         </button>

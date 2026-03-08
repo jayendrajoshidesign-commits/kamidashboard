@@ -14,18 +14,19 @@ export const AGENTS = [
 
 export type AgentStatus = 'working' | 'idle' | 'error';
 
+// Subtle agent identification colors
 export const AGENT_COLORS: Record<string, string> = {
-  gray: '#999999',
-  gold: '#FF8C00',
-  blue: '#3b82f6',
-  cyan: '#FF8C00',
-  green: 'hsl(var(--neon-green))',
-  pink: '#FF4500',
-  purple: '#FF6B00',
-  orange: '#FF6B00',
-  'yellow-green': '#84cc16',
-  'red-orange': '#f97316',
-  teal: '#FF8C00',
+  gray: '#94a3b8',
+  gold: '#fbbf24',
+  blue: '#60a5fa',
+  cyan: '#22d3ee',
+  green: '#4ade80',
+  pink: '#f472b6',
+  purple: '#c084fc',
+  orange: '#fb923c',
+  'yellow-green': '#86efac',
+  'red-orange': '#fca5a5',
+  teal: '#67e8f9',
 };
 
 export const TERMINAL_MESSAGES = [
@@ -140,4 +141,140 @@ export const MISSION_HISTORY = [
   { date: '2024-12-15', goal: 'E-commerce competitor analysis', agents: 9, tasks: 34, duration: '18 min', status: 'completed' },
   { date: '2024-12-14', goal: 'Landing page generation for SaaS MVP', agents: 7, tasks: 22, duration: '12 min', status: 'completed' },
   { date: '2024-12-13', goal: 'Content marketing strategy research', agents: 6, tasks: 19, duration: '15 min', status: 'partial' },
+];
+
+// KAMI chat threads mock data
+export const KAMI_THREADS = [
+  {
+    id: 'thread-1',
+    title: 'Freelance SaaS Research',
+    category: 'mission' as const,
+    lastMessage: 'Initial findings ready. 3 direct competitors identified.',
+    date: '2 min ago',
+    unread: 2,
+    agents: ['Market Research', 'CEO', 'Sales'],
+    tasksCompleted: 22,
+    totalTasks: 26,
+  },
+  {
+    id: 'thread-2',
+    title: 'Landing Page Build',
+    category: 'mission' as const,
+    lastMessage: 'Hero section mockup rendered. Awaiting review.',
+    date: 'yesterday',
+    unread: 0,
+    agents: ['Design', 'Marketing'],
+    tasksCompleted: 18,
+    totalTasks: 18,
+  },
+  {
+    id: 'thread-3',
+    title: 'InvoiceFlow App',
+    category: 'project' as const,
+    lastMessage: 'Stripe integration docs reviewed. Ready to implement.',
+    date: 'Mar 7',
+    unread: 0,
+    techStack: ['React', 'Stripe', 'Supabase'],
+    filesCount: 12,
+  },
+  {
+    id: 'thread-4',
+    title: 'Portfolio Site',
+    category: 'project' as const,
+    lastMessage: 'Dark theme applied. Final review pending.',
+    date: 'Mar 5',
+    unread: 0,
+    techStack: ['React', 'Tailwind'],
+    filesCount: 8,
+  },
+  {
+    id: 'thread-5',
+    title: 'Feeling stuck today',
+    category: 'personal' as const,
+    lastMessage: 'Remember: progress isn\'t always linear. You shipped 3 features this week.',
+    date: 'Mar 6',
+    unread: 0,
+  },
+  {
+    id: 'thread-6',
+    title: 'Career planning',
+    category: 'personal' as const,
+    lastMessage: 'Let\'s break down your goals for Q2.',
+    date: 'Mar 4',
+    unread: 0,
+  },
+];
+
+export const KAMI_MESSAGES: Record<string, { role: 'ai' | 'user'; text: string }[]> = {
+  'thread-1': [
+    { role: 'user', text: 'Research the freelance invoicing SaaS market — competitors, pricing, and key features.' },
+    { role: 'ai', text: 'Deploying Market Research, CEO, and Sales agents. Scanning 8 sources across competitor sites, review platforms, and industry reports.' },
+    { role: 'ai', text: 'Initial findings ready. 3 direct competitors identified: FreshBooks ($19-60/mo), Wave (free + paid add-ons), and Invoice Ninja ($10/mo open-source). Shall I generate a comparison matrix?' },
+  ],
+  'thread-5': [
+    { role: 'user', text: 'I\'m feeling stuck today. Nothing seems to be working.' },
+    { role: 'ai', text: 'I hear you. Let\'s take a step back and look at what you\'ve accomplished recently. You shipped 3 features this week — that\'s real progress.' },
+    { role: 'user', text: 'Yeah, I guess you\'re right. It just doesn\'t feel like enough.' },
+    { role: 'ai', text: 'Remember: progress isn\'t always linear. Some days are about building momentum, others are about consolidation. What would feel like a win for you today?' },
+  ],
+};
+
+// Projects mock data
+export const PROJECTS_DATA = [
+  {
+    id: 'proj-1',
+    emoji: '🌐',
+    name: 'InvoiceFlow SaaS',
+    status: 'In Progress' as const,
+    description: 'Freelance invoicing web app with Stripe integration and smart payment reminders.',
+    progress: 67,
+    tasks: 34,
+    agents: 8,
+    files: 12,
+    days: 3,
+    techStack: ['React', 'Python', 'Stripe', 'Supabase'],
+    lastActivity: '2 min ago',
+  },
+  {
+    id: 'proj-2',
+    emoji: '🎨',
+    name: 'Portfolio Site',
+    status: 'In Progress' as const,
+    description: 'Modern developer portfolio with dark theme, project showcase, and blog.',
+    progress: 85,
+    tasks: 22,
+    agents: 4,
+    files: 8,
+    days: 5,
+    techStack: ['React', 'Tailwind', 'Framer Motion'],
+    lastActivity: 'yesterday',
+  },
+  {
+    id: 'proj-3',
+    emoji: '📊',
+    name: 'Market Research Report',
+    status: 'Completed' as const,
+    description: 'Comprehensive analysis of the freelance invoicing SaaS competitive landscape.',
+    progress: 100,
+    tasks: 18,
+    agents: 6,
+    files: 6,
+    days: 1,
+    techStack: ['Research', 'Analysis'],
+    lastActivity: '2 days ago',
+  },
+  {
+    id: 'proj-4',
+    emoji: '📧',
+    name: 'Email Campaign v1',
+    status: 'Completed' as const,
+    description: 'Cold outreach templates and A/B test variants for early adopter acquisition.',
+    progress: 100,
+    tasks: 12,
+    agents: 3,
+    files: 4,
+    days: 1,
+    techStack: ['Content', 'Marketing'],
+    lastActivity: '3 days ago',
+  },
 ];

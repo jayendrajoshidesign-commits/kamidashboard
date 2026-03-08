@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { BROWSER_WINDOWS } from '@/data/dashboardData';
 import { api } from '@/services/apiService';
+import { Maximize2, X, ExternalLink, RefreshCw } from 'lucide-react';
 
 const PANEL_CONTENT = [
   <div key="fb" className="h-full bg-white text-gray-900 text-[10px] overflow-hidden">
@@ -83,6 +84,8 @@ const PANEL_CONTENT = [
   </div>,
 ];
 
+const PANEL_TITLES = ['FreshBooks — Pricing', 'Wave — Invoicing', 'Invoice Ninja — Features', 'G2 — Best Invoicing'];
+
 interface Props {
   isConnected: boolean;
 }
@@ -90,6 +93,7 @@ interface Props {
 const LiveBrowser = ({ isConnected }: Props) => {
   const [extractCounts, setExtractCounts] = useState([0, 0, 0, 0]);
   const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
+  const [expandedPanel, setExpandedPanel] = useState<number | null>(null);
 
   useEffect(() => {
     const i = setInterval(() => {
@@ -115,9 +119,9 @@ const LiveBrowser = ({ isConnected }: Props) => {
     <div className="space-y-6">
       {screenshotUrl && (
         <div className="glass-card overflow-hidden">
-          <div className="px-3 py-2 border-b border-border/50 flex items-center gap-2 bg-muted/30">
-            <span className="w-1.5 h-1.5 rounded-full bg-neon-green pulse-dot" />
-            <span className="text-[11px] font-mono text-neon-green">LIVE BROWSER</span>
+          <div className="px-3 py-2 flex items-center gap-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#4ade80' }} />
+            <span className="text-[11px] font-mono" style={{ color: '#4ade80' }}>LIVE BROWSER</span>
           </div>
           <img src={screenshotUrl} alt="Live browser screenshot" className="w-full" />
         </div>
@@ -126,21 +130,27 @@ const LiveBrowser = ({ isConnected }: Props) => {
       <div className="grid grid-cols-2 gap-4 h-[400px]">
         {BROWSER_WINDOWS.map((bw, i) => (
           <div key={i} className="glass-card overflow-hidden flex flex-col">
-            <div className="px-3 py-2 border-b border-border/50 flex items-center gap-2 bg-muted/30">
+            <div className="px-3 py-2 flex items-center gap-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
               <div className="flex gap-1">
-                <span className="w-2 h-2 rounded-full bg-neon-red" />
-                <span className="w-2 h-2 rounded-full bg-neon-yellow" />
-                <span className="w-2 h-2 rounded-full bg-neon-green" />
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#ef4444' }} />
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#eab308' }} />
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#22c55e' }} />
               </div>
-              <span className="text-[11px] font-mono text-muted-foreground ml-1">{bw.url}</span>
+              <div className="flex-1 px-2 py-0.5 rounded text-[10px] font-mono truncate" style={{ background: 'rgba(255,255,255,0.03)', color: '#FF8C00' }}>{bw.url}</div>
+              <button className="p-0.5 text-muted-foreground hover:text-foreground transition-colors">
+                <RefreshCw className="w-3 h-3" />
+              </button>
+              <button onClick={() => setExpandedPanel(i)} className="p-0.5 text-muted-foreground hover:text-foreground transition-colors">
+                <Maximize2 className="w-3 h-3" />
+              </button>
             </div>
             <div className="flex-1 relative overflow-hidden">
               <div
                 className="absolute left-0 w-full h-0.5 z-20"
-                style={{ animation: `scan 3s infinite linear`, animationDelay: bw.delay, backgroundColor: '#FF8C00', boxShadow: '0 0 10px #FF8C00' }}
+                style={{ animation: `scan 3s infinite linear`, animationDelay: bw.delay, backgroundColor: '#FF8C00', boxShadow: '0 0 6px #FF8C00' }}
               />
               {PANEL_CONTENT[i]}
-              <div className="absolute bottom-0 left-0 right-0 bg-black/70 backdrop-blur-sm px-3 py-1.5 flex items-center justify-between z-10">
+              <div className="absolute bottom-0 left-0 right-0 px-3 py-1.5 flex items-center justify-between z-10" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}>
                 <span className="text-[10px] font-mono flex items-center gap-1.5" style={{ color: '#FF8C00' }}>
                   <span className="w-1.5 h-1.5 rounded-full pulse-dot" style={{ backgroundColor: '#FF8C00' }} />
                   EXTRACTING...
@@ -148,12 +158,44 @@ const LiveBrowser = ({ isConnected }: Props) => {
                 <span className="text-[10px] font-mono text-muted-foreground">{extractCounts[i].toLocaleString()} chars</span>
               </div>
             </div>
+            <div className="px-3 py-1 text-[9px] font-mono text-muted-foreground flex items-center justify-between" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+              <span>{PANEL_TITLES[i]}</span>
+              <span>Last scraped: 2m ago</span>
+            </div>
           </div>
         ))}
       </div>
 
+      {/* Expanded Panel Modal */}
+      {expandedPanel !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.85)' }}>
+          <div className="w-[85%] h-[85%] glass-card overflow-hidden flex flex-col">
+            <div className="px-4 py-3 flex items-center gap-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+              <div className="flex gap-1">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#ef4444' }} />
+                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#eab308' }} />
+                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#22c55e' }} />
+              </div>
+              <div className="flex-1 px-3 py-1 rounded text-sm font-mono" style={{ background: 'rgba(255,255,255,0.03)', color: '#FF8C00' }}>
+                {BROWSER_WINDOWS[expandedPanel].url}
+              </div>
+              <a href={`https://${BROWSER_WINDOWS[expandedPanel].url}`} target="_blank" rel="noopener" className="p-1.5 text-muted-foreground hover:text-foreground transition-colors">
+                <ExternalLink className="w-4 h-4" />
+              </a>
+              <button onClick={() => setExpandedPanel(null)} className="p-1.5 text-muted-foreground hover:text-foreground transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-auto">
+              {PANEL_CONTENT[expandedPanel]}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sources list */}
       <div className="glass-card">
-        <div className="px-4 py-3 border-b border-border/50">
+        <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <h3 className="text-sm font-semibold text-foreground">📋 Sources Collected</h3>
         </div>
         <div className="max-h-[250px] overflow-y-auto">
@@ -165,12 +207,12 @@ const LiveBrowser = ({ isConnected }: Props) => {
             { agent: 'Sales', url: 'g2.com/categories/invoicing', time: '10:46', preview: 'Top complaints: poor mobile UX (34%), complex onboarding...' },
             { agent: 'Finance', url: 'stripe.com/docs/invoicing', time: '10:47', preview: 'Stripe Invoicing charges 0.4% per paid invoice ($2 cap)...' },
           ].map((s, i) => (
-            <div key={i} className="px-4 py-3 border-b border-border/30 flex gap-3 items-start">
+            <div key={i} className="px-4 py-3 flex gap-3 items-start" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
               <span className="text-[10px] font-mono text-muted-foreground whitespace-nowrap mt-0.5">{s.time}</span>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs font-medium truncate" style={{ color: '#FF8C00' }}>{s.url}</span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-primary/10 text-primary whitespace-nowrap">{s.agent}</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.03)', color: '#999' }}>{s.agent}</span>
                 </div>
                 <p className="text-[11px] text-muted-foreground truncate">{s.preview}</p>
               </div>
