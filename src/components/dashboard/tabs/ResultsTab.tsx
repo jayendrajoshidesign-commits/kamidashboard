@@ -1,15 +1,15 @@
 import { useEffect, useState, useCallback } from 'react';
 import { api } from '@/services/apiService';
-import type { ApiAgent, ApiFile } from '@/services/apiService';
-import { Download, ExternalLink, Clock, Users, FileText } from 'lucide-react';
+import type { ApiFile } from '@/services/apiService';
+import { Download, ExternalLink, Clock, Users, FileText, History, ChevronRight } from 'lucide-react';
 import { useResponsive } from '@/hooks/useResponsive';
 
-interface MissionData {
-  current: any;
-  history: any[];
-  summary?: string;
-  goal?: string;
-  phase?: string;
+interface HistoryEntry {
+  filename: string;
+  goal: string;
+  started_at: string;
+  status: string;
+  summary_preview: string;
 }
 
 interface Props {
@@ -26,29 +26,56 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }
 };
 
 const ResultsTab = ({ isConnected, files }: Props) => {
-  const [mission, setMission] = useState<MissionData | null>(null);
+  const [missionData, setMissionData] = useState<any>(null);
   const [agents, setAgents] = useState<any[]>([]);
-  const [summary, setSummary] = useState('');
-  const [goal, setGoal] = useState('');
-  const [phase, setPhase] = useState('');
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [selectedFilename, setSelectedFilename] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
   const { isMobile } = useResponsive();
 
+  // Fetch current mission + history list
   const fetchData = useCallback(async () => {
     try {
-      const mData = await api.getMissions();
+      const [mData, histData] = await Promise.all([
+        api.getMissions(),
+        api.getMissionHistory().catch(() => [] as HistoryEntry[]),
+      ]);
       const raw = mData as any;
-      setMission(raw);
-      setGoal(raw?.goal || raw?.current?.goal || '');
-      setPhase(raw?.phase || raw?.current?.status || '');
-      setSummary(raw?.summary || '');
 
-      const aData = await api.getAgents();
-      const rawAgents = Array.isArray(aData) ? aData : (aData as any)?.agents || [];
-      setAgents(rawAgents);
+      // If no specific mission selected, show current
+      if (!selectedFilename) {
+        setMissionData(raw);
+        const aData = await api.getAgents();
+        const rawAgents = Array.isArray(aData) ? aData : (aData as any)?.agents || [];
+        setAgents(rawAgents);
+      }
+
+      setHistory(Array.isArray(histData) ? histData : []);
     } catch {
       // keep existing state
     }
-  }, []);
+  }, [selectedFilename]);
+
+  // Load a specific historical mission
+  const loadHistoricalMission = useCallback(async (filename: string) => {
+    setSelectedFilename(filename);
+    try {
+      const data = await api.getMissionByFilename(filename);
+      setMissionData(data);
+      // Extract agents from historical data
+      const rawAgents = data?.agents || [];
+      setAgents(Array.isArray(rawAgents) ? rawAgents : []);
+    } catch {
+      // keep existing
+    }
+    if (isMobile) setShowHistory(false);
+  }, [isMobile]);
+
+  const loadCurrent = useCallback(() => {
+    setSelectedFilename(null);
+    fetchData();
+    if (isMobile) setShowHistory(false);
+  }, [fetchData, isMobile]);
 
   useEffect(() => {
     if (!isConnected) return;
@@ -57,8 +84,13 @@ const ResultsTab = ({ isConnected, files }: Props) => {
     return () => clearInterval(interval);
   }, [isConnected, fetchData]);
 
+  const goal = missionData?.goal || missionData?.current?.goal || '';
+  const phase = missionData?.phase || missionData?.current?.status || '';
+  const summary = missionData?.summary || '';
+  const current = missionData?.current;
+
   // No mission state
-  if (!isConnected || (!goal && !mission?.current)) {
+  if (!isConnected || (!goal && !current && history.length === 0)) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[400px] gap-4">
         <div className="text-4xl">📋</div>
@@ -70,30 +102,23 @@ const ResultsTab = ({ isConnected, files }: Props) => {
     );
   }
 
-  const displayGoal = goal || mission?.current?.goal || 'Mission';
-  const displayStatus = phase || mission?.current?.status || 'idle';
+  const displayGoal = goal || 'Mission';
+  const displayStatus = phase || 'idle';
   const statusStyle = STATUS_COLORS[displayStatus] || STATUS_COLORS.idle;
-  const current = mission?.current;
   const workingAgents = agents.filter((a: any) => a.last_task && a.last_task.trim() !== '');
   const generatedFiles = files.filter(f => f.category === 'generated');
 
   const handleDownload = () => {
     const text = [
-      `MISSION REPORT`,
-      `==============`,
-      `Goal: ${displayGoal}`,
-      `Status: ${displayStatus}`,
+      `MISSION REPORT`, `==============`,
+      `Goal: ${displayGoal}`, `Status: ${displayStatus}`,
       current?.duration ? `Duration: ${current.duration}` : '',
       current?.date ? `Date: ${current.date}` : '',
-      '',
-      `AGENT REPORTS`,
-      `-------------`,
+      '', `AGENT REPORTS`, `-------------`,
       ...workingAgents.map((a: any) =>
         `${a.icon || '🤖'} ${a.name}: ${a.last_task || 'N/A'} (Tool: ${a.last_tool || 'N/A'}${a.last_url ? `, Source: ${a.last_url}` : ''})`
       ),
-      '',
-      `SUMMARY`,
-      `-------`,
+      '', `SUMMARY`, `-------`,
       summary || 'No summary available.',
     ].filter(Boolean).join('\n');
 
@@ -106,8 +131,68 @@ const ResultsTab = ({ isConnected, files }: Props) => {
     URL.revokeObjectURL(url);
   };
 
-  return (
-    <div className="space-y-5">
+  const formatDate = (dateStr: string) => {
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    } catch { return dateStr; }
+  };
+
+  // ── History sidebar ──
+  const historySidebar = (
+    <div className={`${isMobile ? 'w-full' : 'w-64 flex-shrink-0'} space-y-1.5`}>
+      <div className="flex items-center gap-2 mb-3">
+        <History className="w-4 h-4 text-muted-foreground" />
+        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Past Missions</span>
+      </div>
+
+      {/* Current mission link */}
+      {(goal || current) && (
+        <button onClick={loadCurrent}
+          className={`w-full text-left glass-card p-3 rounded-lg transition-all ${!selectedFilename ? 'ring-1' : 'opacity-70 hover:opacity-100'}`}
+          style={!selectedFilename ? { borderColor: 'rgba(255,107,0,0.4)' } : {}}>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded-full"
+              style={{ background: STATUS_COLORS[phase || 'idle']?.bg, color: STATUS_COLORS[phase || 'idle']?.text, border: `1px solid ${STATUS_COLORS[phase || 'idle']?.border}` }}>
+              {phase || 'current'}
+            </span>
+            <ChevronRight className="w-3 h-3 text-muted-foreground ml-auto" />
+          </div>
+          <p className="text-[11px] text-foreground font-medium leading-tight line-clamp-2">
+            {goal || current?.goal || 'Current Mission'}
+          </p>
+        </button>
+      )}
+
+      {/* History entries */}
+      {history.map((h) => {
+        const hStyle = STATUS_COLORS[h.status] || STATUS_COLORS.idle;
+        const isSelected = selectedFilename === h.filename;
+        return (
+          <button key={h.filename} onClick={() => loadHistoricalMission(h.filename)}
+            className={`w-full text-left glass-card p-3 rounded-lg transition-all ${isSelected ? 'ring-1' : 'opacity-70 hover:opacity-100'}`}
+            style={isSelected ? { borderColor: 'rgba(255,107,0,0.4)' } : {}}>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded-full"
+                style={{ background: hStyle.bg, color: hStyle.text, border: `1px solid ${hStyle.border}` }}>
+                {h.status}
+              </span>
+              <span className="text-[9px] text-muted-foreground font-mono ml-auto">{formatDate(h.started_at)}</span>
+            </div>
+            <p className="text-[11px] text-foreground font-medium leading-tight line-clamp-2">{h.goal}</p>
+          </button>
+        );
+      })}
+
+      {history.length === 0 && (
+        <p className="text-[11px] text-muted-foreground text-center py-4">No past missions</p>
+      )}
+    </div>
+  );
+
+  // ── Main report content ──
+  const reportContent = (
+    <div className="flex-1 min-w-0 space-y-5">
       {/* MISSION HEADER */}
       <div className="glass-card p-5">
         <div className={`flex ${isMobile ? 'flex-col gap-3' : 'items-start justify-between'}`}>
@@ -118,15 +203,13 @@ const ResultsTab = ({ isConnected, files }: Props) => {
                 style={{ background: statusStyle.bg, color: statusStyle.text, border: `1px solid ${statusStyle.border}` }}>
                 {displayStatus}
               </span>
-              {current?.date && (
+              {(missionData?.started_at || current?.date) && (
                 <span className="flex items-center gap-1 text-[11px] text-muted-foreground font-mono">
-                  <Clock className="w-3 h-3" /> {current.date}
+                  <Clock className="w-3 h-3" /> {formatDate(missionData?.started_at || current?.date)}
                 </span>
               )}
               {current?.duration && (
-                <span className="text-[11px] text-muted-foreground font-mono">
-                  Duration: {current.duration}
-                </span>
+                <span className="text-[11px] text-muted-foreground font-mono">Duration: {current.duration}</span>
               )}
             </div>
           </div>
@@ -236,9 +319,7 @@ const ResultsTab = ({ isConnected, files }: Props) => {
             </div>
           </div>
         ) : (
-          <div className="glass-card p-4 text-center text-sm text-muted-foreground">
-            No files generated yet
-          </div>
+          <div className="glass-card p-4 text-center text-sm text-muted-foreground">No files generated yet</div>
         )}
 
         <button onClick={handleDownload}
@@ -247,6 +328,28 @@ const ResultsTab = ({ isConnected, files }: Props) => {
           <Download className="w-4 h-4" /> Download Full Report
         </button>
       </div>
+    </div>
+  );
+
+  // ── Layout ──
+  if (isMobile) {
+    return (
+      <div className="space-y-4">
+        <button onClick={() => setShowHistory(!showHistory)}
+          className="flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">
+          <History className="w-3.5 h-3.5" />
+          {showHistory ? 'Hide' : 'Show'} Past Missions ({history.length})
+        </button>
+        {showHistory && historySidebar}
+        {reportContent}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex gap-5">
+      {historySidebar}
+      {reportContent}
     </div>
   );
 };
