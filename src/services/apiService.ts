@@ -93,6 +93,8 @@ export const api = {
   getFiles: () => apiFetch<ApiFile[]>('/api/files'),
   getManifest: () => apiFetch<ApiManifest>('/api/manifest'),
   getScreenshot: () => apiFetch<{ url: string }>('/api/screenshot'),
+  getMissionHistory: () => apiFetch<{ filename: string; goal: string; started_at: string; status: string; summary_preview: string }[]>('/api/missions/history'),
+  getMissionByFilename: (filename: string) => apiFetch<any>(`/api/missions/history/${encodeURIComponent(filename)}`),
 
   // POST endpoints
   startMission: (goal: string) => apiFetch<{ id: string; status: string }>('/api/mission', {
